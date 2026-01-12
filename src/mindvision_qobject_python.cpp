@@ -1,10 +1,13 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/functional.h> // For std::function if needed, or signals/slots
+#include <pybind11/functional.h> 
 
 #include "MindVisionCamera.h"
 #include "VideoThread.h"
-#include <QObject> // Required for Q_OBJECT classes
+#include <QObject>
+#include <QImage>
+#include <QBuffer>
+#include <QDebug>
 
 namespace py = pybind11;
 
@@ -31,25 +34,87 @@ namespace pybind11 { namespace detail {
     };
 }}
 
-// Define a trampoline class for MindVisionCamera to handle virtual functions
-// if any (though none are immediately apparent for this class in .h) and Q_OBJECT.
-// For direct binding of non-virtual methods, a trampoline is not strictly necessary,
-// but if signals/slots are to be used from Python, a QObject-aware binding is needed.
+// Wrapper for MindVisionCamera to support callbacks
+class PyMindVisionCamera : public MindVisionCamera {
+public:
+    using MindVisionCamera::MindVisionCamera;
 
-// For simplicity, we'll start with direct binding of methods.
-// To handle Q_OBJECT signals/slots properly, one would typically use a library
-// like 'python-qtbind' or 'PySide/PyQt' or manually create wrappers that emit
-// Python events when C++ signals are fired. For a pure pybind11 approach
-// without external Qt binding libraries, direct signal/slot connection from Python
-// is not straightforward.
+    void registerFrameCallback(py::function callback) {
+        m_frameCallback = callback;
+        disconnect(this, &MindVisionCamera::frameReady, nullptr, nullptr);
+        
+        connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
+            if (m_frameCallback) {
+                py::gil_scoped_acquire acquire;
+                try {
+                    // Extract data: width, height, bytesPerLine, format, data
+                    py::bytes data((const char*)img.bits(), img.sizeInBytes());
+                    m_frameCallback(img.width(), img.height(), img.bytesPerLine(), (int)img.format(), data);
+                } catch (py::error_already_set &e) {
+                    qDebug() << "Python error in frame callback:" << e.what();
+                }
+            }
+        });
+    }
+
+    void registerFpsCallback(py::function callback) {
+        m_fpsCallback = callback;
+        disconnect(this, &MindVisionCamera::fpsChanged, nullptr, nullptr);
+        
+        connect(this, &MindVisionCamera::fpsChanged, this, [this](double fps) {
+             py::gil_scoped_acquire acquire;
+             if (m_fpsCallback) {
+                 try {
+                     m_fpsCallback(fps);
+                 } catch (py::error_already_set &e) {
+                     qDebug() << "Python error in fps callback:" << e.what();
+                 }
+             }
+        });
+    }
+    
+    void registerErrorCallback(py::function callback) {
+        m_errorCallback = callback;
+        disconnect(this, &MindVisionCamera::errorOccurred, nullptr, nullptr);
+        
+        connect(this, &MindVisionCamera::errorOccurred, this, [this](QString msg) {
+             py::gil_scoped_acquire acquire;
+             if (m_errorCallback) {
+                 try {
+                     m_errorCallback(msg);
+                 } catch (py::error_already_set &e) {
+                     qDebug() << "Python error in error callback:" << e.what();
+                 }
+             }
+        });
+    }
+
+private:
+    py::function m_frameCallback;
+    py::function m_fpsCallback;
+    py::function m_errorCallback;
+};
+
+// Wrapper for VideoThread
+class PyVideoThread : public VideoThread {
+public:
+    using VideoThread::VideoThread;
+    
+    void addFrameBytes(int width, int height, int bytesPerLine, int format, py::bytes data) {
+         std::string s = data; 
+         // Create QImage from data. Deep copy for the thread queue.
+         QImage img((const uchar*)s.data(), width, height, bytesPerLine, (QImage::Format)format);
+         addFrame(img.copy());
+    }
+};
 
 PYBIND11_MODULE(_mindvision_qobject_py, m) {
-    m.doc() = "pybind11 wrapper for MindVision QObject library"; // optional module docstring
+    m.doc() = "pybind11 wrapper for MindVision QObject library"; 
 
-    // Register QObject so pybind11 knows about the base class
     py::class_<QObject>(m, "QObject");
 
-    py::class_<MindVisionCamera, QObject>(m, "MindVisionCamera")
+    // Bind PyMindVisionCamera but expose as MindVisionCamera
+    py::class_<PyMindVisionCamera, QObject>(m, "MindVisionCamera")
         .def(py::init<QObject *>(), py::arg("parent") = nullptr)
         .def("open", &MindVisionCamera::open)
         .def("close", &MindVisionCamera::close)
@@ -61,28 +126,27 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("getAutoExposure", &MindVisionCamera::getAutoExposure)
         .def("getExposureTime", &MindVisionCamera::getExposureTime)
         .def("getAnalogGain", &MindVisionCamera::getAnalogGain)
-        .def("getExposureTimeRange", [](MindVisionCamera &self) {
+        .def("getExposureTimeRange", [](PyMindVisionCamera &self) {
             double minMs, maxMs;
             self.getExposureTimeRange(minMs, maxMs);
             return py::make_tuple(minMs, maxMs);
         })
-        .def("getAnalogGainRange", [](MindVisionCamera &self) {
+        .def("getAnalogGainRange", [](PyMindVisionCamera &self) {
             int min, max;
             self.getAnalogGainRange(min, max);
             return py::make_tuple(min, max);
         })
         .def("setRoi", &MindVisionCamera::setRoi)
-        // Signals are not directly bindable to Python callables via pybind11 alone
-        // without additional Qt-specific pybind11 extensions or manual wrappers.
-        // For demonstration, we'll omit direct signal binding for now.
+        .def("registerFrameCallback", &PyMindVisionCamera::registerFrameCallback)
+        .def("registerFpsCallback", &PyMindVisionCamera::registerFpsCallback)
+        .def("registerErrorCallback", &PyMindVisionCamera::registerErrorCallback)
         ;
 
-    py::class_<VideoThread, QObject>(m, "VideoThread")
+    py::class_<PyVideoThread, QObject>(m, "VideoThread")
         .def(py::init<QObject *>(), py::arg("parent") = nullptr)
         .def("startRecording", &VideoThread::startRecording,
              py::arg("width"), py::arg("height"), py::arg("fps"), py::arg("filename"))
         .def("stopRecording", &VideoThread::stopRecording)
-        // addFrame takes QImage, which needs special handling. Skipping for now for simplicity.
-        // .def("addFrame", &VideoThread::addFrame)
+        .def("addFrameBytes", &PyVideoThread::addFrameBytes)
         ;
 }

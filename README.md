@@ -4,7 +4,7 @@ This project is configured to compile as a shared library (DLL) for Windows.
 
 ## Requirements
 
-- Qt 5.15.2 (or compatible) with MinGW or MSVC.
+- Qt 6 (or compatible) with MinGW or MSVC.
 - MindVision SDK (MVCAMSDK).
 
 ## Setup

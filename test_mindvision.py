@@ -1,68 +1,53 @@
 import sys
 import os
+import pdb; pdb.set_trace()
 
 # Add the directory containing the generated module to sys.path
 # Assuming the module is built into a 'python_module' directory relative to the project root
 script_dir = os.path.dirname(__file__)
 release_dir = os.path.join(script_dir, "release")
-debug_dir = os.path.join(script_dir, "debug")
 
 sys.path.insert(0, release_dir)
-sys.path.insert(0, debug_dir)
-module_path = os.path.join(script_dir, "python_module") # Keep legacy path just in case
-sys.path.insert(0, module_path)
 
-if hasattr(os, 'add_dll_directory'):
-    try:
-        os.add_dll_directory(release_dir)
-        os.add_dll_directory(debug_dir)
-        # Add Qt bin directory
-        os.add_dll_directory(r"C:\Qt\5.15.2\mingw81_64\bin")
-        # Add MindVision SDK directory
-        os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
-        # Add MSYS2 bin directory if needed (for libgcc etc)
-        os.add_dll_directory(r"C:\msys64\ucrt64\bin")
-    except OSError:
-        pass # Directory might not exist
+os.add_dll_directory(release_dir)
+# Add Qt bin directory
+os.add_dll_directory(r"C:\qt6\6.10.1\mingw_64\bin")
+# Add MindVision SDK directory
+os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
+# Add MSYS2 bin directory if needed (for libgcc etc)
+os.add_dll_directory(r"C:\msys64\ucrt64\bin")
 
-try:
-    from _mindvision_qobject_py import MindVisionCamera, VideoThread
-    print("Successfully imported _mindvision_qobject_py module.")
 
-    # Test MindVisionCamera
-    print("\nTesting MindVisionCamera:")
-    camera = MindVisionCamera()
-    print(f"MindVisionCamera instance created: {camera}")
+from _mindvision_qobject_py import MindVisionCamera, VideoThread
+print("Successfully imported _mindvision_qobject_py module.")
 
-    # You would typically call camera.open() here, but it requires a physical camera
-    # and might block or fail if not present. We'll just call some setters/getters.
-    print(f"Initial AutoExposure: {camera.getAutoExposure()}")
-    camera.setAutoExposure(True)
-    print(f"AutoExposure after setting to True: {camera.getAutoExposure()}")
+# Test MindVisionCamera
+print("\nTesting MindVisionCamera:")
+camera = MindVisionCamera()
+print(f"MindVisionCamera instance created: {camera}")
 
-    min_exp, max_exp = camera.getExposureTimeRange()
-    print(f"Exposure Time Range: min={min_exp}ms, max={max_exp}ms")
+# You would typically call camera.open() here, but it requires a physical camera
+# and might block or fail if not present. We'll just call some setters/getters.
+print(f"Initial AutoExposure: {camera.getAutoExposure()}")
+camera.setAutoExposure(True)
+print(f"AutoExposure after setting to True: {camera.getAutoExposure()}")
 
-    # Test VideoThread
-    print("\nTesting VideoThread:")
-    video_thread = VideoThread()
-    print(f"VideoThread instance created: {video_thread}")
+min_exp, max_exp = camera.getExposureTimeRange()
+print(f"Exposure Time Range: min={min_exp}ms, max={max_exp}ms")
 
-    # These methods are for controlling recording; without a camera feeding frames,
-    # calling them won't do much, but we can verify they are callable.
-    print("Attempting to call startRecording (dummy parameters)...")
-    video_thread.startRecording(640, 480, 30.0, "test_video.avi")
-    print("startRecording called.")
+# Test VideoThread
+print("\nTesting VideoThread:")
+video_thread = VideoThread()
+print(f"VideoThread instance created: {video_thread}")
 
-    print("Attempting to call stopRecording...")
-    video_thread.stopRecording()
-    print("stopRecording called.")
+# These methods are for controlling recording; without a camera feeding frames,
+# calling them won't do much, but we can verify they are callable.
+print("Attempting to call startRecording (dummy parameters)...")
+video_thread.startRecording(640, 480, 30.0, "test_video.avi")
+print("startRecording called.")
 
-    print("\nPython wrapper test completed successfully (syntactically).")
+print("Attempting to call stopRecording...")
+video_thread.stopRecording()
+print("stopRecording called.")
 
-except ImportError as e:
-    print(f"Error importing _mindvision_qobject_py: {e}")
-    print("Please ensure the C++ module is built and the 'python_module' directory is in sys.path.")
-    print(f"Attempted module path: {module_path}")
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
+print("\nPython wrapper test completed successfully (syntactically).")
