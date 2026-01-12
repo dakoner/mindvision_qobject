@@ -4,6 +4,8 @@ import os
 # Add the directory containing the generated module to sys.path
 # Assuming the module is built into a 'python_module' directory relative to the project root
 script_dir = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(script_dir, "release"))
+sys.path.insert(0, os.path.join(script_dir, "debug"))
 module_path = os.path.join(script_dir, "python_module")
 sys.path.insert(0, module_path)
 

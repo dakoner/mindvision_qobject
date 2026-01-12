@@ -18,14 +18,16 @@ INCLUDEPATH += $$PYTHON_INCLUDE_DIR $$PYBIND11_INCLUDE_DIR
 
 QMAKE_CXXFLAGS += -std=c++17
 
+INCLUDEPATH += src
+
 SOURCES += \
-    MindVisionCamera.cpp \
-    VideoThread.cpp
+    src/MindVisionCamera.cpp \
+    src/VideoThread.cpp
 
 HEADERS += \
-    MindVisionCamera.h \
-    VideoThread.h \
-    mindvision_qobject_global.h
+    src/MindVisionCamera.h \
+    src/VideoThread.h \
+    src/mindvision_qobject_global.h
 
 # Link against the MindVision SDK library
 # Point to the Lib directory and link against the X64 library
@@ -52,13 +54,22 @@ python_wrapper {
     CONFIG += shared
 
     # Directory where the Python module will be placed
-    DESTDIR = $$PWD/python_module
+    CONFIG(debug, debug|release) {
+        DESTDIR = $$OUT_PWD/debug
+    } else {
+        DESTDIR = $$OUT_PWD/release
+    }
 
     # Add the pybind11 wrapper source file
-    SOURCES += mindvision_qobject_python.cpp
+    SOURCES += src/mindvision_qobject_python.cpp
 
     # Link against the main C++ library
-    LIBS += -L$$OUT_PWD -lmindvision_qobject
+    CONFIG(debug, debug|release) {
+        LIBS += -L$$OUT_PWD/debug
+    } else {
+        LIBS += -L$$OUT_PWD/release
+    }
+    LIBS += -lmindvision_qobject
 
     # Link against the MindVision SDK as well, as the wrapper uses MindVisionCamera.
     LIBS += -L$$PWD/Lib -lMVCAMSDK_X64
