@@ -23,6 +23,9 @@ namespace py = pybind11;
 PYBIND11_MODULE(_mindvision_qobject_py, m) {
     m.doc() = "pybind11 wrapper for MindVision QObject library"; // optional module docstring
 
+    // Register QObject so pybind11 knows about the base class
+    py::class_<QObject>(m, "QObject");
+
     py::class_<MindVisionCamera, QObject>(m, "MindVisionCamera")
         .def(py::init<QObject *>(), py::arg("parent") = nullptr)
         .def("open", &MindVisionCamera::open)
