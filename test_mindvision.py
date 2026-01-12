@@ -4,7 +4,26 @@ import os
 # Add the directory containing the generated module to sys.path
 # Assuming the module is built into a 'python_module' directory relative to the project root
 script_dir = os.path.dirname(__file__)
-sys.path.insert(0, os.path.join(script_dir, "release"))
+release_dir = os.path.join(script_dir, "release")
+debug_dir = os.path.join(script_dir, "debug")
+
+sys.path.insert(0, release_dir)
+sys.path.insert(0, debug_dir)
+module_path = os.path.join(script_dir, "python_module") # Keep legacy path just in case
+sys.path.insert(0, module_path)
+
+if hasattr(os, 'add_dll_directory'):
+    try:
+        os.add_dll_directory(release_dir)
+        os.add_dll_directory(debug_dir)
+        # Add Qt bin directory
+        os.add_dll_directory(r"C:\Qt\5.15.2\mingw81_64\bin")
+        # Add MindVision SDK directory
+        os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
+        # Add MSYS2 bin directory if needed (for libgcc etc)
+        os.add_dll_directory(r"C:\msys64\ucrt64\bin")
+    except OSError:
+        pass # Directory might not exist
 
 try:
     from _mindvision_qobject_py import MindVisionCamera, VideoThread

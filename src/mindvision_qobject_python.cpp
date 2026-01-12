@@ -8,6 +8,29 @@
 
 namespace py = pybind11;
 
+namespace pybind11 { namespace detail {
+    template <> struct type_caster<QString> {
+    public:
+        PYBIND11_TYPE_CASTER(QString, _("str"));
+        bool load(handle src, bool) {
+            if (!src) return false;
+            PyObject *source = src.ptr();
+            if (PyUnicode_Check(source)) {
+                 Py_ssize_t size;
+                 const char *ptr = PyUnicode_AsUTF8AndSize(source, &size);
+                 if (!ptr) return false;
+                 value = QString::fromUtf8(ptr, (int)size);
+                 return true;
+            }
+            return false;
+        }
+        static handle cast(QString const &src, return_value_policy /* policy */, handle /* parent */) {
+            QByteArray utf8 = src.toUtf8();
+            return PyUnicode_FromStringAndSize(utf8.data(), utf8.size());
+        }
+    };
+}}
+
 // Define a trampoline class for MindVisionCamera to handle virtual functions
 // if any (though none are immediately apparent for this class in .h) and Q_OBJECT.
 // For direct binding of non-virtual methods, a trampoline is not strictly necessary,
