@@ -11,41 +11,10 @@
 #include <windows.h>
 #endif
 
-// Ensure the MindVision SDK header is in your include path
-// Usually located in the SDK installation directory (e.g., MVSDK/include)
-#include "CameraApi.h"
 #include "mindvision_qobject_global.h"
 
-// Worker class to handle the image capture loop in a separate thread
-class CameraWorker : public QObject
-{
-    Q_OBJECT
-public:
-    explicit CameraWorker(CameraHandle handle, int width, int height);
-    ~CameraWorker();
-
-public slots:
-    // Main capture loop
-    void process();
-    // Request the loop to stop
-    void stop();
-
-signals:
-    // Emitted when a frame is processed and converted to QImage
-    void frameReady(QImage image);
-    // Emitted to report FPS
-    void fpsChanged(double fps);
-    // Emitted when the capture loop finishes
-    void finished();
-
-private:
-    CameraHandle m_hCamera;
-    int m_width;
-    int m_height;
-    bool m_stopRequested;
-    unsigned char* m_pRgbBuffer; // Buffer for RGB conversion
-    tSdkFrameHead m_frameHead;
-};
+// Forward declaration of private implementation class
+class MindVisionCameraPrivate;
 
 // Main interface class
 class MINDVISION_QOBJECT_EXPORT MindVisionCamera : public QObject
@@ -92,13 +61,7 @@ signals:
     void errorOccurred(QString message);
 
 private:
-    CameraHandle m_hCamera;
-    tSdkCameraDevInfo m_devInfo;
-    tSdkCameraCapbility m_capInfo; // Camera capability cache
-    bool m_isOpen;
-    
-    QThread* m_workerThread;
-    CameraWorker* m_worker;
+    MindVisionCameraPrivate *d;
 };
 
 #endif // MINDVISIONCAMERA_H

@@ -3,9 +3,42 @@
 #include <QElapsedTimer>
 #include <cstdlib>
 
+// SDK Header
+#include "CameraApi.h"
+
 // =============================================================================
-// CameraWorker Implementation
+// CameraWorker Declaration & Definition
 // =============================================================================
+
+class CameraWorker : public QObject
+{
+    Q_OBJECT
+public:
+    explicit CameraWorker(CameraHandle handle, int width, int height);
+    ~CameraWorker();
+
+public slots:
+    // Main capture loop
+    void process();
+    // Request the loop to stop
+    void stop();
+
+signals:
+    // Emitted when a frame is processed and converted to QImage
+    void frameReady(QImage image);
+    // Emitted to report FPS
+    void fpsChanged(double fps);
+    // Emitted when the capture loop finishes
+    void finished();
+
+private:
+    CameraHandle m_hCamera;
+    int m_width;
+    int m_height;
+    bool m_stopRequested;
+    unsigned char* m_pRgbBuffer; // Buffer for RGB conversion
+    tSdkFrameHead m_frameHead;
+};
 
 CameraWorker::CameraWorker(CameraHandle handle, int width, int height)
     : m_hCamera(handle), m_width(width), m_height(height), m_stopRequested(false), m_pRgbBuffer(nullptr)
@@ -83,11 +116,29 @@ void CameraWorker::process()
 }
 
 // =============================================================================
+// MindVisionCameraPrivate
+// =============================================================================
+
+class MindVisionCameraPrivate
+{
+public:
+    MindVisionCameraPrivate() : m_hCamera(0), m_isOpen(false), m_workerThread(nullptr), m_worker(nullptr) {}
+    
+    CameraHandle m_hCamera;
+    tSdkCameraDevInfo m_devInfo;
+    tSdkCameraCapbility m_capInfo; 
+    bool m_isOpen;
+    
+    QThread* m_workerThread;
+    CameraWorker* m_worker;
+};
+
+// =============================================================================
 // MindVisionCamera Implementation
 // =============================================================================
 
 MindVisionCamera::MindVisionCamera(QObject *parent)
-    : QObject(parent), m_hCamera(0), m_isOpen(false), m_workerThread(nullptr), m_worker(nullptr)
+    : QObject(parent), d(new MindVisionCameraPrivate)
 {
     // Initialize the SDK
     // 0: English, 1: Chinese
@@ -98,11 +149,12 @@ MindVisionCamera::~MindVisionCamera()
 {
     stop();
     close();
+    delete d;
 }
 
 bool MindVisionCamera::open()
 {
-    if (m_isOpen) return true;
+    if (d->m_isOpen) return true;
 
     int iCameraCounts = 1;
     tSdkCameraDevInfo tCameraList[1]; // Buffer for 1 camera info
@@ -114,20 +166,20 @@ bool MindVisionCamera::open()
     }
 
     // Initialize the first available camera found
-    if (CameraInit(&tCameraList[0], -1, -1, &m_hCamera) != CAMERA_STATUS_SUCCESS) {
+    if (CameraInit(&tCameraList[0], -1, -1, &d->m_hCamera) != CAMERA_STATUS_SUCCESS) {
         emit errorOccurred("Failed to initialize camera.");
         return false;
     }
 
-    m_devInfo = tCameraList[0];
-    m_isOpen = true;
+    d->m_devInfo = tCameraList[0];
+    d->m_isOpen = true;
     
     // Get Camera Capabilities
-    CameraGetCapability(m_hCamera, &m_capInfo);
+    CameraGetCapability(d->m_hCamera, &d->m_capInfo);
 
     // Set the ISP output format to RGB24. This ensures CameraImageProcess produces
     // data compatible with QImage::Format_RGB888.
-    CameraSetIspOutFormat(m_hCamera, CAMERA_MEDIA_TYPE_RGB8);
+    CameraSetIspOutFormat(d->m_hCamera, CAMERA_MEDIA_TYPE_RGB8);
     
     // Default to Auto Exposure
     setAutoExposure(true);
@@ -137,150 +189,135 @@ bool MindVisionCamera::open()
 
 void MindVisionCamera::close()
 {
-    if (m_isOpen) {
+    if (d->m_isOpen) {
         stop(); // Stop capturing first
         
         // Release SDK resources for this camera
-        CameraUnInit(m_hCamera);
+        CameraUnInit(d->m_hCamera);
         
-        m_hCamera = 0;
-        m_isOpen = false;
+        d->m_hCamera = 0;
+        d->m_isOpen = false;
     }
 }
 
 bool MindVisionCamera::start()
 {
-    if (!m_isOpen) {
+    if (!d->m_isOpen) {
         emit errorOccurred("Camera is not open.");
         return false;
     }
 
     // Start the camera video stream
-    if (CameraPlay(m_hCamera) != CAMERA_STATUS_SUCCESS) {
+    if (CameraPlay(d->m_hCamera) != CAMERA_STATUS_SUCCESS) {
         emit errorOccurred("Failed to start camera play.");
         return false;
     }
 
     // Get current resolution to allocate the correct buffer size in the worker
     tSdkImageResolution tResolution;
-    if (CameraGetImageResolution(m_hCamera, &tResolution) != CAMERA_STATUS_SUCCESS) {
+    if (CameraGetImageResolution(d->m_hCamera, &tResolution) != CAMERA_STATUS_SUCCESS) {
          emit errorOccurred("Failed to get camera resolution.");
          return false;
     }
 
     // Create the worker thread
-    m_workerThread = new QThread;
-    m_worker = new CameraWorker(m_hCamera, tResolution.iWidth, tResolution.iHeight);
-    m_worker->moveToThread(m_workerThread);
+    d->m_workerThread = new QThread;
+    d->m_worker = new CameraWorker(d->m_hCamera, tResolution.iWidth, tResolution.iHeight);
+    d->m_worker->moveToThread(d->m_workerThread);
 
     // Connect signals and slots for thread management
-    connect(m_workerThread, &QThread::started, m_worker, &CameraWorker::process);
-    connect(m_worker, &CameraWorker::frameReady, this, &MindVisionCamera::frameReady);
-    connect(m_worker, &CameraWorker::fpsChanged, this, &MindVisionCamera::fpsChanged);
+    connect(d->m_workerThread, &QThread::started, d->m_worker, &CameraWorker::process);
+    connect(d->m_worker, &CameraWorker::frameReady, this, &MindVisionCamera::frameReady);
+    connect(d->m_worker, &CameraWorker::fpsChanged, this, &MindVisionCamera::fpsChanged);
     
     // Clean up worker and thread when finished
-    connect(m_worker, &CameraWorker::finished, m_workerThread, &QThread::quit);
-    connect(m_worker, &CameraWorker::finished, m_worker, &CameraWorker::deleteLater);
-    connect(m_workerThread, &QThread::finished, m_workerThread, &QThread::deleteLater);
+    connect(d->m_worker, &CameraWorker::finished, d->m_workerThread, &QThread::quit);
+    connect(d->m_worker, &CameraWorker::finished, d->m_worker, &CameraWorker::deleteLater);
+    connect(d->m_workerThread, &QThread::finished, d->m_workerThread, &QThread::deleteLater);
 
     // Start the thread
-    m_workerThread->start();
+    d->m_workerThread->start();
     return true;
 }
 
 void MindVisionCamera::stop()
 {
     // Stop the worker thread
-    if (m_worker) {
-        m_worker->stop(); // Tell the loop to break
-        if (m_workerThread) {
-            m_workerThread->quit();
-            m_workerThread->wait(); // Wait for the thread to actually finish
+    if (d->m_worker) {
+        d->m_worker->stop(); // Tell the loop to break
+        if (d->m_workerThread) {
+            d->m_workerThread->quit();
+            d->m_workerThread->wait(); // Wait for the thread to actually finish
         }
-        m_worker = nullptr;
-        m_workerThread = nullptr;
+        d->m_worker = nullptr;
+        d->m_workerThread = nullptr;
     }
     
     // Stop the camera SDK stream
-    if (m_isOpen) {
-        CameraStop(m_hCamera); 
+    if (d->m_isOpen) {
+        CameraStop(d->m_hCamera); 
     }
 }
 
 bool MindVisionCamera::setAutoExposure(bool enabled)
 {
-    if (!m_isOpen) return false;
-    return CameraSetAeState(m_hCamera, enabled ? TRUE : FALSE) == CAMERA_STATUS_SUCCESS;
+    if (!d->m_isOpen) return false;
+    return CameraSetAeState(d->m_hCamera, enabled ? TRUE : FALSE) == CAMERA_STATUS_SUCCESS;
 }
 
 bool MindVisionCamera::setExposureTime(double exposureTimeMs)
 {
-    if (!m_isOpen) return false;
+    if (!d->m_isOpen) return false;
     // SDK takes microseconds
     double exposureTimeUs = exposureTimeMs * 1000.0;
-    return CameraSetExposureTime(m_hCamera, exposureTimeUs) == CAMERA_STATUS_SUCCESS;
+    return CameraSetExposureTime(d->m_hCamera, exposureTimeUs) == CAMERA_STATUS_SUCCESS;
 }
 
 bool MindVisionCamera::setAnalogGain(int gain)
 {
-    if (!m_isOpen) return false;
-    return CameraSetAnalogGain(m_hCamera, gain) == CAMERA_STATUS_SUCCESS;
+    if (!d->m_isOpen) return false;
+    return CameraSetAnalogGain(d->m_hCamera, gain) == CAMERA_STATUS_SUCCESS;
 }
 
 bool MindVisionCamera::getAutoExposure()
 {
-    if (!m_isOpen) return false;
+    if (!d->m_isOpen) return false;
     BOOL state = FALSE;
-    CameraGetAeState(m_hCamera, &state);
+    CameraGetAeState(d->m_hCamera, &state);
     return state == TRUE;
 }
 
 double MindVisionCamera::getExposureTime()
 {
-    if (!m_isOpen) return 0.0;
+    if (!d->m_isOpen) return 0.0;
     double timeUs = 0;
-    CameraGetExposureTime(m_hCamera, &timeUs);
+    CameraGetExposureTime(d->m_hCamera, &timeUs);
     return timeUs / 1000.0; // Convert back to ms
 }
 
 int MindVisionCamera::getAnalogGain()
 {
-    if (!m_isOpen) return 0;
+    if (!d->m_isOpen) return 0;
     int gain = 0;
-    CameraGetAnalogGain(m_hCamera, &gain);
+    CameraGetAnalogGain(d->m_hCamera, &gain);
     return gain;
 }
 
 void MindVisionCamera::getExposureTimeRange(double &minMs, double &maxMs)
 {
-    if (!m_isOpen) {
+    if (!d->m_isOpen) {
         minMs = 0;
         maxMs = 0;
         return;
     }
-    // sExposeDesc.uiExposeTimeMin/Max are in lines? No, uiExposeTimeMin is lines usually for rolling shutter,
-    // but for SDK abstraction it might be exposed differently.
-    // The PDF says:
-    // UINT uiExposeTimeMin; // In manual mode, the minimum number of line exposure
-    // Wait, the SDK struct says lines. But CameraSetExposureTime takes time.
-    // Usually there's a conversion or we assume a safe range. 
-    // Let's use a safe large range or check if there's a time-based capability.
-    // Actually, uiExposeTimeMin is often lines * lineTime. 
-    // For simplicity, let's hardcode a reasonable range for the UI 
-    // or use the capability struct if it has microseconds.
-    // PDF: "CameraGetCapability ... tSdkExpose sExposeDesc ... uiExposeTimeMin"
-    // Since converting lines to time requires line time which varies, 
-    // we'll return a generic range for the slider (e.g. 0.1ms to 1000ms) 
-    // OR we could use CameraGetExposureLineTime to calculate.
-    // Let's try to calculate.
     
     double lineTime = 0;
-    CameraGetExposureLineTime(m_hCamera, &lineTime);
+    CameraGetExposureLineTime(d->m_hCamera, &lineTime);
     
     // If lineTime is valid
     if (lineTime > 0) {
-        minMs = m_capInfo.sExposeDesc.uiExposeTimeMin * lineTime / 1000.0;
-        maxMs = m_capInfo.sExposeDesc.uiExposeTimeMax * lineTime / 1000.0;
+        minMs = d->m_capInfo.sExposeDesc.uiExposeTimeMin * lineTime / 1000.0;
+        maxMs = d->m_capInfo.sExposeDesc.uiExposeTimeMax * lineTime / 1000.0;
     } else {
         // Fallback
         minMs = 0.1;
@@ -290,28 +327,28 @@ void MindVisionCamera::getExposureTimeRange(double &minMs, double &maxMs)
 
 void MindVisionCamera::getAnalogGainRange(int &min, int &max)
 {
-    if (!m_isOpen) {
+    if (!d->m_isOpen) {
         min = 0;
         max = 0;
         return;
     }
-    min = m_capInfo.sExposeDesc.uiAnalogGainMin;
-    max = m_capInfo.sExposeDesc.uiAnalogGainMax;
+    min = d->m_capInfo.sExposeDesc.uiAnalogGainMin;
+    max = d->m_capInfo.sExposeDesc.uiAnalogGainMax;
 }
 
 bool MindVisionCamera::setRoi(bool enable)
 {
-    if (!m_isOpen) return false;
+    if (!d->m_isOpen) return false;
 
     // We must restart the stream if it's running because the worker buffer size depends on resolution
-    bool wasRunning = (m_workerThread != nullptr);
+    bool wasRunning = (d->m_workerThread != nullptr);
     if (wasRunning) {
         stop();
     }
 
     tSdkImageResolution tResolution;
     // Initialize with current just in case, though we will overwrite
-    CameraGetImageResolution(m_hCamera, &tResolution);
+    CameraGetImageResolution(d->m_hCamera, &tResolution);
 
     if (enable) {
         // Set to 640x480 Custom ROI
@@ -320,8 +357,8 @@ bool MindVisionCamera::setRoi(bool enable)
         tResolution.iHeight = 480;
         
         // Try to center the ROI
-        int maxWidth = m_capInfo.pImageSizeDesc[0].iWidth;
-        int maxHeight = m_capInfo.pImageSizeDesc[0].iHeight;
+        int maxWidth = d->m_capInfo.pImageSizeDesc[0].iWidth;
+        int maxHeight = d->m_capInfo.pImageSizeDesc[0].iHeight;
         
         if (maxWidth > 640 && maxHeight > 480) {
             tResolution.iHOffsetFOV = (maxWidth - 640) / 2;
@@ -333,13 +370,13 @@ bool MindVisionCamera::setRoi(bool enable)
     } else {
         // Restore to Full Resolution (Preset 0)
         tResolution.iIndex = 0;
-        tResolution.iWidth = m_capInfo.pImageSizeDesc[0].iWidth;
-        tResolution.iHeight = m_capInfo.pImageSizeDesc[0].iHeight;
+        tResolution.iWidth = d->m_capInfo.pImageSizeDesc[0].iWidth;
+        tResolution.iHeight = d->m_capInfo.pImageSizeDesc[0].iHeight;
         tResolution.iHOffsetFOV = 0;
         tResolution.iVOffsetFOV = 0;
     }
 
-    if (CameraSetImageResolution(m_hCamera, &tResolution) != CAMERA_STATUS_SUCCESS) {
+    if (CameraSetImageResolution(d->m_hCamera, &tResolution) != CAMERA_STATUS_SUCCESS) {
         // If failed, try to restore state (restart if was running)
         if (wasRunning) start();
         return false;
@@ -350,3 +387,5 @@ bool MindVisionCamera::setRoi(bool enable)
     }
     return true;
 }
+
+#include "MindVisionCamera.moc"
