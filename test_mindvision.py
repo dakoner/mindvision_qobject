@@ -10,7 +10,7 @@ sys.path.insert(0, release_dir)
 
 os.add_dll_directory(release_dir)
 # Add Qt bin directory
-os.add_dll_directory(r"C:\qt6\6.10.1\mingw_64\bin")
+os.add_dll_directory(r"C:\Qt\5.15.2\mingw81_64\bin")
 # Add MindVision SDK directory
 os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
 # Add MSYS2 bin directory if needed (for libgcc etc)
