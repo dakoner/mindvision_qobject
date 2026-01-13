@@ -6,7 +6,6 @@ import pdb; pdb.set_trace()
 # Assuming the module is built into a 'python_module' directory relative to the project root
 script_dir = os.path.dirname(__file__)
 release_dir = os.path.join(script_dir, "release")
-
 sys.path.insert(0, release_dir)
 
 os.add_dll_directory(release_dir)

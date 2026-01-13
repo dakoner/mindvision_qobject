@@ -15,7 +15,7 @@ PYBIND11_INCLUDE_DIR = C:/Users/davidek/scoop/apps/python313/current/Lib/site-pa
 
 INCLUDEPATH += $$PYTHON_INCLUDE_DIR $$PYBIND11_INCLUDE_DIR
 
-QMAKE_CXXFLAGS += -std=c++17
+CONFIG += c++17
 
 SOURCES += \
     src/MindVisionCamera.cpp \
