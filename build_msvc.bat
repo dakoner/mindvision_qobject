@@ -1,13 +1,10 @@
 @echo off
 setlocal
 
-echo Setting up environment...
-set "PATH=C:\Qt\6.10.1\mingw_64\bin;C:\Qt\Tools\llvm-mingw1706_64\bin;%PATH%"
+echo Setting up MSVC environment...
+call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
 
-echo Checking compiler version...
-g++ --version
-
-echo Building with MinGW...
+echo Building with MSVC...
 
 echo Cleaning release directory...
 if exist release rmdir /s /q release
@@ -15,17 +12,18 @@ mkdir release
 
 echo.
 echo Running qmake...
-qmake.exe -spec win32-clang-g++ -r mindvision_qobject.pro
+set QMAKE_MSC_VER=1944
+"C:\Qt\6.10.1\msvc2022_64\bin\qmake.exe" -r mindvision_qobject.pro
 if errorlevel 1 (
     echo qmake failed.
     goto error
 )
 
 echo.
-echo Running mingw32-make...
-mingw32-make.exe
+echo Running nmake...
+nmake
 if errorlevel 1 (
-    echo mingw32-make failed.
+    echo nmake failed.
     goto error
 )
 

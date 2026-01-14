@@ -2,7 +2,6 @@ import sys
 import os
 import platform
 
-
 # Add the directory containing the generated module to sys.path
 # Assuming the module is built into a 'python_module' directory relative to the project root
 script_dir = os.path.dirname(__file__)
@@ -11,20 +10,16 @@ sys.path.insert(0, release_dir)
 
 os.add_dll_directory(release_dir)
 # Add Qt bin directory
-# Note: For MSVC builds, this MUST point to an MSVC-compatible Qt bin directory (e.g., msvc2019_64/bin).
-# MinGW Qt binaries (C:\Qt6\...\mingw_64\bin) are NOT compatible and will cause crashes.
-# os.add_dll_directory(r"C:\Qt\6.10.1\msvc2019_64\bin")
+os.add_dll_directory(r"C:\Qt\6.10.1\msvc2022_64\bin")
 # Add MindVision SDK directory
 os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
-# Add MSYS2 bin directory if needed (for libgcc etc)
-os.add_dll_directory(r"C:\msys64\ucrt64\bin")
 
 import _mindvision_qobject_py
 import PySide6.QtWidgets
 
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                QHBoxLayout, QLabel, QPushButton, QGroupBox, 
-                               QCheckBox, QDoubleSpinBox, QSlider, QSpinBox, QFormLayout)
+                               QCheckBox, QDoubleSpinBox, QSlider, QSpinBox, QFormLayout, QSizePolicy)
 from PySide6.QtCore import Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 
@@ -42,7 +37,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("MindVision Camera Viewer (Python)")
+        self.setWindowTitle("MindVision Camera Viewer (Python - PySide6)")
         self.resize(800, 600)
 
         self.central_widget = QWidget()
@@ -53,7 +48,7 @@ class MainWindow(QMainWindow):
         self.video_label = QLabel("Camera Stream")
         self.video_label.setAlignment(Qt.AlignCenter)
         self.video_label.setStyleSheet("QLabel { background-color : black; color : white; }")
-        self.video_label.setSizePolicy(1 | 2 | 4, 1 | 2 | 4) # Expanding
+        self.video_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding) # Expanding
         self.main_layout.addWidget(self.video_label)
 
         # Controls Group
@@ -157,37 +152,10 @@ class MainWindow(QMainWindow):
                 self.record_btn.setText("Stop Recording")
             
             if self.video_thread.isRunning():
-                # Pass frame to video thread
-                # We need to convert back to bytes for our binding helper
-                # Or implement addFrame(QImage) in binding if we could.
-                # Our binding has addFrameBytes.
-                
-                # Get bytes from QImage
-                # image.bits() returns valid pointer as long as image is alive
-                # But we need bytes object.
-                # image.constBits() -> memoryview?
-                # PyQt6 QImage.bits() returns a void* or similar wrapper?
-                # Actually, simply passing QImage to binding won't work as discussed.
-                
-                # We need to extract bytes.
-                # bits = image.bits()
-                # size = image.byteCount()
-                # data = bits.asstring(size) # dependent on wrapper
-                
-                # Easier: We HAVE the original bytes if we didn't copy too early?
-                # But we emitted a copy.
-                
-                # Let's trust QImage internal memory access.
-                # PyQt6: image.constBits() returns a memoryview or similar.
                 try:
-                    # PySide6 QImage.constBits() usually returns a memoryview or similar that can be bytes-ified
-                    # or we can use QImage.bits()
-                    ptr = image.constBits()
-                    # PySide6 might return a PySide6.QtCore.voidptr or similar, or just a buffer protocol object
-                    # We can try bytes(ptr) directly if it supports buffer protocol
-                    # Note: .setsize() was for PyQt6 sip.voidptr
-                    # For PySide6, QImage bits usually behaves like a buffer
-                    data = bytes(ptr)
+                    # PySide6 QImage.constBits() returns a memoryview or similar that supports buffer protocol
+                    # We need to extract bytes.
+                    data = bytes(image.constBits())
                     self.video_thread.addFrameBytes(image.width(), image.height(), image.bytesPerLine(), int(image.format()), data)
                 except Exception as e:
                     print(f"Recording error: {e}")

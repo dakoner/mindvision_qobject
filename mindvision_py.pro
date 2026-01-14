@@ -29,9 +29,9 @@ SOURCES += src/mindvision_qobject_python.cpp
 
 # Link against the main C++ library
 CONFIG(debug, debug|release) {
-    LIBS += -L$$OUT_PWD/debug
+    LIBS += -L$$PWD/debug
 } else {
-    LIBS += -L$$OUT_PWD/release
+    LIBS += -L$$PWD/release
 }
 LIBS += -lmindvision_qobject
 

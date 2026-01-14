@@ -1,6 +1,5 @@
 import sys
 import os
-import pdb; pdb.set_trace()
 
 # Add the directory containing the generated module to sys.path
 # Assuming the module is built into a 'python_module' directory relative to the project root
@@ -10,11 +9,9 @@ sys.path.insert(0, release_dir)
 
 os.add_dll_directory(release_dir)
 # Add Qt bin directory
-os.add_dll_directory(r"C:\Qt\5.15.2\mingw81_64\bin")
+os.add_dll_directory(r"C:\Qt\6.10.1\msvc2022_64\bin")
 # Add MindVision SDK directory
 os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
-# Add MSYS2 bin directory if needed (for libgcc etc)
-os.add_dll_directory(r"C:\msys64\ucrt64\bin")
 
 
 from _mindvision_qobject_py import MindVisionCamera, VideoThread
@@ -48,5 +45,7 @@ print("startRecording called.")
 print("Attempting to call stopRecording...")
 video_thread.stopRecording()
 print("stopRecording called.")
+
+print(f"Is running: {video_thread.isRunning()}")
 
 print("\nPython wrapper test completed successfully (syntactically).")

@@ -148,5 +148,6 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
              py::arg("width"), py::arg("height"), py::arg("fps"), py::arg("filename"))
         .def("stopRecording", &VideoThread::stopRecording)
         .def("addFrameBytes", &PyVideoThread::addFrameBytes)
+        .def("isRunning", &VideoThread::isRunning)
         ;
 }
