@@ -1,4 +1,4 @@
-#ifndef MINDVISIONCAMERA_H
+﻿#ifndef MINDVISIONCAMERA_H
 #define MINDVISIONCAMERA_H
 
 #include <QObject>
@@ -47,10 +47,18 @@ public:
 
     // Capabilities
     Q_INVOKABLE void getExposureTimeRange(double &minMs, double &maxMs);
+    Q_INVOKABLE double getExposureTimeStep(); // Milliseconds
     Q_INVOKABLE void getAnalogGainRange(int &min, int &max);
 
     // ROI
     Q_INVOKABLE bool setRoi(bool enable);
+
+    // Trigger Mode
+    // mode: 0 = Continuous, 1 = Software, 2 = Hardware
+    Q_INVOKABLE bool setTriggerMode(int mode);
+    
+    // Software Trigger
+    Q_INVOKABLE bool triggerSoftware();
 
 signals:
     // Signal for UI to update (connect this to your QML or Widget)

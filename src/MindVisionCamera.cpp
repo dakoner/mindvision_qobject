@@ -1,7 +1,8 @@
-#include "MindVisionCamera.h"
+﻿#include "MindVisionCamera.h"
 #include <QDebug>
 #include <QElapsedTimer>
 #include <cstdlib>
+#include <iostream>
 
 // SDK Header
 #include "CameraApi.h"
@@ -161,12 +162,17 @@ bool MindVisionCamera::open()
     
     // Enumerate devices to find connected cameras
     if (CameraEnumerateDevice(tCameraList, &iCameraCounts) != CAMERA_STATUS_SUCCESS || iCameraCounts == 0) {
+        std::cout << "No MindVision camera found." << std::endl;
         emit errorOccurred("No MindVision camera found.");
         return false;
     }
 
+    std::cout << "Found camera: " << tCameraList[0].acFriendlyName << " (" << tCameraList[0].acProductName << ")" << std::endl;
+
     // Initialize the first available camera found
-    if (CameraInit(&tCameraList[0], -1, -1, &d->m_hCamera) != CAMERA_STATUS_SUCCESS) {
+    int status = CameraInit(&tCameraList[0], -1, -1, &d->m_hCamera);
+    if (status != CAMERA_STATUS_SUCCESS) {
+        std::cout << "Failed to initialize camera. Error code: " << status << std::endl;
         emit errorOccurred("Failed to initialize camera.");
         return false;
     }
@@ -176,6 +182,16 @@ bool MindVisionCamera::open()
     
     // Get Camera Capabilities
     CameraGetCapability(d->m_hCamera, &d->m_capInfo);
+
+    // Check for Level Trigger (Bulb Mode) Support
+    UINT uTrigCapability = 0;
+    if (CameraGetExtTrigCapability(d->m_hCamera, &uTrigCapability) == CAMERA_STATUS_SUCCESS) {
+        bool supportsLevelTrigger = (uTrigCapability & EXT_TRIG_MASK_LEVEL_MODE);
+        std::cout << "External Trigger Capability Mask: " << uTrigCapability << std::endl;
+        std::cout << "Supports Level Trigger (Bulb Mode): " << (supportsLevelTrigger ? "YES" : "NO") << std::endl;
+    } else {
+        std::cout << "Failed to get External Trigger Capability." << std::endl;
+    }
 
     // Set the ISP output format to RGB24. This ensures CameraImageProcess produces
     // data compatible with QImage::Format_RGB888.
@@ -311,6 +327,14 @@ void MindVisionCamera::getExposureTimeRange(double &minMs, double &maxMs)
         return;
     }
     
+    double minUs = 0, maxUs = 0, stepUs = 0;
+    if (CameraGetExposureTimeRange(d->m_hCamera, &minUs, &maxUs, &stepUs) == CAMERA_STATUS_SUCCESS) {
+        minMs = minUs / 1000.0;
+        maxMs = maxUs / 1000.0;
+        return;
+    }
+
+    // Fallback
     double lineTime = 0;
     CameraGetExposureLineTime(d->m_hCamera, &lineTime);
     
@@ -323,6 +347,20 @@ void MindVisionCamera::getExposureTimeRange(double &minMs, double &maxMs)
         minMs = 0.1;
         maxMs = 1000.0;
     }
+}
+
+double MindVisionCamera::getExposureTimeStep()
+{
+    if (!d->m_isOpen) return 0.0;
+
+    double minUs = 0, maxUs = 0, stepUs = 0;
+    if (CameraGetExposureTimeRange(d->m_hCamera, &minUs, &maxUs, &stepUs) == CAMERA_STATUS_SUCCESS) {
+        return stepUs / 1000.0;
+    }
+
+    double lineTime = 0;
+    CameraGetExposureLineTime(d->m_hCamera, &lineTime);
+    return lineTime / 1000.0;
 }
 
 void MindVisionCamera::getAnalogGainRange(int &min, int &max)
@@ -386,6 +424,23 @@ bool MindVisionCamera::setRoi(bool enable)
         return start();
     }
     return true;
+}
+
+bool MindVisionCamera::setTriggerMode(int mode)
+{
+    if (!d->m_isOpen) return false;
+    
+    // Set trigger count to 1 frame per trigger
+    CameraSetTriggerCount(d->m_hCamera, 1);
+    
+    // 0: Continuous, 1: Soft Trigger, 2: Hardware Trigger
+    return CameraSetTriggerMode(d->m_hCamera, mode) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::triggerSoftware()
+{
+    if (!d->m_isOpen) return false;
+    return CameraSoftTrigger(d->m_hCamera) == CAMERA_STATUS_SUCCESS;
 }
 
 #include "MindVisionCamera.moc"

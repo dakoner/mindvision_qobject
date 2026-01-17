@@ -1,4 +1,4 @@
-#include <pybind11/pybind11.h>
+﻿#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h> 
 
@@ -126,6 +126,7 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("getAutoExposure", &MindVisionCamera::getAutoExposure)
         .def("getExposureTime", &MindVisionCamera::getExposureTime)
         .def("getAnalogGain", &MindVisionCamera::getAnalogGain)
+        .def("getExposureTimeStep", &MindVisionCamera::getExposureTimeStep)
         .def("getExposureTimeRange", [](PyMindVisionCamera &self) {
             double minMs, maxMs;
             self.getExposureTimeRange(minMs, maxMs);
@@ -137,6 +138,8 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
             return py::make_tuple(min, max);
         })
         .def("setRoi", &MindVisionCamera::setRoi)
+        .def("setTriggerMode", &MindVisionCamera::setTriggerMode)
+        .def("triggerSoftware", &MindVisionCamera::triggerSoftware)
         .def("registerFrameCallback", &PyMindVisionCamera::registerFrameCallback)
         .def("registerFpsCallback", &PyMindVisionCamera::registerFpsCallback)
         .def("registerErrorCallback", &PyMindVisionCamera::registerErrorCallback)
