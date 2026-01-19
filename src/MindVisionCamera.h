@@ -57,6 +57,22 @@ public:
     // mode: 0 = Continuous, 1 = Software, 2 = Hardware
     Q_INVOKABLE bool setTriggerMode(int mode);
     
+    // Trigger Parameters
+    Q_INVOKABLE bool setTriggerCount(int count);
+    Q_INVOKABLE bool setTriggerDelay(int delay_us);
+    Q_INVOKABLE bool setTriggerInterval(int interval_us);
+
+    // External Trigger Parameters
+    Q_INVOKABLE bool setExternalTriggerSignalType(int type);
+    Q_INVOKABLE bool setExternalTriggerJitterTime(int time_us);
+    Q_INVOKABLE bool setExternalTriggerShutterMode(int mode);
+
+    // Strobe Parameters
+    Q_INVOKABLE bool setStrobeMode(int mode);
+    Q_INVOKABLE bool setStrobePolarity(int polarity);
+    Q_INVOKABLE bool setStrobeDelayTime(int delay_us);
+    Q_INVOKABLE bool setStrobePulseWidth(int width_us);
+    
     // Software Trigger
     Q_INVOKABLE bool triggerSoftware();
 

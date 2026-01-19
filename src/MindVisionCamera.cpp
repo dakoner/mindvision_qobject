@@ -437,6 +437,66 @@ bool MindVisionCamera::setTriggerMode(int mode)
     return CameraSetTriggerMode(d->m_hCamera, mode) == CAMERA_STATUS_SUCCESS;
 }
 
+bool MindVisionCamera::setTriggerCount(int count)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetTriggerCount(d->m_hCamera, count) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setTriggerDelay(int delay_us)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetTriggerDelayTime(d->m_hCamera, delay_us) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setTriggerInterval(int interval_us)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetExtTrigIntervalTime(d->m_hCamera, interval_us) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setExternalTriggerSignalType(int type)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetExtTrigSignalType(d->m_hCamera, type) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setExternalTriggerJitterTime(int time_us)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetExtTrigJitterTime(d->m_hCamera, time_us) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setExternalTriggerShutterMode(int mode)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetExtTrigShutterType(d->m_hCamera, mode) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setStrobeMode(int mode)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetStrobeMode(d->m_hCamera, mode) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setStrobePolarity(int polarity)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetStrobePolarity(d->m_hCamera, polarity) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setStrobeDelayTime(int delay_us)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetStrobeDelayTime(d->m_hCamera, delay_us) == CAMERA_STATUS_SUCCESS;
+}
+
+bool MindVisionCamera::setStrobePulseWidth(int width_us)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetStrobePulseWidth(d->m_hCamera, width_us) == CAMERA_STATUS_SUCCESS;
+}
+
 bool MindVisionCamera::triggerSoftware()
 {
     if (!d->m_isOpen) return false;
