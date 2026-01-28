@@ -11,8 +11,8 @@ INCLUDEPATH += Include
 INCLUDEPATH += src
 
 # Python and pybind11 include paths
-PYTHON_INCLUDE_DIR = C:/Users/davidek/scoop/apps/python313/current/Include
-PYBIND11_INCLUDE_DIR = C:/Users/davidek/scoop/apps/python313/current/Lib/site-packages/pybind11/include
+PYTHON_INCLUDE_DIR = /usr/include/python3.11
+PYBIND11_INCLUDE_DIR = /usr/include/pybind11
 
 INCLUDEPATH += $$PYTHON_INCLUDE_DIR $$PYBIND11_INCLUDE_DIR
 
@@ -36,8 +36,8 @@ CONFIG(debug, debug|release) {
 LIBS += -lmindvision_qobject
 
 # Link against the MindVision SDK
-LIBS += -L$$PWD/Lib -lMVCAMSDK_X64
+LIBS += -L$$PWD/Lib -lMVSDK
 
 # Link against the Python library
 PYTHON_LIB_DIR = C:/Users/davidek/scoop/apps/python313/current/libs
-LIBS += -L$$PYTHON_LIB_DIR -lpython313
+LIBS += -L$$PYTHON_LIB_DIR -lpython3.11
