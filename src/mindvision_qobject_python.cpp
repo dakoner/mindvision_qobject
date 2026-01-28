@@ -123,9 +123,11 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("setAutoExposure", &MindVisionCamera::setAutoExposure)
         .def("setExposureTime", &MindVisionCamera::setExposureTime)
         .def("setAnalogGain", &MindVisionCamera::setAnalogGain)
+        .def("setAeTarget", &MindVisionCamera::setAeTarget)
         .def("getAutoExposure", &MindVisionCamera::getAutoExposure)
         .def("getExposureTime", &MindVisionCamera::getExposureTime)
         .def("getAnalogGain", &MindVisionCamera::getAnalogGain)
+        .def("getAeTarget", &MindVisionCamera::getAeTarget)
         .def("getExposureTimeStep", &MindVisionCamera::getExposureTimeStep)
         .def("getExposureTimeRange", [](PyMindVisionCamera &self) {
             double minMs, maxMs;

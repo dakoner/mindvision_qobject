@@ -40,10 +40,12 @@ public:
     Q_INVOKABLE bool setAutoExposure(bool enabled);
     Q_INVOKABLE bool setExposureTime(double exposureTimeMs); // Milliseconds
     Q_INVOKABLE bool setAnalogGain(int gain);
+    Q_INVOKABLE bool setAeTarget(int target);
     
     Q_INVOKABLE bool getAutoExposure();
     Q_INVOKABLE double getExposureTime(); // Milliseconds
     Q_INVOKABLE int getAnalogGain();
+    Q_INVOKABLE int getAeTarget();
 
     // Capabilities
     Q_INVOKABLE void getExposureTimeRange(double &minMs, double &maxMs);
