@@ -40,6 +40,21 @@ step_exp = camera.getExposureTimeStep()
 print(f"Exposure Time Range: {min_exp} ms to {max_exp} ms")
 print(f"Exposure Time Step: {step_exp} ms")
 
+# Test AE Target
+print("\nTesting AE Target:")
+try:
+    ae_target = camera.getAeTarget()
+    print(f"Initial AE Target: {ae_target}")
+    
+    new_target = 100 if ae_target != 100 else 120
+    print(f"Setting AE Target to: {new_target}")
+    if camera.setAeTarget(new_target):
+        print(f"Set AE Target success. New value: {camera.getAeTarget()}")
+    else:
+        print("Set AE Target failed.")
+except AttributeError:
+    print("AE Target methods not found on object.")
+
 if step_exp > 0:
     print("Calculating and verifying ALL valid exposure times (this may take a moment)...")
     current = min_exp

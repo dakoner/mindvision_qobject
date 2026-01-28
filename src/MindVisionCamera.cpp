@@ -295,6 +295,12 @@ bool MindVisionCamera::setAnalogGain(int gain)
     return CameraSetAnalogGain(d->m_hCamera, gain) == CAMERA_STATUS_SUCCESS;
 }
 
+bool MindVisionCamera::setAeTarget(int target)
+{
+    if (!d->m_isOpen) return false;
+    return CameraSetAeTarget(d->m_hCamera, target) == CAMERA_STATUS_SUCCESS;
+}
+
 bool MindVisionCamera::getAutoExposure()
 {
     if (!d->m_isOpen) return false;
@@ -317,6 +323,14 @@ int MindVisionCamera::getAnalogGain()
     int gain = 0;
     CameraGetAnalogGain(d->m_hCamera, &gain);
     return gain;
+}
+
+int MindVisionCamera::getAeTarget()
+{
+    if (!d->m_isOpen) return 0;
+    int target = 0;
+    CameraGetAeTarget(d->m_hCamera, &target);
+    return target;
 }
 
 void MindVisionCamera::getExposureTimeRange(double &minMs, double &maxMs)
