@@ -1,529 +1,510 @@
 #ifndef _MVCAMAPI_H_
 #define _MVCAMAPI_H_
 
+#define MVSDK_API
 
-#ifdef DLL_EXPORT
-#define MVSDK_API extern "C" __declspec(dllexport)
-#else
-#define MVSDK_API extern "C" __declspec(dllimport)
-#endif
+#ifdef __cplusplus
+ extern "C" {
+ #endif
+
 
 #include "CameraDefine.h"
 #include "CameraStatus.h"
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief ³õÊ¼»¯SDKÓïÑÔ¡£¸Ãº¯ÊıÔÚÕû¸ö½ø³ÌÔËĞĞÆÚ¼äÖ»ĞèÒªµ÷ÓÃÒ»´Î¡£
-/// \param [in] iLanguageSel ÓÃÓÚÑ¡ÔñSDKÄÚ²¿ÌáÊ¾ĞÅÏ¢ºÍ½çÃæµÄÓïÖÖ,0:±íÊ¾Ó¢ÎÄ,1:±íÊ¾ÖĞÎÄ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Initialize the SDK language. This function only needs to be called once during the entire process run.
-/// \param [in] iLanguageSel The language used to select the prompt information and interface of the SDK. 0: English, 1: Chinese.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSdkInit(
-    int     iLanguageSel
-);
-
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief ÅäÖÃÏµÍ³Ñ¡Ïî£¨Í¨³£ĞèÒªÔÚCameraInit´ò¿ªÏà»úÖ®Ç°ÅäÖÃºÃ£©
-/// \param [in] optionName Ñ¡Ïî("NumBuffers", "3")
-/// \param [in] value Öµ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Configure system options (usually required before CameraInit turns on the camera)
-/// \param [in] optionName option name("NumBuffers", "3")
-/// \param [in] value setting value
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSysOption(
-	char const* optionName,
-	char const* value
-	);
-	
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñÈ¡ÅäÖÃÏµÍ³Ñ¡Ïî
-/// \param [in] optionName 
-/// \param [in] value ·µ»ØÖµ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get Configure system options
-/// \param [in] optionName option name
-/// \param [in] return value buffer, must enusre that there is enough size.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetSysOption(
-	char const* optionName,
-	char * value
-	);
 
 
-/// @ingroup API_ENUM
-/// \~chinese
-/// \brief Ã¶¾ÙÉè±¸£¬²¢½¨Á¢Éè±¸ÁĞ±í
-/// \param [out] pCameraList Éè±¸ÁĞ±íÊı×éÖ¸Õë
-/// \param [inout] piNums Éè±¸µÄ¸öÊıÖ¸Õë£¬µ÷ÓÃÊ±´«ÈëpCameraListÊı×éµÄÔªËØ¸öÊı£¬º¯Êı·µ»ØÊ±£¬±£´æÊµ¼ÊÕÒµ½µÄÉè±¸¸öÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå
-/// \warning piNumsÖ¸ÏòµÄÖµ±ØĞë³õÊ¼»¯£¬ÇÒ²»³¬¹ıpCameraListÊı×éÔªËØ¸öÊı£¬·ñÔòÓĞ¿ÉÄÜÔì³ÉÄÚ´æÒç³ö
-/// \note ·µ»ØµÄÏà»úĞÅÏ¢ÁĞ±í£¬»á¸ù¾İacFriendlyNameÅÅĞòµÄ¡£ÀıÈç¿ÉÒÔ½«Á½¸öÏà»ú·Ö±ğ¸ÄÎª¡°Camera1¡±ºÍ¡°Camera2¡±µÄÃû×Öºó£¬Ãû×ÖÎª¡°Camera1¡±µÄÏà»ú»áÅÅÇ°Ãæ£¬ÃûÎª¡°Camera2¡±µÄÏà»úÅÅºóÃæ¡£
-/// \~english
-/// \brief Enumerate devices and establish a list of devices
-/// \param [out] pCameraList Device list array pointer
-/// \param [inout] piNums The number of pointers to the device, the number of elements passed to the pCameraList array at the time of the call. When the function returns, the number of devices actually found is saved.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \warning piNums The value pointed to must be initialized and does not exceed the number of pCameraList array elements, otherwise it may cause memory overflow
-/// \note The list of returned camera information will be sorted according to acFriendlyName. For example, after changing the two cameras to the names of "Camera1" and "Camera2," the camera named "Camera1" will be in front, and the camera named "Camera2" will be behind the row.
-MVSDK_API CameraSdkStatus __stdcall CameraEnumerateDevice(
-    tSdkCameraDevInfo* pCameraList, 
+/******************************************************/
+// å‡½æ•°å   : CameraSdkInit
+// åŠŸèƒ½æè¿° : ç›¸æœºSDKåˆå§‹åŒ–ï¼Œåœ¨è°ƒç”¨ä»»ä½•SDKå…¶ä»–æ¥å£å‰ï¼Œå¿…é¡»
+//        å…ˆè°ƒç”¨è¯¥æ¥å£è¿›è¡Œåˆå§‹åŒ–ã€‚è¯¥å‡½æ•°åœ¨æ•´ä¸ªè¿›ç¨‹è¿è¡Œ
+//        æœŸé—´åªéœ€è¦è°ƒç”¨ä¸€æ¬¡ã€‚
+// å‚æ•°     : iLanguageSel ç”¨äºé€‰æ‹©SDKå†…éƒ¨æç¤ºä¿¡æ¯å’Œç•Œé¢çš„è¯­ç§,
+//               0:è¡¨ç¤ºè‹±æ–‡,1:è¡¨ç¤ºä¸­æ–‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus     CameraSdkInit(int     iLanguageSel);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetDataDirectory
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºæ•°æ®æ–‡ä»¶çš„å­˜å‚¨ç›®å½•ï¼ˆ.config .mvdatç­‰ï¼‰
+//            éœ€è¦åœ¨CameraInitæ‰“å¼€ç›¸æœºå‰è®¾ç½®å¥½
+//            é»˜è®¤ç›®å½•ä¸ºå½“å‰ç›®å½•
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetDataDirectory(char const* dirname);
+
+/******************************************************/
+// å‡½æ•°å   : CameraUSBDeviceInit
+// åŠŸèƒ½æè¿° : (å·²åºŸå¼ƒï¼Œæ— éœ€è°ƒç”¨)
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraUSBDeviceInit();
+
+/******************************************************/
+// å‡½æ•°å   : CameraUSBDeviceUninit
+// åŠŸèƒ½æè¿° : (å·²åºŸå¼ƒï¼Œæ— éœ€è°ƒç”¨)
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraUSBDeviceUninit();
+
+
+/******************************************************/
+// å‡½æ•°å   : CameraEnumerateDevice
+// åŠŸèƒ½æè¿° : æšä¸¾è®¾å¤‡ï¼Œå¹¶å»ºç«‹è®¾å¤‡åˆ—è¡¨ã€‚åœ¨è°ƒç”¨CameraInit
+//        ä¹‹å‰ï¼Œå¿…é¡»è°ƒç”¨è¯¥å‡½æ•°æ¥è·å¾—è®¾å¤‡çš„ä¿¡æ¯ã€‚
+// å‚æ•°     : pCameraList    è®¾å¤‡åˆ—è¡¨æ•°ç»„æŒ‡é’ˆã€‚
+//             piNums        è®¾å¤‡çš„ä¸ªæ•°æŒ‡é’ˆï¼Œè°ƒç”¨æ—¶ä¼ å…¥pCameraList
+//                            æ•°ç»„çš„å…ƒç´ ä¸ªæ•°ï¼Œå‡½æ•°è¿”å›æ—¶ï¼Œä¿å­˜å®é™…æ‰¾åˆ°çš„è®¾å¤‡ä¸ªæ•°ã€‚
+//              æ³¨æ„ï¼ŒpiNumsæŒ‡å‘çš„å€¼å¿…é¡»åˆå§‹åŒ–ï¼Œä¸”ä¸è¶…è¿‡pCameraListæ•°ç»„å…ƒç´ ä¸ªæ•°ï¼Œ
+//              å¦åˆ™æœ‰å¯èƒ½é€ æˆå†…å­˜æº¢å‡ºã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraEnumerateDevice(
+    tSdkCameraDevInfo* pCameraList,
     INT*               piNums
 );
 
-/// @ingroup API_ENUM
-/// \~chinese
-/// \brief Ã¶¾ÙÉè±¸£¬²¢½¨Á¢Éè±¸ÁĞ±í¡£ÔÚµ÷ÓÃ@link #CameraInitEx @endlinkÖ®Ç°£¬±ØĞëµ÷ÓÃ¸Ãº¯ÊıÃ¶¾ÙÉè±¸¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enumerate devices and create a list of devices. Before calling @link #CameraInitEx @endlink, this function must be called to enumerate the device.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API INT __stdcall CameraEnumerateDeviceEx(
+/******************************************************/
+// å‡½æ•°å   : CameraIdleStateDevice
+// åŠŸèƒ½æè¿° : å½“å‰ç³»ç»Ÿæœ‰æœªä½¿ç”¨çš„ç›¸æœºä¿¡æ¯ã€‚
+// å‚æ•°     : pCameraList    è®¾å¤‡åˆ—è¡¨æ•°ç»„æŒ‡é’ˆã€‚
+//             piNums        è®¾å¤‡çš„ä¸ªæ•°æŒ‡é’ˆï¼Œè°ƒç”¨æ—¶ä¼ å…¥pCameraList
+//                            æ•°ç»„çš„å…ƒç´ ä¸ªæ•°ï¼Œå‡½æ•°è¿”å›æ—¶ï¼Œä¿å­˜å®é™…æ‰¾åˆ°çš„è®¾å¤‡ä¸ªæ•°ã€‚
+//              æ³¨æ„ï¼ŒpiNumsæŒ‡å‘çš„å€¼å¿…é¡»åˆå§‹åŒ–ï¼Œä¸”ä¸è¶…è¿‡pCameraListæ•°ç»„å…ƒç´ ä¸ªæ•°ï¼Œ
+//              å¦åˆ™æœ‰å¯èƒ½é€ æˆå†…å­˜æº¢å‡ºã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraIdleStateDevice(
+    tSdkCameraDevInfo* pCameraList,
+    INT*               piNums
 );
 
-/// @ingroup API_OPEN
-/// \~chinese
-/// \brief ¼ì²âÉè±¸ÊÇ·ñÒÑ¾­±»´ò¿ª
-/// \param [in] pCameraInfo Éè±¸µÄÃ¶¾ÙĞÅÏ¢½á¹¹ÌåÖ¸Õë£¬ÓÉ@link #CameraEnumerateDevice @endlink»ñµÃ¡£
-/// \param [out] pOpened Éè±¸µÄ×´Ì¬Ö¸Õë£¬·µ»ØÉè±¸ÊÇ·ñ±»´ò¿ªµÄ×´Ì¬£¬TRUEÎª´ò¿ª£¬FALSEÎª¿ÕÏĞ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Check if the device has been opened
-/// \param [in] pCameraInfo Device enumeration information structure pointer, obtained by @link #CameraEnumerateDevice @endlink
-/// \param [out] pOpened The device's status pointer returns whether the device is turned on. TRUE is on and FALSE is idle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraIsOpened(
-  tSdkCameraDevInfo*  pCameraInfo, 
+
+/******************************************************/
+// å‡½æ•°å 	: CameraEnumerateDeviceEx
+// åŠŸèƒ½æè¿°	: æšä¸¾è®¾å¤‡ï¼Œå¹¶å»ºç«‹è®¾å¤‡åˆ—è¡¨ã€‚åœ¨è°ƒç”¨CameraInitEx
+//			  ä¹‹å‰ï¼Œå¿…é¡»è°ƒç”¨è¯¥å‡½æ•°æšä¸¾è®¾å¤‡ã€‚
+// å‚æ•°	     :
+// è¿”å›å€¼     : è¿”å›è®¾å¤‡ä¸ªæ•°ï¼Œ0è¡¨ç¤ºæ— ã€‚
+/******************************************************/
+MVSDK_API INT  CameraEnumerateDeviceEx(
+);
+
+
+/******************************************************/
+// å‡½æ•°å   : CameraIsOpened
+// åŠŸèƒ½æè¿° : æ£€æµ‹è®¾å¤‡æ˜¯å¦å·²ç»è¢«å…¶ä»–åº”ç”¨ç¨‹åºæ‰“å¼€ã€‚åœ¨è°ƒç”¨CameraInit
+//        ä¹‹å‰ï¼Œå¯ä»¥ä½¿ç”¨è¯¥å‡½æ•°è¿›è¡Œæ£€æµ‹ï¼Œå¦‚æœå·²ç»è¢«æ‰“å¼€ï¼Œè°ƒç”¨
+//        CameraInitä¼šè¿”å›è®¾å¤‡å·²ç»è¢«æ‰“å¼€çš„é”™è¯¯ç ã€‚
+// å‚æ•°     : pCameraList è®¾å¤‡çš„æšä¸¾ä¿¡æ¯ç»“æ„ä½“æŒ‡é’ˆï¼Œç”±CameraEnumerateDeviceè·å¾—ã€‚
+//            pOpened       è®¾å¤‡çš„çŠ¶æ€æŒ‡é’ˆï¼Œè¿”å›è®¾å¤‡æ˜¯å¦è¢«æ‰“å¼€çš„çŠ¶æ€ï¼ŒTRUEä¸ºæ‰“å¼€ï¼ŒFALSEä¸ºç©ºé—²ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraIsOpened(
+  tSdkCameraDevInfo*  pCameraList,
   BOOL*               pOpened
 );
 
-/// @ingroup API_OPEN
-/// \~chinese
-/// \brief Ïà»ú³õÊ¼»¯¡£³õÊ¼»¯³É¹¦ºó£¬²ÅÄÜµ÷ÓÃÆäËûÏà»úÏà¹ØµÄ²Ù×÷½Ó¿Ú¡£
-/// \param [in] pCameraInfo Éè±¸µÄÃ¶¾ÙĞÅÏ¢½á¹¹ÌåÖ¸Õë£¬ÓÉ@link #CameraEnumerateDevice @endlink»ñµÃ¡£
-/// \param [in] emParamLoadMode Ïà»ú³õÊ¼»¯Ê±Ê¹ÓÃµÄ²ÎÊı¼ÓÔØ·½Ê½¡£-1±íÊ¾Ê¹ÓÃÉÏ´ÎÍË³öÊ±µÄ²ÎÊı¼ÓÔØ·½Ê½¡£ÆäËüÈ¡Öµ²Î¿¼@link #emSdkParameterMode @endlink¶¨Òå¡£
-/// \param [in] emTeam ³õÊ¼»¯Ê±Ê¹ÓÃµÄ²ÎÊı×é¡£-1±íÊ¾¼ÓÔØÉÏ´ÎÍË³öÊ±µÄ²ÎÊı×é¡£
-/// \param [out] pCameraHandle Ïà»úµÄ¾ä±úÖ¸Õë£¬³õÊ¼»¯³É¹¦ºó£¬¸ÃÖ¸Õë·µ»Ø¸ÃÏà»úµÄÓĞĞ§¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The camera is initialized. After successful initialization, other camera-related operation interfaces can be called.
-/// \param [in] pCameraInfo Device enumeration information structure pointer, obtained by @link #CameraEnumerateDevice @endlink.
-/// \param [in] emParamLoadMode The parameter loading method used when the camera is initialized. -1 means to use the parameter loading method from the last exit. Other values are defined in @link #emSdkParameterMode @endlink.
-/// \param [in] emTeam Parameter group used during initialization. -1 means to load the parameter group from the last exit.
-/// \param [out] pCameraHandle The handle pointer of the camera, after successful initialization, returns the camera's effective handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraInit(
+
+/******************************************************/
+// å‡½æ•°å   : CameraInit
+// åŠŸèƒ½æè¿° : ç›¸æœºåˆå§‹åŒ–ã€‚åˆå§‹åŒ–æˆåŠŸåï¼Œæ‰èƒ½è°ƒç”¨ä»»ä½•å…¶ä»–
+//        ç›¸æœºç›¸å…³çš„æ“ä½œæ¥å£ã€‚
+// å‚æ•°     : pCameraInfo    è¯¥ç›¸æœºçš„è®¾å¤‡æè¿°ä¿¡æ¯ï¼Œç”±CameraEnumerateDevice
+//               å‡½æ•°è·å¾—ã€‚
+//            iParamLoadMode  ç›¸æœºåˆå§‹åŒ–æ—¶ä½¿ç”¨çš„å‚æ•°åŠ è½½æ–¹å¼ã€‚-1è¡¨ç¤ºä½¿ç”¨ä¸Šæ¬¡é€€å‡ºæ—¶çš„å‚æ•°åŠ è½½æ–¹å¼ã€‚
+//            emTeam         åˆå§‹åŒ–æ—¶ä½¿ç”¨çš„å‚æ•°ç»„ã€‚-1è¡¨ç¤ºåŠ è½½ä¸Šæ¬¡é€€å‡ºæ—¶çš„å‚æ•°ç»„ã€‚
+//            pCameraHandle  ç›¸æœºçš„å¥æŸ„æŒ‡é’ˆï¼Œåˆå§‹åŒ–æˆåŠŸåï¼Œè¯¥æŒ‡é’ˆ
+//               è¿”å›è¯¥ç›¸æœºçš„æœ‰æ•ˆå¥æŸ„ï¼Œåœ¨è°ƒç”¨å…¶ä»–ç›¸æœº
+//               ç›¸å…³çš„æ“ä½œæ¥å£æ—¶ï¼Œéƒ½éœ€è¦ä¼ å…¥è¯¥å¥æŸ„ï¼Œä¸»è¦
+//               ç”¨äºå¤šç›¸æœºä¹‹é—´çš„åŒºåˆ†ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraInit(
     tSdkCameraDevInfo*  pCameraInfo,
     int                 emParamLoadMode,
     int                 emTeam,
     CameraHandle*       pCameraHandle
 );
 
-/// @ingroup API_OPEN
-/// \~chinese
-/// \brief Ïà»ú³õÊ¼»¯¡£³õÊ¼»¯³É¹¦ºó£¬²ÅÄÜµ÷ÓÃÆäËûÏà»úÏà¹ØµÄ²Ù×÷½Ó¿Ú¡£
-/// \param [in] iDeviceIndex Ïà»úµÄË÷ÒıºÅ£¬@link #CameraEnumerateDeviceEx @endlink·µ»ØÏà»ú¸öÊı¡£
-/// \param [in] emParamLoadMode Ïà»ú³õÊ¼»¯Ê±Ê¹ÓÃµÄ²ÎÊı¼ÓÔØ·½Ê½¡£-1±íÊ¾Ê¹ÓÃÉÏ´ÎÍË³öÊ±µÄ²ÎÊı¼ÓÔØ·½Ê½¡£ÆäËüÈ¡Öµ²Î¿¼@link #emSdkParameterMode @endlink¶¨Òå¡£
-/// \param [in] emTeam ³õÊ¼»¯Ê±Ê¹ÓÃµÄ²ÎÊı×é¡£-1±íÊ¾¼ÓÔØÉÏ´ÎÍË³öÊ±µÄ²ÎÊı×é¡£
-/// \param [out] pCameraHandle Ïà»úµÄ¾ä±úÖ¸Õë£¬³õÊ¼»¯³É¹¦ºó£¬¸ÃÖ¸Õë·µ»Ø¸ÃÏà»úµÄÓĞĞ§¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The camera is initialized. After successful initialization, other camera-related operation interfaces can be called.
-/// \param [in] iDeviceIndex The camera's index number, @link #CameraEnumerateDeviceEx @endlink returns the number of cameras.
-/// \param [in] emParamLoadMode The parameter loading method used when the camera is initialized. -1 means to use the parameter loading method from the last exit. Other values are defined in @link #emSdkParameterMode @endlink.
-/// \param [in] emTeam Parameter group used during initialization. -1 means to load the parameter group from the last exit.
-/// \param [out] pCameraHandle The handle pointer of the camera, after successful initialization, returns the camera's effective handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraInitEx(
+/******************************************************/
+// å‡½æ•°å 	: CameraInitEx
+// åŠŸèƒ½æè¿°	: ç›¸æœºåˆå§‹åŒ–ã€‚åˆå§‹åŒ–æˆåŠŸåï¼Œæ‰èƒ½è°ƒç”¨ä»»ä½•å…¶ä»–
+//			  ç›¸æœºç›¸å…³çš„æ“ä½œæ¥å£ã€‚
+// å‚æ•°	    : iDeviceIndex    ç›¸æœºçš„ç´¢å¼•å·ï¼ŒCameraEnumerateDeviceExè¿”å›ç›¸æœºä¸ªæ•°ã€‚
+//            iParamLoadMode  ç›¸æœºåˆå§‹åŒ–æ—¶ä½¿ç”¨çš„å‚æ•°åŠ è½½æ–¹å¼ã€‚-1è¡¨ç¤ºä½¿ç”¨ä¸Šæ¬¡é€€å‡ºæ—¶çš„å‚æ•°åŠ è½½æ–¹å¼ã€‚
+//            emTeam         åˆå§‹åŒ–æ—¶ä½¿ç”¨çš„å‚æ•°ç»„ã€‚-1è¡¨ç¤ºåŠ è½½ä¸Šæ¬¡é€€å‡ºæ—¶çš„å‚æ•°ç»„ã€‚
+//            pCameraHandle  ç›¸æœºçš„å¥æŸ„æŒ‡é’ˆï¼Œåˆå§‹åŒ–æˆåŠŸåï¼Œè¯¥æŒ‡é’ˆ
+//							 è¿”å›è¯¥ç›¸æœºçš„æœ‰æ•ˆå¥æŸ„ï¼Œåœ¨è°ƒç”¨å…¶ä»–ç›¸æœº
+//							 ç›¸å…³çš„æ“ä½œæ¥å£æ—¶ï¼Œéƒ½éœ€è¦ä¼ å…¥è¯¥å¥æŸ„ï¼Œä¸»è¦
+//							 ç”¨äºå¤šç›¸æœºä¹‹é—´çš„åŒºåˆ†ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraInitEx(
     int             iDeviceIndex,
-    int             emParamLoadMode,
+    int             iParamLoadMode,
     int             emTeam,
     CameraHandle*   pCameraHandle
 );
 
 /// @ingroup API_OPEN
 /// \~chinese
-/// \brief Ïà»ú³õÊ¼»¯¡£³õÊ¼»¯³É¹¦ºó£¬²ÅÄÜµ÷ÓÃÆäËûÏà»úÏà¹ØµÄ²Ù×÷½Ó¿Ú¡£
-/// \param [in] CameraName Ïà»úêÇ³Æ¡£@link #tSdkCameraDevInfo.acFriendlyName @endlink
-/// \param [out] pCameraHandle Ïà»úµÄ¾ä±úÖ¸Õë£¬³õÊ¼»¯³É¹¦ºó£¬¸ÃÖ¸Õë·µ»Ø¸ÃÏà»úµÄÓĞĞ§¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief ç›¸æœºåˆå§‹åŒ–ã€‚åˆå§‹åŒ–æˆåŠŸåï¼Œæ‰èƒ½è°ƒç”¨å…¶ä»–ç›¸æœºç›¸å…³çš„æ“ä½œæ¥å£ã€‚
+/// \param [in] CameraName ç›¸æœºæ˜µç§°ã€‚@link #tSdkCameraDevInfo.acFriendlyName @endlink
+/// \param [out] pCameraHandle ç›¸æœºçš„å¥æŸ„æŒ‡é’ˆï¼Œåˆå§‹åŒ–æˆåŠŸåï¼Œè¯¥æŒ‡é’ˆè¿”å›è¯¥ç›¸æœºçš„æœ‰æ•ˆå¥æŸ„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief The camera is initialized. After successful initialization, other camera-related operation interfaces can be called.
 /// \param [in] CameraName Camera friendly name.@link #tSdkCameraDevInfo.acFriendlyName @endlink
 /// \param [out] pCameraHandle The handle pointer of the camera, after successful initialization, returns the camera's effective handle.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraInitEx2(
+MVSDK_API CameraSdkStatus CameraInitEx2(
 	char* CameraName,
 	CameraHandle   *pCameraHandle
 );
 
-/// @ingroup API_GRAB_CB
-/// \~chinese
-/// \brief ÉèÖÃÍ¼Ïñ²¶»ñµÄ»Øµ÷º¯Êı¡£µ±²¶»ñµ½ĞÂµÄÍ¼ÏñÊı¾İÖ¡Ê±£¬pCallBackËùÖ¸ÏòµÄ»Øµ÷º¯Êı¾Í»á±»µ÷ÓÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pCallBack »Øµ÷º¯ÊıÖ¸Õë¡£
-/// \param [in] pContext »Øµ÷º¯ÊıµÄ¸½¼Ó²ÎÊı£¬ÔÚ»Øµ÷º¯Êı±»µ÷ÓÃÊ±¸Ã¸½¼Ó²ÎÊı»á±»´«Èë£¬¿ÉÒÔÎªNULL¡£¶àÓÃÓÚ¶à¸öÏà»úÊ±Ğ¯´ø¸½¼ÓĞÅÏ¢¡£
-/// \param [out] pCallbackOld ÓÃÓÚ·µ»ØÖ®Ç°ÉèÖÃµÄ»Øµ÷º¯Êı¡£¿ÉÒÔÎªNULL¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the image capture's callback function. When a new frame of image data is captured, the callback function pointed to by pCallBack is called.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pCallBack Callback function pointer.
-/// \param [in] pContext Additional parameters of the callback function, which will be passed in when the callback function is called, can be NULL. Use additional information when used with multiple cameras.
-/// \param [out] pCallbackOld Returns the previously set callback function. Can be NULL.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetCallbackFunction(
+/******************************************************/
+// å‡½æ•°å   : CameraSetCallbackFunction
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒæ•è·çš„å›è°ƒå‡½æ•°ã€‚å½“æ•è·åˆ°æ–°çš„å›¾åƒæ•°æ®å¸§æ—¶ï¼Œ
+//        pCallBackæ‰€æŒ‡å‘çš„å›è°ƒå‡½æ•°å°±ä¼šè¢«è°ƒç”¨ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pCallBack å›è°ƒå‡½æ•°æŒ‡é’ˆã€‚
+//            pContext  å›è°ƒå‡½æ•°çš„é™„åŠ å‚æ•°ï¼Œåœ¨å›è°ƒå‡½æ•°è¢«è°ƒç”¨æ—¶
+//            è¯¥é™„åŠ å‚æ•°ä¼šè¢«ä¼ å…¥ï¼Œå¯ä»¥ä¸ºNULLã€‚å¤šç”¨äº
+//            å¤šä¸ªç›¸æœºæ—¶æºå¸¦é™„åŠ ä¿¡æ¯ã€‚
+//            pCallbackOld  ç”¨äºä¿å­˜å½“å‰çš„å›è°ƒå‡½æ•°ã€‚å¯ä»¥ä¸ºNULLã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetCallbackFunction(
     CameraHandle        hCamera,
     CAMERA_SNAP_PROC    pCallBack,
     PVOID               pContext,
     CAMERA_SNAP_PROC*   pCallbackOld
 );
 
-/// @ingroup API_CLOSE
-/// \~chinese
-/// \brief Ïà»ú·´³õÊ¼»¯¡£ÊÍ·Å×ÊÔ´¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The camera is deinitialized. Release resources.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraUnInit(
+/******************************************************/
+// å‡½æ•°å   : CameraUnInit
+// åŠŸèƒ½æè¿° : ç›¸æœºååˆå§‹åŒ–ã€‚é‡Šæ”¾èµ„æºã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraUnInit(
     CameraHandle hCamera
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄÃèÊöĞÅÏ¢
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbuffer Ö¸ÏòÏà»úÃèÊöĞÅÏ¢Ö¸ÕëµÄÖ¸Õë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get camera description information
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbuffer Pointer to the camera description information pointer.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInformation(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetInformation
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„æè¿°ä¿¡æ¯
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbuffer æŒ‡å‘ç›¸æœºæè¿°ä¿¡æ¯æŒ‡é’ˆçš„æŒ‡é’ˆã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetInformation(
+    CameraHandle    hCamera,
     char**          pbuffer
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ½«»ñµÃµÄÏà»úÔ­Ê¼Êä³öÍ¼ÏñÊı¾İ½øĞĞ´¦Àí£¬µş¼Ó±¥ºÍ¶È¡¢ÑÕÉ«ÔöÒæºÍĞ£Õı¡¢½µÔëµÈ´¦ÀíĞ§¹û£¬×îºóµÃµ½RGB888¸ñÊ½µÄÍ¼ÏñÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbyIn ÊäÈëÍ¼ÏñÊı¾İµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£ 
-/// \param [out] pbyOut ´¦ÀíºóÍ¼ÏñÊä³öµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£
-/// \param [inout] pFrInfo ÊäÈëÍ¼ÏñµÄÖ¡Í·ĞÅÏ¢£¬´¦ÀíÍê³Éºó£¬Ö¡Í·ĞÅÏ¢ÖĞµÄÍ¼Ïñ¸ñÊ½uiMediaType»áËæÖ®¸Ä±ä¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The obtained raw camera output image data is processed to superimpose processing effects such as saturation, color gain and correction, noise reduction, etc. Finally, image data of RGB888 format is obtained.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbyIn The buffer address of the input image data cannot be NULL.
-/// \param [out] pbyOut The buffer address of the image output after processing cannot be NULL.
-/// \param [inout] pFrInfo After inputting the frame header information of the image, the image format uiMediaType in the frame header information will be changed after the processing is completed.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraImageProcess(
-    CameraHandle        hCamera, 
-    BYTE*               pbyIn, 
+/******************************************************/
+// å‡½æ•°å   : CameraImageProcess
+// åŠŸèƒ½æè¿° : å°†è·å¾—çš„ç›¸æœºåŸå§‹è¾“å‡ºå›¾åƒæ•°æ®è¿›è¡Œå¤„ç†ï¼Œå åŠ é¥±å’Œåº¦ã€
+//        é¢œè‰²å¢ç›Šå’Œæ ¡æ­£ã€é™å™ªç­‰å¤„ç†æ•ˆæœï¼Œæœ€åå¾—åˆ°RGB888
+//        æ ¼å¼çš„å›¾åƒæ•°æ®ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbyIn    è¾“å…¥å›¾åƒæ•°æ®çš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚
+//            pbyOut   å¤„ç†åå›¾åƒè¾“å‡ºçš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚
+//            pFrInfo  è¾“å…¥å›¾åƒçš„å¸§å¤´ä¿¡æ¯ï¼Œå¤„ç†å®Œæˆåï¼Œå¸§å¤´ä¿¡æ¯
+//             ä¸­çš„å›¾åƒæ ¼å¼uiMediaTypeä¼šéšä¹‹æ”¹å˜ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraImageProcess(
+    CameraHandle        hCamera,
+    BYTE*               pbyIn,
     BYTE*               pbyOut,
     tSdkFrameHead*      pFrInfo
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ½«»ñµÃµÄÏà»úÔ­Ê¼Êä³öÍ¼ÏñÊı¾İ½øĞĞ´¦Àí£¬µş¼Ó±¥ºÍ¶È¡¢ÑÕÉ«ÔöÒæºÍĞ£Õı¡¢½µÔëµÈ´¦ÀíĞ§¹û£¬×îºóµÃµ½RGB888¸ñÊ½µÄÍ¼ÏñÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbyIn ÊäÈëÍ¼ÏñÊı¾İµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£ 
-/// \param [out] pbyOut ´¦ÀíºóÍ¼ÏñÊä³öµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£
-/// \param [inout] pFrInfo ÊäÈëÍ¼ÏñµÄÖ¡Í·ĞÅÏ¢£¬´¦ÀíÍê³Éºó£¬Ö¡Í·ĞÅÏ¢ÖĞµÄÍ¼Ïñ¸ñÊ½uiMediaType»áËæÖ®¸Ä±ä¡£
-/// \param [in] uOutFormat ´¦ÀíÍêºóÍ¼ÏñµÄÊä³ö¸ñÊ½¡£¿ÉÒÔÊÇCAMERA_MEDIA_TYPE_MONO8¡¢CAMERA_MEDIA_TYPE_RGB¡¢CAMERA_MEDIA_TYPE_RGBA8µÄÆäÖĞÒ»ÖÖ¡£
-/// \param [in] uReserved Ô¤Áô²ÎÊı£¬±ØĞëÉèÖÃÎª0¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The obtained raw camera output image data is processed to superimpose processing effects such as saturation, color gain and correction, noise reduction, etc. Finally, image data of RGB888 format is obtained.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbyIn The buffer address of the input image data cannot be NULL.
-/// \param [out] pbyOut The buffer address of the image output after processing cannot be NULL.
-/// \param [inout] pFrInfo After inputting the frame header information of the image, the image format uiMediaType in the frame header information will be changed after the processing is completed.
-/// \param [in] uOutFormat The output format of the image after processing. It may be one of CAMERA_MEDIA_TYPE_MONO8,CAMERA_MEDIA_TYPE_RGB,CAMERA_MEDIA_TYPE_RGBA8.
-/// \param [in] uReserved Reservation parameters must be set to 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraImageProcessEx(
-    CameraHandle        hCamera, 
-    BYTE*               pbyIn, 
-    BYTE*               pbyOut,
-    tSdkFrameHead*      pFrInfo,
-    UINT                uOutFormat,
-    UINT                uReserved
+/******************************************************/
+// å‡½æ•°å 	: CameraImageProcessEx
+// åŠŸèƒ½æè¿°	: å°†è·å¾—çš„ç›¸æœºåŸå§‹è¾“å‡ºå›¾åƒæ•°æ®è¿›è¡Œå¤„ç†ï¼Œå åŠ é¥±å’Œåº¦
+//			  é¢œè‰²å¢ç›Šå’Œæ ¡æ­£ã€é™å™ªç­‰å¤„ç†æ•ˆæœï¼Œæœ€åå¾—åˆ°RGB888
+//			  æ ¼å¼çš„å›¾åƒæ•°æ®ã€‚
+// å‚æ•°	    : hCamera      ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbyIn	     è¾“å…¥å›¾åƒæ•°æ®çš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚
+//            pbyOut        å¤„ç†åå›¾åƒè¾“å‡ºçš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚
+//            pFrInfo       è¾“å…¥å›¾åƒçš„å¸§å¤´ä¿¡æ¯ï¼Œå¤„ç†å®Œæˆåï¼Œå¸§å¤´ä¿¡æ¯
+//            uOutFormat    å¤„ç†å®Œåå›¾åƒçš„è¾“å‡ºæ ¼å¼
+//            uReserved     é¢„ç•™å‚æ•°ï¼Œå¿…é¡»è®¾ç½®ä¸º0
+//					   ä¸­çš„å›¾åƒæ ¼å¼uiMediaTypeä¼šéšä¹‹æ”¹å˜ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraImageProcessEx(
+    CameraHandle hCamera,
+    BYTE *pbyIn,
+    BYTE *pbyOut,
+    tSdkFrameHead *pFrInfo,
+    UINT uOutFormat,
+    UINT uReserved
 );
 
-/// @ingroup API_DISPLAY
-/// \~chinese
-/// \brief ³õÊ¼»¯SDKÄÚ²¿µÄÏÔÊ¾Ä£¿é¡£ÔÚµ÷ÓÃ@link #CameraDisplayRGB24 @endlinkÇ°±ØĞëÏÈµ÷ÓÃ¸Ãº¯Êı³õÊ¼»¯¡£Èç¹ûÄúÔÚ¶ş´Î¿ª·¢ÖĞ£¬Ê¹ÓÃ×Ô¼ºµÄ·½Ê½½øĞĞÍ¼ÏñÏÔÊ¾(²»µ÷ÓÃCameraDisplayRGB24)Ôò²»ĞèÒªµ÷ÓÃ±¾º¯Êı¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] hWndDisplay ÏÔÊ¾´°¿ÚµÄ¾ä±ú£¬Ò»°ãÎª´°¿ÚµÄm_hWnd³ÉÔ±¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Initialize the display module inside the SDK. The function must be called before calling @link #CameraDisplayRGB24 @endlink. If you use your own method for image display (do not call CameraDisplayRGB24) during secondary development, you do not need to call this function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] hWndDisplay The handle of the display window, typically the m_hWnd member of the window.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraDisplayInit(
+/******************************************************/
+// å‡½æ•°å   : CameraDisplayInit
+// åŠŸèƒ½æè¿° : åˆå§‹åŒ–SDKå†…éƒ¨çš„æ˜¾ç¤ºæ¨¡å—ã€‚åœ¨è°ƒç”¨CameraDisplayRGB24
+//        å‰å¿…é¡»å…ˆè°ƒç”¨è¯¥å‡½æ•°åˆå§‹åŒ–ã€‚å¦‚æœæ‚¨åœ¨äºŒæ¬¡å¼€å‘ä¸­ï¼Œ
+//        ä½¿ç”¨è‡ªå·±çš„æ–¹å¼è¿›è¡Œå›¾åƒæ˜¾ç¤º(ä¸è°ƒç”¨CameraDisplayRGB24)ï¼Œ
+//        åˆ™ä¸éœ€è¦è°ƒç”¨æœ¬å‡½æ•°ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            hWndDisplay æ˜¾ç¤ºçª—å£çš„å¥æŸ„ï¼Œä¸€èˆ¬ä¸ºçª—å£çš„m_hWndæˆå‘˜ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraDisplayInit(
     CameraHandle    hCamera,
     HWND            hWndDisplay
 );
 
-/// @ingroup API_DISPLAY
-/// \~chinese
-/// \brief ÏÔÊ¾Í¼Ïñ¡£±ØĞëµ÷ÓÃ¹ı@link #CameraDisplayInit @endlink½øĞĞ³õÊ¼»¯²ÅÄÜµ÷ÓÃ±¾º¯Êı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pFrameBuffer Í¼ÏñµÄÖ¡»º³åÇø
-/// \param [in] pFrInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Display the image. You must call @link #CameraDisplayInit @endlink before you can call this function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pFrameBuffer Image frame buffer
-/// \param [in] pFrInfo The frame header information of the image
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraDisplayRGB24(
+/******************************************************/
+// å‡½æ•°å   : CameraDisplayRGB24
+// åŠŸèƒ½æè¿° : æ˜¾ç¤ºå›¾åƒã€‚å¿…é¡»è°ƒç”¨è¿‡CameraDisplayInitè¿›è¡Œ
+//        åˆå§‹åŒ–æ‰èƒ½è°ƒç”¨æœ¬å‡½æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbyRGB24 å›¾åƒçš„æ•°æ®ç¼“å†²åŒºï¼ŒRGB888æ ¼å¼ã€‚
+//            pFrInfo  å›¾åƒçš„å¸§å¤´ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraDisplayRGB24(
     CameraHandle        hCamera,
-    BYTE*               pFrameBuffer, 
+    BYTE*               pbyRGB24,
     tSdkFrameHead*      pFrInfo
 );
 
-/// @ingroup API_DISPLAY
-/// \~chinese
-/// \brief ÉèÖÃÏÔÊ¾µÄÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMode ÏÔÊ¾Ä£Ê½£¬²Î¼û@link #emSdkDisplayMode @endlinkµÄ¶¨Òå¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the display mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMode Display mode, see @link #emSdkDisplayMode @endlink definition.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetDisplayMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetDisplayMode
+// åŠŸèƒ½æè¿° : è®¾ç½®æ˜¾ç¤ºçš„æ¨¡å¼ã€‚å¿…é¡»è°ƒç”¨è¿‡CameraDisplayInit
+//        è¿›è¡Œåˆå§‹åŒ–æ‰èƒ½è°ƒç”¨æœ¬å‡½æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iMode    æ˜¾ç¤ºæ¨¡å¼ï¼ŒDISPLAYMODE_SCALEæˆ–è€…
+//             DISPLAYMODE_REAL,å…·ä½“å‚è§CameraDefine.h
+//             ä¸­emSdkDisplayModeçš„å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetDisplayMode(
     CameraHandle    hCamera,
     INT             iMode
 );
 
-/// @ingroup API_DISPLAY
-/// \~chinese
-/// \brief ÉèÖÃÏÔÊ¾µÄÆğÊ¼Æ«ÒÆÖµ¡£½öµ±ÏÔÊ¾Ä£Ê½ÎªDISPLAYMODE_REALÊ±ÓĞĞ§¡£ÀıÈçÏÔÊ¾¿Ø¼şµÄ´óĞ¡Îª320X240£¬¶øÍ¼ÏñµÄµÄ³ß´çÎª640X480£¬ÄÇÃ´µ±iOffsetX = 160,iOffsetY = 120Ê±ÏÔÊ¾µÄÇøÓò¾ÍÊÇÍ¼ÏñµÄ¾ÓÖĞ320X240µÄÎ»ÖÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOffsetX Æ«ÒÆµÄX×ø±ê¡£
-/// \param [in] iOffsetY  Æ«ÒÆµÄY×ø±ê¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the starting offset of the display. This is valid only when the display mode is DISPLAY MODE_REAL. For example, the size of the display control is 320¡Á240, and the size of the image is 640¡Á480. When iOffsetX = 160 and iOffsetY = 120, the displayed area is the center 320¡Á240 of the image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iOffsetX The offset's X coordinate.
-/// \param [in] iOffsetY  The offset's Y coordinate.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetDisplayOffset(
+/******************************************************/
+// å‡½æ•°å   : CameraSetDisplayOffset
+// åŠŸèƒ½æè¿° : è®¾ç½®æ˜¾ç¤ºçš„èµ·å§‹åç§»å€¼ã€‚ä»…å½“æ˜¾ç¤ºæ¨¡å¼ä¸ºDISPLAYMODE_REAL
+//        æ—¶æœ‰æ•ˆã€‚ä¾‹å¦‚æ˜¾ç¤ºæ§ä»¶çš„å¤§å°ä¸º320X240ï¼Œè€Œå›¾åƒçš„
+//        çš„å°ºå¯¸ä¸º640X480ï¼Œé‚£ä¹ˆå½“iOffsetX = 160,iOffsetY = 120æ—¶
+//        æ˜¾ç¤ºçš„åŒºåŸŸå°±æ˜¯å›¾åƒçš„å±…ä¸­320X240çš„ä½ç½®ã€‚å¿…é¡»è°ƒç”¨è¿‡
+//        CameraDisplayInitè¿›è¡Œåˆå§‹åŒ–æ‰èƒ½è°ƒç”¨æœ¬å‡½æ•°ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOffsetX  åç§»çš„Xåæ ‡ã€‚
+//            iOffsetY  åç§»çš„Yåæ ‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetDisplayOffset(
     CameraHandle    hCamera,
-    int             iOffsetX, 
+    int             iOffsetX,
     int             iOffsetY
 );
 
-/// @ingroup API_DISPLAY
-/// \~chinese
-/// \brief ÉèÖÃÏÔÊ¾¿Ø¼şµÄ³ß´ç¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iWidth ¿í¶È
-/// \param [in] iHeight ¸ß¶È
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the size of the display control.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iWidth width
-/// \param [in] iHeight height
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetDisplaySize(
-    CameraHandle    hCamera, 
-    INT             iWidth, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetDisplaySize
+// åŠŸèƒ½æè¿° : è®¾ç½®æ˜¾ç¤ºæ§ä»¶çš„å°ºå¯¸ã€‚å¿…é¡»è°ƒç”¨è¿‡
+//        CameraDisplayInitè¿›è¡Œåˆå§‹åŒ–æ‰èƒ½è°ƒç”¨æœ¬å‡½æ•°ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iWidth    å®½åº¦
+//            iHeight   é«˜åº¦
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetDisplaySize(
+    CameraHandle    hCamera,
+    INT             iWidth,
     INT             iHeight
 );
 
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£ÎªÁËÌá¸ßĞ§ÂÊ£¬SDKÔÚÍ¼Ïñ×¥È¡Ê±²ÉÓÃÁËÁã¿½±´»úÖÆ£¬±¾º¯ÊıÊµ¼Ê»ñµÃÊÇÄÚºËÖĞµÄÒ»¸ö»º³åÇøµØÖ·¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pFrameInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢Ö¸Õë¡£
-/// \param [out] pbyBuffer ·µ»ØÍ¼ÏñÊı¾İµÄ»º³åÇøÖ¸Õë¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¸Ãº¯Êı³É¹¦µ÷ÓÃºó£¬±ØĞëµ÷ÓÃ@link CameraReleaseImageBuffer @endlinkÊÍ·Å»º³åÇø,ÒÔ±ãÈÃÄÚºË¼ÌĞøÊ¹ÓÃ¸Ã»º³åÇø¡£  
-/// \~english
-/// \brief Get a frame of image data. To improve efficiency, the SDK uses a zero-copy mechanism for image capture. This function actually obtains a buffer address in the kernel.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pFrameInfo The header information pointer of the image.
-/// \param [out] pbyBuffer Returns the buffer pointer of the image data.
-/// \param [in] wTimes Timeout for grabbing an image in milliseconds. The function returns a timeout error if no image has been obtained within wTimes.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note After the function is successfully called, @link CameraReleaseImageBuffer @endlink must be called to release the buffer so that the kernel can continue to use the buffer.
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBuffer(
-    CameraHandle        hCamera, 
-    tSdkFrameHead*      pFrameInfo, 
-    BYTE**              pbyBuffer,
-    UINT                wTimes
-);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊı¾İÊÇÒÑ¾­¾­¹ıÍ¼Ïñ´¦ÀíµÄÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piWidth ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È¡£
-/// \param [out] piHeight ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦Ê±£¬·µ»ØÖ¡Êı¾İ»º³åÇøµÄÊ×µØÖ·£¬·ñÔò·µ»Ø0¡£
-/// \note ±¾º¯Êı²»ĞèÒªµ÷ÓÃ@link CameraReleaseImageBuffer @endlinkÊÍ·Å»º³åÇø¡£
-/// \~english
-/// \brief Get a frame of image data. The image data obtained by this interface is already image-processed data.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piWidth  returns the width of the image.
-/// \param [out] piHeight Returns the height of the image.
-/// \param [in] wTimes Timeout for grabbing an image in milliseconds. The function returns a timeout error if no image has been obtained within wTimes.
-/// \return On success, returns the first address of the frame data buffer, otherwise it returns 0.
-/// \note This function does not need to call @link CameraReleaseImageBuffer @endlink to release the buffer.
-MVSDK_API unsigned char* __stdcall CameraGetImageBufferEx(
-    CameraHandle        hCamera, 
-    INT*                piWidth,
-    INT*                piHeight,
-    UINT                wTimes
-);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief ×¥ÅÄÒ»ÕÅÍ¼Ïñµ½»º³åÇøÖĞ¡£Ïà»ú»á½øÈë×¥ÅÄÄ£Ê½£¬²¢ÇÒ×Ô¶¯ÇĞ»»µ½×¥ÅÄÄ£Ê½µÄ·Ö±æÂÊ½øĞĞÍ¼Ïñ²¶»ñ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pFrameInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢Ö¸Õë¡£
-/// \param [out] pbyBuffer ·µ»ØÍ¼ÏñÊı¾İµÄ»º³åÇøÖ¸Õë¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¸Ãº¯Êı³É¹¦µ÷ÓÃºó£¬±ØĞëµ÷ÓÃ@link CameraReleaseImageBuffer @endlinkÊÍ·Å»º³åÇø,ÒÔ±ãÈÃÄÚºË¼ÌĞøÊ¹ÓÃ¸Ã»º³åÇø¡£  
-/// \warning ±¾º¯Êı¿ÉÄÜ»á½øĞĞ·Ö±æÂÊÇĞ»»£¬Òò´ËĞ§ÂÊ»á±È@link #CameraGetImageBuffer @endlinkµÍ¡£Èç¹ûÃ»ÓĞÇĞ»»·Ö±æÂÊ×¥ÅÄµÄĞèÇó£¬ÇëÊ¹ÓÃ@link #CameraGetImageBuffer @endlink¡£
-/// \~english
-/// \brief Take an image into the buffer. The camera will enter snap mode and automatically switch to snap mode resolution for image capture.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pFrameInfo The header information pointer of the image.
-/// \param [out] pbyBuffer Returns the buffer pointer of the image data.
-/// \param [in] wTimes Timeout for grabbing an image in milliseconds. The function returns a timeout error if no image has been obtained within wTimes.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note After the function is successfully called, @link CameraReleaseImageBuffer @endlink must be called to release the buffer so that the kernel can continue to use the buffer.
-/// \warning This function may switch the resolution, so the efficiency will be lower than @link #CameraGetImageBuffer @endlink. If you do not need to switch resolution capture, use @link #CameraGetImageBuffer @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSnapToBuffer(
+/******************************************************/
+// å‡½æ•°å   : CameraGetImageBuffer
+// åŠŸèƒ½æè¿° : è·å¾—ä¸€å¸§å›¾åƒæ•°æ®ã€‚ä¸ºäº†æé«˜æ•ˆç‡ï¼ŒSDKåœ¨å›¾åƒæŠ“å–æ—¶é‡‡ç”¨äº†é›¶æ‹·è´æœºåˆ¶ï¼Œ
+//        CameraGetImageBufferå®é™…è·å¾—æ˜¯å†…æ ¸ä¸­çš„ä¸€ä¸ªç¼“å†²åŒºåœ°å€ï¼Œ
+//        è¯¥å‡½æ•°æˆåŠŸè°ƒç”¨åï¼Œå¿…é¡»è°ƒç”¨CameraReleaseImageBufferé‡Šæ”¾ç”±
+//        CameraGetImageBufferå¾—åˆ°çš„ç¼“å†²åŒº,ä»¥ä¾¿è®©å†…æ ¸ç»§ç»­ä½¿ç”¨
+//        è¯¥ç¼“å†²åŒºã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pFrameInfo  å›¾åƒçš„å¸§å¤´ä¿¡æ¯æŒ‡é’ˆã€‚
+//            pbyBuffer   æŒ‡å‘å›¾åƒçš„æ•°æ®çš„ç¼“å†²åŒºæŒ‡é’ˆã€‚ç”±äº
+//              é‡‡ç”¨äº†é›¶æ‹·è´æœºåˆ¶æ¥æé«˜æ•ˆç‡ï¼Œå› æ­¤
+//              è¿™é‡Œä½¿ç”¨äº†ä¸€ä¸ªæŒ‡å‘æŒ‡é’ˆçš„æŒ‡é’ˆã€‚
+//            UINT wTimes æŠ“å–å›¾åƒçš„è¶…æ—¶æ—¶é—´ã€‚å•ä½æ¯«ç§’ã€‚åœ¨
+//              wTimesæ—¶é—´å†…è¿˜æœªè·å¾—å›¾åƒï¼Œåˆ™è¯¥å‡½æ•°
+//              ä¼šè¿”å›è¶…æ—¶ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetImageBuffer(
     CameraHandle        hCamera,
     tSdkFrameHead*      pFrameInfo,
     BYTE**              pbyBuffer,
     UINT                wTimes
 );
 
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief ×¥ÅÄÒ»ÕÅJPEG¸ñÊ½Í¼Ïñµ½ÎÄ¼şÖĞ¡£(½ö²¿·ÖÏà»úÓ²¼şÖ§³Ö´Ë¹¦ÄÜ)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] lpszFileName Í¼Æ¬±£´æÎÄ¼şÍêÕûÂ·¾¶¡£
-/// \param [in] byQuality Í¼Ïñ±£´æµÄÖÊÁ¿Òò×Ó£¬·¶Î§1µ½100¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Capture a JPEG format image into the file. (Only some camera hardware supports this function)
-/// \param [in] hCamera Handle of the camera.
-/// \param [in] lpszFileName The full path of the image file.
-/// \param [in] byQuality The quality factor of image saving, ranging from 1 to 100.
-/// \param [in] wTimes The timeout period for capturing images, in milliseconds. If the image is not obtained within wTimes, the function will return a timeout error.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSnapJpegToFile(
-	CameraHandle    hCamera,
-	char const*     lpszFileName,
-	BYTE            byQuality,
-	UINT            wTimes
-	);
+/******************************************************/
+// å‡½æ•°å 	: CameraGetImageBufferEx
+// åŠŸèƒ½æè¿°	: è·å¾—ä¸€å¸§å›¾åƒæ•°æ®ã€‚è¯¥æ¥å£è·å¾—çš„å›¾åƒæ˜¯ç»è¿‡å¤„ç†åçš„RGBæ ¼å¼ã€‚è¯¥å‡½æ•°è°ƒç”¨åï¼Œ
+//			  ä¸éœ€è¦è°ƒç”¨ CameraReleaseImageBuffer é‡Šæ”¾ï¼Œä¹Ÿä¸è¦è°ƒç”¨freeä¹‹ç±»çš„å‡½æ•°é‡Šæ”¾
+//              æ¥é‡Šæ”¾è¯¥å‡½æ•°è¿”å›çš„å›¾åƒæ•°æ®ç¼“å†²åŒºã€‚
+// å‚æ•°	    : hCamera	  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piWidth    æ•´å½¢æŒ‡é’ˆï¼Œè¿”å›å›¾åƒçš„å®½åº¦
+//            piHeight   æ•´å½¢æŒ‡é’ˆï¼Œè¿”å›å›¾åƒçš„é«˜åº¦
+//            UINT wTimes æŠ“å–å›¾åƒçš„è¶…æ—¶æ—¶é—´ã€‚å•ä½æ¯«ç§’ã€‚åœ¨
+//						  wTimesæ—¶é—´å†…è¿˜æœªè·å¾—å›¾åƒï¼Œåˆ™è¯¥å‡½æ•°
+//						  ä¼šè¿”å›è¶…æ—¶ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›RGBæ•°æ®ç¼“å†²åŒºçš„é¦–åœ°å€;
+//            å¦åˆ™è¿”å›0ã€‚
+/******************************************************/
+MVSDK_API unsigned char*  CameraGetImageBufferEx(
+    CameraHandle        hCamera,
+    INT*                piWidth,
+    INT*                piHeight,
+    UINT                wTimes
+);
 
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief ÊÍ·ÅÓÉ@link #CameraGetImageBuffer @endlink»ñµÃµÄ»º³åÇø¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbyBuffer Ö¡»º³åÇøµØÖ·¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Releases the buffer obtained by @link #CameraGetImageBuffer @endlink.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbyBuffer Frame buffer address.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraReleaseImageBuffer(
-    CameraHandle    hCamera, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraSnapToBuffer
+// åŠŸèƒ½æè¿° : æŠ“æ‹ä¸€å¼ å›¾åƒåˆ°ç¼“å†²åŒºä¸­ã€‚ç›¸æœºä¼šè¿›å…¥æŠ“æ‹æ¨¡å¼ï¼Œå¹¶ä¸”
+//        è‡ªåŠ¨åˆ‡æ¢åˆ°æŠ“æ‹æ¨¡å¼çš„åˆ†è¾¨ç‡è¿›è¡Œå›¾åƒæ•è·ã€‚ç„¶åå°†
+//        æ•è·åˆ°çš„æ•°æ®ä¿å­˜åˆ°ç¼“å†²åŒºä¸­ã€‚
+//        è¯¥å‡½æ•°æˆåŠŸè°ƒç”¨åï¼Œå¿…é¡»è°ƒç”¨CameraReleaseImageBuffer
+//        é‡Šæ”¾ç”±CameraSnapToBufferå¾—åˆ°çš„ç¼“å†²åŒºã€‚å…·ä½“è¯·å‚è€ƒ
+//        CameraGetImageBufferå‡½æ•°çš„åŠŸèƒ½æè¿°éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pFrameInfo  æŒ‡é’ˆï¼Œè¿”å›å›¾åƒçš„å¸§å¤´ä¿¡æ¯ã€‚
+//            pbyBuffer   æŒ‡å‘æŒ‡é’ˆçš„æŒ‡é’ˆï¼Œç”¨æ¥è¿”å›å›¾åƒç¼“å†²åŒºçš„åœ°å€ã€‚
+//            uWaitTimeMs è¶…æ—¶æ—¶é—´ï¼Œå•ä½æ¯«ç§’ã€‚åœ¨è¯¥æ—¶é—´å†…ï¼Œå¦‚æœä»ç„¶æ²¡æœ‰
+//              æˆåŠŸæ•è·çš„æ•°æ®ï¼Œåˆ™è¿”å›è¶…æ—¶ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSnapToBuffer(
+    CameraHandle        hCamera,
+    tSdkFrameHead*      pFrameInfo,
+    BYTE**              pbyBuffer,
+    UINT                uWaitTimeMs
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraReleaseImageBuffer
+// åŠŸèƒ½æè¿° : é‡Šæ”¾ç”±CameraGetImageBufferè·å¾—çš„ç¼“å†²åŒºã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbyBuffer   ç”±CameraGetImageBufferè·å¾—çš„ç¼“å†²åŒºåœ°å€ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraReleaseImageBuffer(
+    CameraHandle    hCamera,
     BYTE*           pbyBuffer
 );
 
-/// @ingroup API_PLAY_CTRL
-/// \~chinese
-/// \brief ÈÃÏà»ú½øÈë¹¤×÷Ä£Ê½£¬¿ªÊ¼½ÓÊÕÀ´×ÔÏà»ú·¢ËÍµÄÍ¼ÏñÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Put the camera into working mode and start receiving image data from the camera.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraPlay(
+/******************************************************/
+// å‡½æ•°å   : CameraPlay
+// åŠŸèƒ½æè¿° : è®©SDKè¿›å…¥å·¥ä½œæ¨¡å¼ï¼Œå¼€å§‹æ¥æ”¶æ¥è‡ªç›¸æœºå‘é€çš„å›¾åƒ
+//        æ•°æ®ã€‚å¦‚æœå½“å‰ç›¸æœºæ˜¯è§¦å‘æ¨¡å¼ï¼Œåˆ™éœ€è¦æ¥æ”¶åˆ°
+//        è§¦å‘å¸§ä»¥åæ‰ä¼šæ›´æ–°å›¾åƒã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraPlay(
     CameraHandle hCamera
 );
 
-/// @ingroup API_PLAY_CTRL
-/// \~chinese
-/// \brief ÈÃÏà»ú½øÈëÔİÍ£Ä£Ê½£¬²»½ÓÊÕÀ´×ÔÏà»úµÄÍ¼ÏñÊı¾İ£¬Í¬Ê±Ò²»á·¢ËÍÃüÁîÈÃÏà»úÔİÍ£Êä³ö£¬ÊÍ·Å´«Êä´ø¿í¡£ÔİÍ£Ä£Ê½ÏÂ£¬¿ÉÒÔ¶ÔÏà»úµÄ²ÎÊı½øĞĞÅäÖÃ£¬²¢Á¢¼´ÉúĞ§¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Put the camera into pause mode, do not receive image data from the camera, and also send a command to pause the camera output and release the transmission bandwidth. In pause mode, camera parameters can be configured and take effect immediately.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraPause(
+/******************************************************/
+// å‡½æ•°å   : CameraPause
+// åŠŸèƒ½æè¿° : è®©SDKè¿›å…¥æš‚åœæ¨¡å¼ï¼Œä¸æ¥æ”¶æ¥è‡ªç›¸æœºçš„å›¾åƒæ•°æ®ï¼Œ
+//        åŒæ—¶ä¹Ÿä¼šå‘é€å‘½ä»¤è®©ç›¸æœºæš‚åœè¾“å‡ºï¼Œé‡Šæ”¾ä¼ è¾“å¸¦å®½ã€‚
+//        æš‚åœæ¨¡å¼ä¸‹ï¼Œå¯ä»¥å¯¹ç›¸æœºçš„å‚æ•°è¿›è¡Œé…ç½®ï¼Œå¹¶ç«‹å³ç”Ÿæ•ˆã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraPause(
     CameraHandle hCamera
 );
 
-/// @ingroup API_PLAY_CTRL
-/// \~chinese
-/// \brief ÈÃÏà»ú½øÈëÍ£Ö¹×´Ì¬£¬Ò»°ãÊÇ·´³õÊ¼»¯Ê±µ÷ÓÃ¸Ãº¯Êı£¬¸Ãº¯Êı±»µ÷ÓÃ£¬²»ÄÜÔÙ¶ÔÏà»úµÄ²ÎÊı½øĞĞÅäÖÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Let the camera enter the stop state. Generally, this function is called when deinitializing. The function is called and the camera parameters cannot be configured.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraStop(
+/******************************************************/
+// å‡½æ•°å   : CameraStop
+// åŠŸèƒ½æè¿° : è®©SDKè¿›å…¥åœæ­¢çŠ¶æ€ï¼Œä¸€èˆ¬æ˜¯ååˆå§‹åŒ–æ—¶è°ƒç”¨è¯¥å‡½æ•°ï¼Œ
+//        è¯¥å‡½æ•°è¢«è°ƒç”¨ï¼Œä¸èƒ½å†å¯¹ç›¸æœºçš„å‚æ•°è¿›è¡Œé…ç½®ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraStop(
     CameraHandle hCamera
 );
 
-/// @ingroup API_RECORD
-/// \~chinese
-/// \brief ³õÊ¼»¯Ò»´ÎÂ¼Ïñ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iFormat Â¼ÏñµÄ¸ñÊ½£¨0:²»Ñ¹Ëõ  1:MSCV·½Ê½Ñ¹Ëõ  4:H264£©
-/// \param [in] pcSavePath Â¼ÏñÎÄ¼ş±£´æµÄÂ·¾¶¡£
-/// \param [in] b2GLimit Èç¹ûÎªTRUE,ÔòÎÄ¼ş´óÓÚ2GÊ±×Ô¶¯·Ö¸î¡££¨¹¦ÄÜÎ´ÊµÏÖ£©
-/// \param [in] dwQuality Â¼ÏñµÄÖÊÁ¿Òò×Ó£¬Ô½´ó£¬ÔòÖÊÁ¿Ô½ºÃ¡£·¶Î§1µ½100.
-/// \param [in] iFrameRate Â¼ÏñµÄÖ¡ÂÊ¡£½¨ÒéÉè¶¨µÄ±ÈÊµ¼Ê²É¼¯Ö¡ÂÊ´ó£¬ÕâÑù¾Í²»»áÂ©Ö¡¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Initialize a video.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iFormat Encoding format (0: no compression   1: MSCV compression   4: H264)
-/// \param [in] pcSavePath The path to save the video file.
-/// \param [in] b2GLimit If TRUE, the file is automatically split when it is larger than 2G. (Function not implemented)
-/// \param [in] dwQuality The larger the quality factor of the video, the better the quality. Range 1 to 100.
-/// \param [in] iFrameRate The frame rate of the video. It is recommended to set a larger frame rate than the actual acquisition so that no frames are missed.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraInitRecord(
+/******************************************************/
+// å‡½æ•°å   : CameraInitRecord
+// åŠŸèƒ½æè¿° : åˆå§‹åŒ–ä¸€æ¬¡å½•åƒã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iFormat   å½•åƒçš„æ ¼å¼ï¼Œå½“å‰åªæ”¯æŒä¸å‹ç¼©å’ŒMSCVä¸¤ç§æ–¹å¼ã€‚
+//              0:ä¸å‹ç¼©ï¼›1:MSCVæ–¹å¼å‹ç¼©ã€‚
+//            pcSavePath  å½•åƒæ–‡ä»¶ä¿å­˜çš„è·¯å¾„ã€‚
+//            b2GLimit    å¦‚æœä¸ºTRUE,åˆ™æ–‡ä»¶å¤§äº2Gæ—¶è‡ªåŠ¨åˆ†å‰²ã€‚
+//            dwQuality   å½•åƒçš„è´¨é‡å› å­ï¼Œè¶Šå¤§ï¼Œåˆ™è´¨é‡è¶Šå¥½ã€‚èŒƒå›´1åˆ°100.
+//            iFrameRate  å½•åƒçš„å¸§ç‡ã€‚å»ºè®®è®¾å®šçš„æ¯”å®é™…é‡‡é›†å¸§ç‡å¤§ï¼Œ
+//              è¿™æ ·å°±ä¸ä¼šæ¼å¸§ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraInitRecord(
     CameraHandle    hCamera,
     int             iFormat,
     char*           pcSavePath,
@@ -532,193 +513,114 @@ MVSDK_API CameraSdkStatus __stdcall CameraInitRecord(
     int             iFrameRate
 );
 
-/// @ingroup API_RECORD
-/// \~chinese
-/// \brief ½áÊø±¾´ÎÂ¼Ïñ¡£µ±@link #CameraInitRecord @endlinkºó£¬¿ÉÒÔÍ¨¹ı¸Ãº¯ÊıÀ´½áÊøÒ»´ÎÂ¼Ïñ£¬²¢Íê³ÉÎÄ¼ş±£´æ²Ù×÷¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief End this video. After @link #CameraInitRecord @endlink, you can use this function to end a video and complete the file save operation.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraStopRecord(
+/******************************************************/
+// å‡½æ•°å   : CameraStopRecord
+// åŠŸèƒ½æè¿° : ç»“æŸæœ¬æ¬¡å½•åƒã€‚å½“CameraInitRecordåï¼Œå¯ä»¥é€šè¿‡è¯¥å‡½æ•°
+//        æ¥ç»“æŸä¸€æ¬¡å½•åƒï¼Œå¹¶å®Œæˆæ–‡ä»¶ä¿å­˜æ“ä½œã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraStopRecord(
     CameraHandle    hCamera
 );
 
-/// @ingroup API_RECORD
-/// \~chinese
-/// \brief ½«Ò»Ö¡Êı¾İ´æÈëÂ¼ÏñÁ÷ÖĞ¡£ÓÉÓÚÎÒÃÇµÄÖ¡Í·ĞÅÏ¢ÖĞĞ¯´øÁËÍ¼Ïñ²É¼¯µÄÊ±¼ä´ÁĞÅÏ¢£¬Òò´ËÂ¼Ïñ¿ÉÒÔ¾«×¼µÄÊ±¼äÍ¬²½£¬¶ø²»ÊÜÖ¡ÂÊ²»ÎÈ¶¨µÄÓ°Ïì¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbyImageBuffer Í¼ÏñµÄÊı¾İ»º³åÇø¡£
-/// \param [in] pFrInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief One frame of data is stored in the video stream. Since our frame header information carries the timestamp information of the image acquisition, the recording can be accurately time synchronized without being affected by the instability of the frame rate.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbyImageBuffer Image data buffer.
-/// \param [in] pFrInfo The frame header information of the image.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraPushFrame(
+/******************************************************/
+// å‡½æ•°å   : CameraPushFrame
+// åŠŸèƒ½æè¿° : å°†ä¸€å¸§æ•°æ®å­˜å…¥å½•åƒæµä¸­ã€‚å¿…é¡»è°ƒç”¨CameraInitRecord
+//        æ‰èƒ½è°ƒç”¨è¯¥å‡½æ•°ã€‚CameraStopRecordè°ƒç”¨åï¼Œä¸èƒ½å†è°ƒç”¨
+//        è¯¥å‡½æ•°ã€‚ç”±äºæˆ‘ä»¬çš„å¸§å¤´ä¿¡æ¯ä¸­æºå¸¦äº†å›¾åƒé‡‡é›†çš„æ—¶é—´æˆ³
+//        ä¿¡æ¯ï¼Œå› æ­¤å½•åƒå¯ä»¥ç²¾å‡†çš„æ—¶é—´åŒæ­¥ï¼Œè€Œä¸å—å¸§ç‡ä¸ç¨³å®š
+//        çš„å½±å“ã€‚
+// å‚æ•°     : hCamera     ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbyImageBuffer    å›¾åƒçš„æ•°æ®ç¼“å†²åŒºï¼Œå¿…é¡»æ˜¯RGBæ ¼å¼ã€‚
+//            pFrInfo           å›¾åƒçš„å¸§å¤´ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraPushFrame(
     CameraHandle    hCamera,
     BYTE*           pbyImageBuffer,
     tSdkFrameHead*  pFrInfo
 );
 
-/// @ingroup API_SAVE_IMAGE
-/// \~chinese
-/// \brief ½«Í¼Ïñ»º³åÇøµÄÊı¾İ±£´æ³ÉÍ¼Æ¬ÎÄ¼ş¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] lpszFileName Í¼Æ¬±£´æÎÄ¼şÍêÕûÂ·¾¶¡£
-/// \param [in] pbyImageBuffer Í¼ÏñµÄÊı¾İ»º³åÇø¡£
-/// \param [in] pFrInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢¡£
-/// \param [in] byFileType Í¼Ïñ±£´æµÄ¸ñÊ½¡£È¡Öµ·¶Î§²Î¼û@link #emSdkFileType @endlinkµÄ¶¨Òå¡£
-/// \param [in] byQuality Í¼Ïñ±£´æµÄÖÊÁ¿Òò×Ó£¬½öµ±±£´æÎªJPG¸ñÊ½Ê±¸Ã²ÎÊıÓĞĞ§£¬·¶Î§1µ½100¡£ÆäÓà¸ñÊ½¿ÉÒÔĞ´³É0¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ä¿Ç°Ö§³Ö BMP¡¢JPG¡¢PNG¡¢RAWËÄÖÖ¸ñÊ½¡£ÆäÖĞRAW±íÊ¾Ïà»úÊä³öµÄÔ­Ê¼Êı¾İ£¬±£´æRAW¸ñÊ½ÎÄ¼şÒªÇópbyImageBufferºÍpFrInfoÊÇÓÉ@link #CameraGetImageBuffer @endlink»ñµÃµÄÊı¾İ£¬¶øÇÒÎ´¾­@link #CameraImageProcess @endlink×ª»»³ÉBMP¸ñÊ½£»·´Ö®£¬Èç¹ûÒª±£´æ³ÉBMP¡¢JPG»òÕßPNG¸ñÊ½£¬ÔòpbyImageBufferºÍpFrInfoÊÇÓÉ@link #CameraImageProcess @endlink´¦ÀíºóµÄRGB¸ñÊ½Êı¾İ¡£¾ßÌåÓÃ·¨¿ÉÒÔ²Î¿¼AdvancedµÄÀı³Ì¡£   
-/// \~english
-/// \brief Save the image buffer data as a picture file.
-/// \param [in] hCamera Camera handle.
-/// \param [in] lpszFileName The picture saves the full path to the file.
-/// \param [in] pbyImageBuffer Image data buffer.
-/// \param [in] pFrInfo The frame header information of the image.
-/// \param [in] byFileType Image save format. See the definition of @link #emSdkFileType @endlink for the range of values.
-/// \param [in] byQuality The quality factor of the saved image. This parameter is valid only when saving in JPG format. The range is from 1 to 100. The rest of the format can be written as 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Currently supports BMP, JPG, PNG, RAW four formats. Among them, RAW represents the raw data output by the camera. Saving RAW format files requires pbyImageBuffer and pFrInfo to be obtained by @link #CameraGetImageBuffer @endlink, and without @link #CameraImageProcess @endlink converting to BMP format; otherwise, if you want to save to BMP JPG or PNG format, pbyImageBuffer and pFrInfo are RGB format data processed by @link #CameraImageProcess @endlink. Specific usage can refer to Advanced's routines.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveImage(
+/******************************************************/
+// å‡½æ•°å   : CameraSaveImage
+// åŠŸèƒ½æè¿° : å°†å›¾åƒç¼“å†²åŒºçš„æ•°æ®ä¿å­˜æˆå›¾ç‰‡æ–‡ä»¶ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            lpszFileName   å›¾ç‰‡ä¿å­˜æ–‡ä»¶å®Œæ•´è·¯å¾„ã€‚
+//            pbyImageBuffer å›¾åƒçš„æ•°æ®ç¼“å†²åŒºã€‚
+//            pFrInfo        å›¾åƒçš„å¸§å¤´ä¿¡æ¯ã€‚
+//            byFileType     å›¾åƒä¿å­˜çš„æ ¼å¼ã€‚å–å€¼èŒƒå›´å‚è§CameraDefine.h
+//               ä¸­emSdkFileTypeçš„ç±»å‹å®šä¹‰ã€‚ç›®å‰æ”¯æŒ
+//               BMPã€JPGã€PNGã€RAWå››ç§æ ¼å¼ã€‚å…¶ä¸­RAWè¡¨ç¤º
+//               ç›¸æœºè¾“å‡ºçš„åŸå§‹æ•°æ®ï¼Œä¿å­˜RAWæ ¼å¼æ–‡ä»¶è¦æ±‚
+//               pbyImageBufferå’ŒpFrInfoæ˜¯ç”±CameraGetImageBuffer
+//               è·å¾—çš„æ•°æ®ï¼Œè€Œä¸”æœªç»CameraImageProcessè½¬æ¢
+//               æˆBMPæ ¼å¼ï¼›åä¹‹ï¼Œå¦‚æœè¦ä¿å­˜æˆBMPã€JPGæˆ–è€…
+//               PNGæ ¼å¼ï¼Œåˆ™pbyImageBufferå’ŒpFrInfoæ˜¯ç”±
+//               CameraImageProcesså¤„ç†åçš„RGBæ ¼å¼æ•°æ®ã€‚
+//                 å…·ä½“ç”¨æ³•å¯ä»¥å‚è€ƒAdvancedçš„ä¾‹ç¨‹ã€‚
+//            byQuality      å›¾åƒä¿å­˜çš„è´¨é‡å› å­ï¼Œä»…å½“ä¿å­˜ä¸ºJPGæ ¼å¼
+//                 æ—¶è¯¥å‚æ•°æœ‰æ•ˆï¼ŒèŒƒå›´1åˆ°100ã€‚å…¶ä½™æ ¼å¼
+//                           å¯ä»¥å†™æˆ0ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSaveImage(
     CameraHandle    hCamera,
     char*           lpszFileName,
     BYTE*           pbyImageBuffer,
     tSdkFrameHead*  pFrInfo,
-    UINT            byFileType,
+    BYTE            byFileType,
     BYTE            byQuality
 );
 
-/// @ingroup API_SAVE_IMAGE
-/// \~chinese
-/// \brief ½«Í¼Ïñ»º³åÇøµÄÊı¾İ±£´æ³ÉÍ¼Æ¬ÎÄ¼ş¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] lpszFileName Í¼Æ¬±£´æÎÄ¼şÍêÕûÂ·¾¶¡£
-/// \param [in] pbyImageBuffer Í¼ÏñµÄÊı¾İ»º³åÇø¡£
-/// \param [in] uImageFormat 0:8 BIT gray   1:rgb24    2:rgba32    3:bgr24    4:bgra32
-/// \param [in] iWidth Í¼Æ¬¿í¶È
-/// \param [in] iHeight Í¼Æ¬¸ß¶È
-/// \param [in] byFileType Í¼Ïñ±£´æµÄ¸ñÊ½¡£È¡Öµ·¶Î§²Î¼û@link #emSdkFileType @endlinkµÄ¶¨Òå¡£
-/// \param [in] byQuality Í¼Ïñ±£´æµÄÖÊÁ¿Òò×Ó£¬½öµ±±£´æÎªJPG¸ñÊ½Ê±¸Ã²ÎÊıÓĞĞ§£¬·¶Î§1µ½100¡£ÆäÓà¸ñÊ½¿ÉÒÔĞ´³É0¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Óë@link #CameraSaveImage @endlinkÏàÍ¬
-/// \~english
-/// \brief Save the image buffer data as a picture file.
-/// \param [in] hCamera Camera handle.
-/// \param [in] lpszFileName The picture saves the full path to the file.
-/// \param [in] pbyImageBuffer Image data buffer.
-/// \param [in] uImageFormat 0:8 BIT gray   1:rgb24    2:rgba32    3:bgr24    4:bgra32
-/// \param [in] iWidth width
-/// \param [in] iHeight height
-/// \param [in] byFileType Image save format. See the definition of @link #emSdkFileType @endlink for the range of values.
-/// \param [in] byQuality The quality factor of the saved image. This parameter is valid only when saving in JPG format. The range is from 1 to 100. The rest of the format can be written as 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Same as @link #CameraSaveImage @endlink
-MVSDK_API CameraSdkStatus __stdcall CameraSaveImageEx(
-	CameraHandle    hCamera,
-	char*           lpszFileName,
-	BYTE*           pbyImageBuffer,
-	UINT			uImageFormat,
-	int				iWidth,
-	int				iHeight,
-	UINT            byFileType,
-	BYTE            byQuality
-	);
-
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Ô¤ÀÀµÄ·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] psCurVideoSize ·µ»Øµ±Ç°µÄ·Ö±æÂÊ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the current preview resolution.
-/// \param [in] hCamera Camera handle.
-/// \param [out] psCurVideoSize Returns the current resolution.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageResolution(
-    CameraHandle            hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetImageResolution
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰é¢„è§ˆçš„åˆ†è¾¨ç‡ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            psCurVideoSize ç»“æ„ä½“æŒ‡é’ˆï¼Œç”¨äºè¿”å›å½“å‰çš„åˆ†è¾¨ç‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetImageResolution(
+    CameraHandle            hCamera,
     tSdkImageResolution*    psCurVideoSize
 );
 
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Ô¤ÀÀµÄ·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] iIndex		   Ë÷ÒıºÅ£¬[0,N]±íÊ¾Ô¤ÉèµÄ·Ö±æÂÊ(N ÎªÔ¤Éè·Ö±æÂÊµÄ×î´ó¸öÊı£¬Ò»°ã²»³¬¹ı20),OXFF ±íÊ¾×Ô¶¨Òå·Ö±æÂÊ(ROI)
-/// \param [out] acDescription ¸Ã·Ö±æÂÊµÄÃèÊöĞÅÏ¢¡£½öÔ¤Éè·Ö±æÂÊÊ±¸ÃĞÅÏ¢ÓĞĞ§¡£×Ô¶¨Òå·Ö±æÂÊ¿ÉºöÂÔ¸ÃĞÅÏ¢
-/// \param [out] Mode		   0: ÆÕÍ¨Ä£Ê½     1£ºSum       2£ºAverage        3£ºSkip        4£ºResample
-/// \param [out] ModeSize	   ÆÕÍ¨Ä£Ê½ÏÂºöÂÔ£¬µÚ1Î»±íÊ¾2X2 µÚ¶şÎ»±íÊ¾3X3 ...
-/// \param [out] x			   Ë®Æ½Æ«ÒÆ
-/// \param [out] y			   ´¹Ö±Æ«ÒÆ
-/// \param [out] width		   ¿í
-/// \param [out] height		   ¸ß
-/// \param [out] ZoomWidth     ×îÖÕÊä³öÊ±Ëõ·Å¿í¶È£¬0±íÊ¾²»Ëõ·Å 
-/// \param [out] ZoomHeight    ×îÖÕÊä³öÊ±Ëõ·Å¸ß¶È£¬0±íÊ¾²»Ëõ·Å
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the current preview resolution.
-/// \param [in] hCamera Camera handle.
-/// \param [out] iIndex Index number, [0,N] indicates the default resolution (N is the maximum number of preset resolutions, generally no more than 20), OXFF indicates custom resolution (ROI)
-/// \param [out] acDescription Descriptive information for this resolution. This information is valid only when the resolution is preset. Custom resolution ignores this information
-/// \param [out] Mode 0: Normal Mode 1:Sum 2:Average 3:Skip 4:Resample
-/// \param [out] ModeSize ignored in normal mode, the first bit represents 2X2 the second bit represents 3X3 ...
-/// \param [out] x horizontal offset
-/// \param [out] y vertical offset
-/// \param [out] width width
-/// \param [out] height high
-/// \param [out] ZoomWidth Scale width when final output, 0 means not zoom
-/// \param [out] ZoomHeight Scales the height of the final output, 0 means no scaling
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageResolutionEx(
-	CameraHandle            hCamera, 
-	int*					iIndex,
-	char					acDescription[32],
-	int*					Mode,
-	UINT*					ModeSize,
-	int*					x,
-	int*					y,
-	int*					width,
-	int*					height,
-	int*					ZoomWidth,
-	int*					ZoomHeight
-	);
-
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief ÉèÖÃÔ¤ÀÀµÄ·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pImageResolution ĞÂ·Ö±æÂÊ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the resolution of the preview.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pImageResolution New resolution.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetImageResolution(
-    CameraHandle            hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetImageResolution
+// åŠŸèƒ½æè¿° : è®¾ç½®é¢„è§ˆçš„åˆ†è¾¨ç‡ã€‚
+// å‚æ•°     : hCamera      ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pImageResolution ç»“æ„ä½“æŒ‡é’ˆï¼Œç”¨äºè¿”å›å½“å‰çš„åˆ†è¾¨ç‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetImageResolution(
+    CameraHandle            hCamera,
     tSdkImageResolution*    pImageResolution
 );
 
 /// @ingroup API_ROI
 /// \~chinese
-/// \brief »ñµÃµ±Ç°Ô¤ÀÀµÄ·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIndex		   Ë÷ÒıºÅ£¬[0,N]±íÊ¾Ô¤ÉèµÄ·Ö±æÂÊ(N ÎªÔ¤Éè·Ö±æÂÊµÄ×î´ó¸öÊı£¬Ò»°ã²»³¬¹ı20),OXFF ±íÊ¾×Ô¶¨Òå·Ö±æÂÊ(ROI)
-/// \param [in] Mode		   0: ÆÕÍ¨Ä£Ê½     1£ºSum       2£ºAverage        3£ºSkip        4£ºResample
-/// \param [in] ModeSize	   ÆÕÍ¨Ä£Ê½ÏÂºöÂÔ£¬µÚ1Î»±íÊ¾2X2 µÚ¶şÎ»±íÊ¾3X3 ...
-/// \param [in] x			   Ë®Æ½Æ«ÒÆ
-/// \param [in] y			   ´¹Ö±Æ«ÒÆ
-/// \param [in] width		   ¿í
-/// \param [in] height		   ¸ß
-/// \param [in] ZoomWidth     ×îÖÕÊä³öÊ±Ëõ·Å¿í¶È£¬0±íÊ¾²»Ëõ·Å 
-/// \param [in] ZoomHeight    ×îÖÕÊä³öÊ±Ëõ·Å¸ß¶È£¬0±íÊ¾²»Ëõ·Å
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—å½“å‰é¢„è§ˆçš„åˆ†è¾¨ç‡ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iIndex		   ç´¢å¼•å·ï¼Œ[0,N]è¡¨ç¤ºé¢„è®¾çš„åˆ†è¾¨ç‡(N ä¸ºé¢„è®¾åˆ†è¾¨ç‡çš„æœ€å¤§ä¸ªæ•°ï¼Œä¸€èˆ¬ä¸è¶…è¿‡20),OXFF è¡¨ç¤ºè‡ªå®šä¹‰åˆ†è¾¨ç‡(ROI)
+/// \param [in] Mode		   0: æ™®é€šæ¨¡å¼     1ï¼šSum       2ï¼šAverage        3ï¼šSkip        4ï¼šResample
+/// \param [in] ModeSize	   æ™®é€šæ¨¡å¼ä¸‹å¿½ç•¥ï¼Œç¬¬1ä½è¡¨ç¤º2X2 ç¬¬äºŒä½è¡¨ç¤º3X3 ...
+/// \param [in] x			   æ°´å¹³åç§»
+/// \param [in] y			   å‚ç›´åç§»
+/// \param [in] width		   å®½
+/// \param [in] height		   é«˜
+/// \param [in] ZoomWidth     æœ€ç»ˆè¾“å‡ºæ—¶ç¼©æ”¾å®½åº¦ï¼Œ0è¡¨ç¤ºä¸ç¼©æ”¾ 
+/// \param [in] ZoomHeight    æœ€ç»ˆè¾“å‡ºæ—¶ç¼©æ”¾é«˜åº¦ï¼Œ0è¡¨ç¤ºä¸ç¼©æ”¾
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the current preview resolution.
 /// \param [in] hCamera Camera handle.
@@ -732,7 +634,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetImageResolution(
 /// \param [in] ZoomWidth Scale width when final output, 0 means not zoom
 /// \param [in] ZoomHeight Scales the height of the final output, 0 means no scaling
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetImageResolutionEx(
+MVSDK_API CameraSdkStatus CameraSetImageResolutionEx(
 	CameraHandle            hCamera, 
 	int						iIndex,
 	int						Mode,
@@ -745,693 +647,593 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetImageResolutionEx(
 	int						ZoomHeight
 	);
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°Êä³öÔ­Ê¼Êı¾İµÄ¸ñÊ½Ë÷ÒıºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piMediaType ·µ»Øµ±Ç°¸ñÊ½ÀàĞÍµÄË÷ÒıºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÔÚ@link #tSdkCameraCapbility.pMediaTypeDesc @endlink³ÉÔ±ÖĞ£¬ÒÔÊı×éµÄĞÎÊ½±£´æÁËÏà»úÖ§³ÖµÄ¸ñÊ½£¬piMediaTypeËùÖ¸ÏòµÄË÷ÒıºÅ£¬¾ÍÊÇ¸ÃÊı×éµÄË÷ÒıºÅ¡£
-/// \~english
-/// \brief Gets the format index number of the camera's current output raw data.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piMediaType Returns the index of the current format type.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note In the @link #tSdkCameraCapbility.pMediaTypeDesc @endlink member, the format supported by the camera is saved as an array. The index number pointed to by piMediaType is the index number of the array.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMediaType(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetMediaType
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºå½“å‰è¾“å‡ºåŸå§‹æ•°æ®çš„æ ¼å¼ç´¢å¼•å·ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piMediaType   æŒ‡é’ˆï¼Œç”¨äºè¿”å›å½“å‰æ ¼å¼ç±»å‹çš„ç´¢å¼•å·ã€‚
+//              ç”±CameraGetCapabilityè·å¾—ç›¸æœºçš„å±æ€§ï¼Œ
+//              åœ¨tSdkCameraCapbilityç»“æ„ä½“ä¸­çš„pMediaTypeDesc
+//              æˆå‘˜ä¸­ï¼Œä»¥æ•°ç»„çš„å½¢å¼ä¿å­˜äº†ç›¸æœºæ”¯æŒçš„æ ¼å¼ï¼Œ
+//              piMediaTypeæ‰€æŒ‡å‘çš„ç´¢å¼•å·ï¼Œå°±æ˜¯è¯¥æ•°ç»„çš„ç´¢å¼•å·ã€‚
+//              pMediaTypeDesc[*piMediaType].iMediaTypeåˆ™è¡¨ç¤ºå½“å‰æ ¼å¼çš„
+//              ç¼–ç ã€‚è¯¥ç¼–ç è¯·å‚è§CameraDefine.hä¸­[å›¾åƒæ ¼å¼å®šä¹‰]éƒ¨åˆ†ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetMediaType(
+    CameraHandle    hCamera,
     INT*            piMediaType
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄÊä³öÔ­Ê¼Êı¾İ¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMediaType ĞÂ¸ñÊ½ÀàĞÍµÄË÷ÒıºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Óë@link #CameraGetMediaType @endlinkÏàÍ¬¡£
-/// \~english
-/// \brief Sets the camera's output raw data format.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMediaType The index number of the new format type.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Same as @link #CameraGetMediaType @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMediaType(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetMediaType
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºçš„è¾“å‡ºåŸå§‹æ•°æ®æ ¼å¼ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iMediaType  ç”±CameraGetCapabilityè·å¾—ç›¸æœºçš„å±æ€§ï¼Œ
+//              åœ¨tSdkCameraCapbilityç»“æ„ä½“ä¸­çš„pMediaTypeDesc
+//              æˆå‘˜ä¸­ï¼Œä»¥æ•°ç»„çš„å½¢å¼ä¿å­˜äº†ç›¸æœºæ”¯æŒçš„æ ¼å¼ï¼Œ
+//              iMediaTypeå°±æ˜¯è¯¥æ•°ç»„çš„ç´¢å¼•å·ã€‚
+//              pMediaTypeDesc[iMediaType].iMediaTypeåˆ™è¡¨ç¤ºå½“å‰æ ¼å¼çš„
+//              ç¼–ç ã€‚è¯¥ç¼–ç è¯·å‚è§CameraDefine.hä¸­[å›¾åƒæ ¼å¼å®šä¹‰]éƒ¨åˆ†ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetMediaType(
+    CameraHandle    hCamera,
     INT             iMediaType
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡RAWÊı¾İµÄ×î´óÓĞĞ§Î»Êı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pMaxAvailBits	·µ»ØRAWµÄ×î´óÓĞĞ§Î»Êı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the maximum number of significant bits of RAW data
-/// \param [in] hCamera Camera handle.
-/// \param [out] pMaxAvailBits	returns the maximum number of significant bits of RAW data
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRawMaxAvailBits(
-	CameraHandle    hCamera,
-	int*           pMaxAvailBits
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃRAWÊı¾İµÄÊä³öÆğÊ¼Î»
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] startBit ÆğÊ¼BIT£¨Ä¬ÈÏÊä³ö¸ß8Î»£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the output start bit of RAW data
-/// \param [in] hCamera Camera handle.
-/// \param [in] startBit Start BIT (The high 8 bits are output by default)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetRawStartBit(
-	CameraHandle    hCamera,
-	int             startBit
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡RAWÊı¾İµÄÊä³öÆğÊ¼Î»
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] startBit ÆğÊ¼BIT
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the output start bit of RAW data
-/// \param [in] hCamera Camera handle.
-/// \param [out] startBit Start BIT
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRawStartBit(
-	CameraHandle    hCamera,
-	int*            startBit
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÆØ¹âµÄÄ£Ê½¡£×Ô¶¯»òÕßÊÖ¶¯¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bAeState TRUE:×Ô¶¯ÆØ¹â£»FALSE:ÊÖ¶¯ÆØ¹â¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the camera exposure mode. Automatic or manual.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bAeState TRUE: Auto exposure; FALSE: Manual exposure.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeState(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeState
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºæ›å…‰çš„æ¨¡å¼ã€‚è‡ªåŠ¨æˆ–è€…æ‰‹åŠ¨ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bAeState    TRUEï¼Œä½¿èƒ½è‡ªåŠ¨æ›å…‰ï¼›FALSEï¼Œåœæ­¢è‡ªåŠ¨æ›å…‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAeState(
+    CameraHandle    hCamera,
     BOOL            bAeState
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°µÄÆØ¹âÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pAeState ·µ»Ø×Ô¶¯ÆØ¹âµÄÊ¹ÄÜ×´Ì¬¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the camera's current exposure mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pAeState Returns the auto exposure's enable state.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeState(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeState
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºå½“å‰çš„æ›å…‰æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pAeState   æŒ‡é’ˆï¼Œç”¨äºè¿”å›è‡ªåŠ¨æ›å…‰çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAeState(
+    CameraHandle    hCamera,
     BOOL*           pAeState
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃÍ¼ÏñµÄ´¦ÀíµÄÈñ»¯²ÎÊı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iSharpness Èñ»¯²ÎÊı£¬Ò»°ãÊÇ[0,100]£¬0±íÊ¾¹Ø±ÕÈñ»¯´¦Àí¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the sharpening parameters for the processing of the image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iSharpness Sharpen parameter, generally [0,100], 0 means close sharpening.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSharpness(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetSharpness
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒçš„å¤„ç†çš„é”åŒ–å‚æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iSharpness é”åŒ–å‚æ•°ã€‚èŒƒå›´ç”±CameraGetCapability
+//               è·å¾—ï¼Œä¸€èˆ¬æ˜¯[0,100]ï¼Œ0è¡¨ç¤ºå…³é—­é”åŒ–å¤„ç†ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetSharpness(
+    CameraHandle    hCamera,
     int             iSharpness
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡µ±Ç°Èñ»¯Éè¶¨Öµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piSharpness ·µ»Øµ±Ç°Éè¶¨µÄÈñ»¯µÄÉè¶¨Öµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the current sharpening setting.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piSharpness Returns the currently set sharpened setting.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetSharpness(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetSharpness
+// åŠŸèƒ½æè¿° : è·å–å½“å‰é”åŒ–è®¾å®šå€¼ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piSharpness æŒ‡é’ˆï¼Œè¿”å›å½“å‰è®¾å®šçš„é”åŒ–çš„è®¾å®šå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetSharpness(
+    CameraHandle    hCamera,
     int*            piSharpness
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄ²é±í±ä»»Ä£Ê½LUTÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] emLutMode ¶¨Òå²Î¿¼@link #emSdkLutMode @endlinkÀàĞÍ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the camera's lookup table transformation mode LUT mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] emLutMode Defines the reference @link #emSdkLutMode @endlink type.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLutMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetLutMode
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºçš„æŸ¥è¡¨å˜æ¢æ¨¡å¼LUTæ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            emLutMode  LUTMODE_PARAM_GEN è¡¨ç¤ºç”±ä¼½é©¬å’Œå¯¹æ¯”åº¦å‚æ•°åŠ¨æ€ç”ŸæˆLUTè¡¨ã€‚
+//             LUTMODE_PRESET    è¡¨ç¤ºä½¿ç”¨é¢„è®¾çš„LUTè¡¨ã€‚
+//             LUTMODE_USER_DEF  è¡¨ç¤ºä½¿ç”¨ç”¨æˆ·è‡ªå®šçš„LUTè¡¨ã€‚
+//             LUTMODE_PARAM_GENçš„å®šä¹‰å‚è€ƒCameraDefine.hä¸­emSdkLutModeç±»å‹ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetLutMode(
     CameraHandle    hCamera,
     int             emLutMode
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄ²é±í±ä»»Ä£Ê½LUTÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pemLutMode ·µ»Øµ±Ç°LUTÄ£Ê½¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Obtain the look-up table conversion mode LUT mode of the camera.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pemLutMode Returns the current LUT mode.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLutMode(
+/******************************************************/
+// å‡½æ•°å   : CameraGetLutMode
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„æŸ¥è¡¨å˜æ¢æ¨¡å¼LUTæ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pemLutMode æŒ‡é’ˆï¼Œè¿”å›å½“å‰LUTæ¨¡å¼ã€‚æ„ä¹‰ä¸CameraSetLutMode
+//             ä¸­emLutModeå‚æ•°ç›¸åŒã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetLutMode(
     CameraHandle    hCamera,
     int*            pemLutMode
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Ñ¡ÔñÔ¤ÉèLUTÄ£Ê½ÏÂµÄLUT±í¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iSel ±íµÄË÷ÒıºÅ¡£±íµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iPresetLut @endlink»ñµÃ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ±ØĞëÏÈÊ¹ÓÃ@link #CameraSetLutMode @endlink½«LUTÄ£Ê½ÉèÖÃÎªÔ¤ÉèÄ£Ê½¡£
-/// \~english
-/// \brief Select the LUT table in the preset LUT mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iSel The index number of the lut table. The number of tables is obtained by @link #tSdkCameraCapbility.iPresetLut @endlink.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Must use @link #CameraSetLutMode @endlink to set LUT mode to preset mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSelectLutPreset(
+/******************************************************/
+// å‡½æ•°å   : CameraSelectLutPreset
+// åŠŸèƒ½æè¿° : é€‰æ‹©é¢„è®¾LUTæ¨¡å¼ä¸‹çš„LUTè¡¨ã€‚å¿…é¡»å…ˆä½¿ç”¨CameraSetLutMode
+//        å°†LUTæ¨¡å¼è®¾ç½®ä¸ºé¢„è®¾æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iSel     è¡¨çš„ç´¢å¼•å·ã€‚è¡¨çš„ä¸ªæ•°ç”±CameraGetCapability
+//             è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSelectLutPreset(
     CameraHandle    hCamera,
     int             iSel
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃÔ¤ÉèLUTÄ£Ê½ÏÂµÄLUT±íË÷ÒıºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piSel  ·µ»Ø±íµÄË÷ÒıºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The LUT table index number in the preset LUT mode is obtained.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piSel Returns the index number of the table.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLutPresetSel(
+/******************************************************/
+// å‡½æ•°å   : CameraGetLutPresetSel
+// åŠŸèƒ½æè¿° : è·å¾—é¢„è®¾LUTæ¨¡å¼ä¸‹çš„LUTè¡¨ç´¢å¼•å·ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piSel      æŒ‡é’ˆï¼Œè¿”å›è¡¨çš„ç´¢å¼•å·ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetLutPresetSel(
     CameraHandle    hCamera,
     int*            piSel
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¨ÒåµÄLUT±í¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iChannel Ö¸¶¨ÒªÉè¶¨µÄLUTÑÕÉ«Í¨µÀ£¬µ±Îª@link #LUT_CHANNEL_ALL @endlinkÊ±£¬Èı¸öÍ¨µÀµÄLUT½«±»Í¬Ê±Ìæ»»¡£@see emSdkLutChannel
-/// \param [in] pLut     Ö¸Õë£¬Ö¸ÏòLUT±íµÄµØÖ·¡£LUT±íÎªÎŞ·ûºÅ¶ÌÕûĞÎÊı×é£¬Êı×é´óĞ¡Îª4096£¬·Ö±ğ´úÂëÑÕÉ«Í¨µÀ´Ó0µ½4096(12bitÑÕÉ«¾«¶È)¶ÔÓ¦µÄÓ³ÉäÖµ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ±ØĞëÏÈÊ¹ÓÃ@link #CameraSetLutMode @endlink½«LUTÄ£Ê½ÉèÖÃÎª×Ô¶¨ÒåÄ£Ê½¡£
-/// \~english
-/// \brief Set up a custom LUT table.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iChannel Specifies the LUT color channel to be set. When @link #LUT_CHANNEL_ALL @endlink, the three-channel LUTs will be replaced at the same time. @see emSdkLutChannel
-/// \param [in] pLut pointer to the address of the LUT table. The LUT table is an unsigned short integer array, and the array size is 4096, which is the mapping value corresponding to the code color channel from 0 to 4096 (12 bit color accuracy).
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note You must use @link #CameraSetLutMode @endlink to set the LUT mode to custom mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSetCustomLut(
+/******************************************************/
+// å‡½æ•°å   : CameraSetCustomLut
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªå®šä¹‰çš„LUTè¡¨ã€‚å¿…é¡»å…ˆä½¿ç”¨CameraSetLutMode
+//        å°†LUTæ¨¡å¼è®¾ç½®ä¸ºè‡ªå®šä¹‰æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iChannel æŒ‡å®šè¦è®¾å®šçš„LUTé¢œè‰²é€šé“ï¼Œå½“ä¸ºLUT_CHANNEL_ALLæ—¶ï¼Œ
+//                      ä¸‰ä¸ªé€šé“çš„LUTå°†è¢«åŒæ—¶æ›¿æ¢ã€‚
+//                      å‚è€ƒCameraDefine.hä¸­emSdkLutChannelå®šä¹‰ã€‚
+//            pLut     æŒ‡é’ˆï¼ŒæŒ‡å‘LUTè¡¨çš„åœ°å€ã€‚LUTè¡¨ä¸ºæ— ç¬¦å·çŸ­æ•´å½¢æ•°ç»„ï¼Œæ•°ç»„å¤§å°ä¸º
+//           4096ï¼Œåˆ†åˆ«ä»£ç é¢œè‰²é€šé“ä»0åˆ°4096(12bité¢œè‰²ç²¾åº¦)å¯¹åº”çš„æ˜ å°„å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetCustomLut(
     CameraHandle    hCamera,
     int       iChannel,
     USHORT*         pLut
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Ê¹ÓÃµÄ×Ô¶¨ÒåLUT±í¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iChannel Ö¸¶¨Òª»ñÈ¡µÄLUTÑÕÉ«Í¨µÀ£¬µ±Îª@link #LUT_CHANNEL_ALL @endlinkÊ±£¬·µ»ØºìÉ«Í¨µÀµÄLUT±í¡£@see emSdkLutChannel
-/// \param [out] pLut    Ö¸ÏòLUT±íµÄµØÖ·¡£LUT±íÎªÎŞ·ûºÅ¶ÌÕûĞÎÊı×é£¬Êı×é´óĞ¡Îª4096£¬·Ö±ğ´úÂëÑÕÉ«Í¨µÀ´Ó0µ½4096(12bitÑÕÉ«¾«¶È)¶ÔÓ¦µÄÓ³ÉäÖµ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the currently used custom LUT table.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iChannel Specifies the LUT color channel to be obtained. When @link #LUT_CHANNEL_ALL @endlink, returns the LUT table of the red channel. @see emSdkLutChannel
-/// \param [out] pLut points to the address of the LUT table. The LUT table is an unsigned short integer array, and the array size is 4096, which is the mapping value corresponding to the code color channel from 0 to 4096 (12 bit color accuracy).
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCustomLut(
+/******************************************************/
+// å‡½æ•°å   : CameraGetCustomLut
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰ä½¿ç”¨çš„è‡ªå®šä¹‰LUTè¡¨ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iChannel æŒ‡å®šè¦è·å¾—çš„LUTé¢œè‰²é€šé“ã€‚å½“ä¸ºLUT_CHANNEL_ALLæ—¶ï¼Œ
+//                      è¿”å›çº¢è‰²é€šé“çš„LUTè¡¨ã€‚
+//                      å‚è€ƒCameraDefine.hä¸­emSdkLutChannelå®šä¹‰ã€‚
+//            pLut       æŒ‡é’ˆï¼ŒæŒ‡å‘LUTè¡¨çš„åœ°å€ã€‚LUTè¡¨ä¸ºæ— ç¬¦å·çŸ­æ•´å½¢æ•°ç»„ï¼Œæ•°ç»„å¤§å°ä¸º
+//           4096ï¼Œåˆ†åˆ«ä»£ç é¢œè‰²é€šé“ä»0åˆ°4096(12bité¢œè‰²ç²¾åº¦)å¯¹åº”çš„æ˜ å°„å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetCustomLut(
     CameraHandle    hCamera,
     int       iChannel,
     USHORT*         pLut
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°µÄLUT±í£¬ÔÚÈÎºÎLUTÄ£Ê½ÏÂ¶¼¿ÉÒÔµ÷ÓÃ,ÓÃÀ´Ö±¹ÛµÄ¹Û²ìLUTÇúÏßµÄ±ä»¯¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iChannel Ö¸¶¨Òª»ñÈ¡µÄLUTÑÕÉ«Í¨µÀ£¬µ±Îª@link #LUT_CHANNEL_ALL @endlinkÊ±£¬·µ»ØºìÉ«Í¨µÀµÄLUT±í¡£@see emSdkLutChannel
-/// \param [out] pLut    Ö¸ÏòLUT±íµÄµØÖ·¡£LUT±íÎªÎŞ·ûºÅ¶ÌÕûĞÎÊı×é£¬Êı×é´óĞ¡Îª4096£¬·Ö±ğ´úÂëÑÕÉ«Í¨µÀ´Ó0µ½4096(12bitÑÕÉ«¾«¶È)¶ÔÓ¦µÄÓ³ÉäÖµ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Obtain the camera's current LUT table, which can be called in any LUT mode, to intuitively observe changes in the LUT curve.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iChannel Specifies the LUT color channel to be obtained. When @link #LUT_CHANNEL_ALL @endlink, returns the LUT table of the red channel. @see emSdkLutChannel
-/// \param [out] pLut points to the address of the LUT table. The LUT table is an unsigned short integer array, and the array size is 4096, which is the mapping value corresponding to the code color channel from 0 to 4096 (12 bit color accuracy).
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCurrentLut(
+/******************************************************/
+// å‡½æ•°å   : CameraGetCurrentLut
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºå½“å‰çš„LUTè¡¨ï¼Œåœ¨ä»»ä½•LUTæ¨¡å¼ä¸‹éƒ½å¯ä»¥è°ƒç”¨,
+//        ç”¨æ¥ç›´è§‚çš„è§‚å¯ŸLUTæ›²çº¿çš„å˜åŒ–ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iChannel æŒ‡å®šè¦è·å¾—çš„LUTé¢œè‰²é€šé“ã€‚å½“ä¸ºLUT_CHANNEL_ALLæ—¶ï¼Œ
+//                      è¿”å›çº¢è‰²é€šé“çš„LUTè¡¨ã€‚
+//                      å‚è€ƒCameraDefine.hä¸­emSdkLutChannelå®šä¹‰ã€‚
+//            pLut       æŒ‡é’ˆï¼ŒæŒ‡å‘LUTè¡¨çš„åœ°å€ã€‚LUTè¡¨ä¸ºæ— ç¬¦å·çŸ­æ•´å½¢æ•°ç»„ï¼Œæ•°ç»„å¤§å°ä¸º
+//           4096ï¼Œåˆ†åˆ«ä»£ç é¢œè‰²é€šé“ä»0åˆ°4096(12bité¢œè‰²ç²¾åº¦)å¯¹åº”çš„æ˜ å°„å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetCurrentLut(
     CameraHandle    hCamera,
     int       iChannel,
     USHORT*         pLut
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃÏà»ú°×Æ½ºâÄ£Ê½¡£·ÖÎªÊÖ¶¯ºÍ×Ô¶¯Á½ÖÖ·½Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bAuto TRUE£¬Ôò±íÊ¾Ê¹ÄÜ×Ô¶¯Ä£Ê½¡£ FALSE£¬Ôò±íÊ¾Ê¹ÓÃÊÖ¶¯Ä£Ê½£¬Í¨¹ıµ÷ÓÃ@link #CameraSetOnceWB @endlinkÀ´½øĞĞÒ»´Î°×Æ½ºâ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set camera white balance mode. Divided into manual and automatic two ways.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bAuto TRUE to enable auto mode. FALSE indicates that using manual mode, a white balance is performed by calling @link #CameraSetOnceWB @endlink.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetWbMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetWbMode
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºç™½å¹³è¡¡æ¨¡å¼ã€‚åˆ†ä¸ºæ‰‹åŠ¨å’Œè‡ªåŠ¨ä¸¤ç§æ–¹å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bAuto      TRUEï¼Œåˆ™è¡¨ç¤ºä½¿èƒ½è‡ªåŠ¨æ¨¡å¼ã€‚
+//             FALSEï¼Œåˆ™è¡¨ç¤ºä½¿ç”¨æ‰‹åŠ¨æ¨¡å¼ï¼Œé€šè¿‡è°ƒç”¨
+//                 CameraSetOnceWBæ¥è¿›è¡Œä¸€æ¬¡ç™½å¹³è¡¡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetWbMode(
     CameraHandle    hCamera,
     BOOL            bAuto
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃµ±Ç°µÄ°×Æ½ºâÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbAuto   Ö¸Õë£¬·µ»ØTRUE±íÊ¾×Ô¶¯Ä£Ê½£¬FALSEÎªÊÖ¶¯Ä£Ê½¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the current white balance mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbAuto pointer, return TRUE for automatic mode, FALSE for manual mode.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetWbMode(
+/******************************************************/
+// å‡½æ•°å   : CameraGetWbMode
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰çš„ç™½å¹³è¡¡æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbAuto   æŒ‡é’ˆï¼Œè¿”å›TRUEè¡¨ç¤ºè‡ªåŠ¨æ¨¡å¼ï¼ŒFALSE
+//             ä¸ºæ‰‹åŠ¨æ¨¡å¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetWbMode(
     CameraHandle    hCamera,
     BOOL*           pbAuto
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief Ñ¡ÔñÖ¸¶¨Ô¤ÉèÉ«ÎÂÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iSel Ô¤ÉèÉ«ÎÂµÄÄ£Ê½Ë÷ÒıºÅ£¬´Ó0¿ªÊ¼
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ÷ÓÃ@link #CameraSetClrTempMode @endlinkÉèÖÃÎªÔ¤ÉèÄ£Ê½¡£
-/// \~english
-/// \brief Select the specified preset color temperature mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] iSel The mode index number of the preset color temperature, starting from 0
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Call @link #CameraSetClrTempMode @endlink set to preset mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSetPresetClrTemp(
+/******************************************************/
+// å‡½æ•°å   : CameraSetPresetClrTemp
+// åŠŸèƒ½æè¿° : é€‰æ‹©æŒ‡å®šé¢„è®¾è‰²æ¸©æ¨¡å¼
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iSel é¢„è®¾è‰²æ¸©çš„æ¨¡å¼ç´¢å¼•å·ï¼Œä»0å¼€å§‹
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetPresetClrTemp(
     CameraHandle    hCamera,
     int             iSel
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Ñ¡ÔñµÄÔ¤ÉèÉ«ÎÂÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piSel  ·µ»ØÑ¡ÔñµÄÔ¤ÉèÉ«ÎÂË÷ÒıºÅ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the currently selected preset color temperature mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piSel Returns the selected preset color temperature index number
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetPresetClrTemp(
+/******************************************************/
+// å‡½æ•°å   : CameraGetPresetClrTemp
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰é€‰æ‹©çš„é¢„è®¾è‰²æ¸©æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piSel  æŒ‡é’ˆï¼Œè¿”å›é€‰æ‹©çš„é¢„è®¾è‰²æ¸©ç´¢å¼•å·
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetPresetClrTemp(
     CameraHandle    hCamera,
     int*            piSel
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¨ÒåÉ«ÎÂÄ£Ê½ÏÂµÄÊı×ÖÔöÒæ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iRgain  ºìÉ«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \param [in] iGgain  ÂÌÉ«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \param [in] iBgain  À¶É«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ÷ÓÃ@link #CameraSetClrTempMode @endlinkÉèÖÃÎª×Ô¶¨ÒåÄ£Ê½¡£
-/// \~english
-/// \brief Set digital gain in custom color temperature mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] iRgain Red gain, range 0 to 400, 0 to 4 times
-/// \param [in] iGgain Green gain, range 0 to 400, 0 to 4 times
-/// \param [in] iBgain Blue gain, range 0 to 400, 0 to 4 times
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Call @link #CameraSetClrTempMode @endlink set to custom mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSetUserClrTempGain(
+/******************************************************/
+// å‡½æ•°å   : CameraSetUserClrTempGain
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªå®šä¹‰è‰²æ¸©æ¨¡å¼ä¸‹çš„æ•°å­—å¢ç›Š
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iRgain  çº¢è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+//            iGgain  ç»¿è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+//            iBgain  è“è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetUserClrTempGain(
   CameraHandle  hCamera,
   int       iRgain,
   int       iGgain,
   int       iBgain
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¨ÒåÉ«ÎÂÄ£Ê½ÏÂµÄÊı×ÖÔöÒæ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piRgain  Ö¸Õë£¬·µ»ØºìÉ«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \param [out] piGgain  Ö¸Õë£¬·µ»ØÂÌÉ«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \param [out] piBgain  Ö¸Õë£¬·µ»ØÀ¶É«ÔöÒæ£¬·¶Î§0µ½400£¬±íÊ¾0µ½4±¶
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get digital gain in custom color temperature mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] piRgain pointer, returning red gain, range 0 to 400, 0 to 4 times
-/// \param [out] piGgain pointer, return green gain, range 0 to 400, 0 to 4 times
-/// \param [out] piBgain pointer, returns blue gain, range 0 to 400, 0 to 4 times
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetUserClrTempGain(
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetUserClrTempGain
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªå®šä¹‰è‰²æ¸©æ¨¡å¼ä¸‹çš„æ•°å­—å¢ç›Š
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piRgain  æŒ‡é’ˆï¼Œè¿”å›çº¢è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+//            piGgain  æŒ‡é’ˆï¼Œè¿”å›ç»¿è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+//            piBgain  æŒ‡é’ˆï¼Œè¿”å›è“è‰²å¢ç›Šï¼ŒèŒƒå›´0åˆ°400ï¼Œè¡¨ç¤º0åˆ°4å€
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetUserClrTempGain(
   CameraHandle  hCamera,
   int*      piRgain,
   int*      piGgain,
   int*      piBgain
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¨ÒåÉ«ÎÂÄ£Ê½ÏÂµÄÑÕÉ«¾ØÕó
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pMatrix Ö¸ÏòÒ»¸öfloat[3][3]Êı×éµÄÊ×µØÖ·
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ÷ÓÃ@link #CameraSetClrTempMode @endlinkÉèÖÃÎª×Ô¶¨ÒåÄ£Ê½¡£
-/// \~english
-/// \brief Set the color matrix in custom color temperature mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] pMatrix points to the first address of an array of float[3][3]
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Call @link #CameraSetClrTempMode @endlink set to custom mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSetUserClrTempMatrix(
+/******************************************************/
+// å‡½æ•°å   : CameraSetUserClrTempMatrix
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªå®šä¹‰è‰²æ¸©æ¨¡å¼ä¸‹çš„é¢œè‰²çŸ©é˜µ
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pMatrix æŒ‡å‘ä¸€ä¸ªfloat[3][3]æ•°ç»„çš„é¦–åœ°å€
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetUserClrTempMatrix(
   CameraHandle  hCamera,
   float*      pMatrix
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¨ÒåÉ«ÎÂÄ£Ê½ÏÂµÄÑÕÉ«¾ØÕó
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pMatrix Ö¸ÏòÒ»¸öfloat[3][3]Êı×éµÄÊ×µØÖ·
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the color matrix in a custom color temperature mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] pMatrix points to the first address of an array of float[3][3]
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetUserClrTempMatrix(
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetUserClrTempMatrix
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªå®šä¹‰è‰²æ¸©æ¨¡å¼ä¸‹çš„é¢œè‰²çŸ©é˜µ
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pMatrix æŒ‡å‘ä¸€ä¸ªfloat[3][3]æ•°ç»„çš„é¦–åœ°å€
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetUserClrTempMatrix(
   CameraHandle  hCamera,
   float*      pMatrix
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃ°×Æ½ºâÊ±Ê¹ÓÃµÄÉ«ÎÂÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMode Ä£Ê½£¬Ö»ÄÜÊÇ@link #emSdkClrTmpMode @endlinkÖĞ¶¨ÒåµÄÒ»ÖÖ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ö§³ÖµÄÄ£Ê½ÓĞÈıÖÖ£¬·Ö±ğÊÇ×Ô¶¯£¬Ô¤ÉèºÍ×Ô¶¨Òå¡£
-/// \note ×Ô¶¯Ä£Ê½ÏÂ£¬»á×Ô¶¯Ñ¡ÔñºÏÊÊµÄÉ«ÎÂÄ£Ê½
-/// \note Ô¤ÉèÄ£Ê½ÏÂ£¬»áÊ¹ÓÃÓÃ»§Ö¸¶¨µÄÉ«ÎÂÄ£Ê½
-/// \note ×Ô¶¨ÒåÄ£Ê½ÏÂ£¬Ê¹ÓÃÓÃ»§×Ô¶¨ÒåµÄÉ«ÎÂÊı×ÖÔöÒæºÍ¾ØÕó
-/// \~english
-/// \brief Color temperature mode used when setting white balance
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMode mode, can only be defined by @link #emSdkClrTmpMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note There are three supported modes, automatic, preset, and custom.
-/// \note Automatic mode will automatically select the appropriate color temperature mode
-/// \note In preset mode, user-specified color temperature mode is used
-/// \note custom-defined color temperature digital gain and matrix
-MVSDK_API CameraSdkStatus __stdcall CameraSetClrTempMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetClrTempMode
+// åŠŸèƒ½æè¿° : è®¾ç½®ç™½å¹³è¡¡æ—¶ä½¿ç”¨çš„è‰²æ¸©æ¨¡å¼ï¼Œ
+//              æ”¯æŒçš„æ¨¡å¼æœ‰ä¸‰ç§ï¼Œåˆ†åˆ«æ˜¯è‡ªåŠ¨ï¼Œé¢„è®¾å’Œè‡ªå®šä¹‰ã€‚
+//              è‡ªåŠ¨æ¨¡å¼ä¸‹ï¼Œä¼šè‡ªåŠ¨é€‰æ‹©åˆé€‚çš„è‰²æ¸©æ¨¡å¼
+//              é¢„è®¾æ¨¡å¼ä¸‹ï¼Œä¼šä½¿ç”¨ç”¨æˆ·æŒ‡å®šçš„è‰²æ¸©æ¨¡å¼
+//              è‡ªå®šä¹‰æ¨¡å¼ä¸‹ï¼Œä½¿ç”¨ç”¨æˆ·è‡ªå®šä¹‰çš„è‰²æ¸©æ•°å­—å¢ç›Šå’ŒçŸ©é˜µ
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iMode æ¨¡å¼ï¼Œåªèƒ½æ˜¯emSdkClrTmpModeä¸­å®šä¹‰çš„ä¸€ç§
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetClrTempMode(
   CameraHandle  hCamera,
   int       iMode
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃ°×Æ½ºâÊ±Ê¹ÓÃµÄÉ«ÎÂÄ£Ê½¡£²Î¿¼@link #CameraSetClrTempMode @endlinkÖĞ¹¦ÄÜÃèÊö²¿·Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pimode Ö¸Õë£¬·µ»ØÄ£Ê½Ñ¡Ôñ£¬²Î¿¼@link #emSdkClrTmpMode @endlinkÀàĞÍ¶¨Òå
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The color temperature mode used when obtaining white balance. Refer to the function description section of @link #CameraSetClrTempMode @endlink.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pimode pointer, return mode selection, reference @link #emSdkClrTmpMode @endlink type definition
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetClrTempMode(
+/******************************************************/
+// å‡½æ•°å   : CameraGetClrTempMode
+// åŠŸèƒ½æè¿° : è·å¾—ç™½å¹³è¡¡æ—¶ä½¿ç”¨çš„è‰²æ¸©æ¨¡å¼ã€‚å‚è€ƒCameraSetClrTempMode
+//              ä¸­åŠŸèƒ½æè¿°éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pimode æŒ‡é’ˆï¼Œè¿”å›æ¨¡å¼é€‰æ‹©ï¼Œå‚è€ƒemSdkClrTmpModeç±»å‹å®šä¹‰
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetClrTempMode(
   CameraHandle  hCamera,
   int*      pimode
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÔÚÊÖ¶¯°×Æ½ºâÄ£Ê½ÏÂ£¬µ÷ÓÃ¸Ãº¯Êı»á½øĞĞÒ»´Î°×Æ½ºâ¡£ÉúĞ§µÄÊ±¼äÎª½ÓÊÕµ½ÏÂÒ»Ö¡Í¼ÏñÊı¾İÊ±¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief In manual white balance mode, calling this function will perform a white balance. The effective time is when the next frame of image data is received.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetOnceWB(
+
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetOnceWB
+// åŠŸèƒ½æè¿° : åœ¨æ‰‹åŠ¨ç™½å¹³è¡¡æ¨¡å¼ä¸‹ï¼Œè°ƒç”¨è¯¥å‡½æ•°ä¼šè¿›è¡Œä¸€æ¬¡ç™½å¹³è¡¡ã€‚
+//        ç”Ÿæ•ˆçš„æ—¶é—´ä¸ºæ¥æ”¶åˆ°ä¸‹ä¸€å¸§å›¾åƒæ•°æ®æ—¶ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetOnceWB(
     CameraHandle    hCamera
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief Ö´ĞĞÒ»´ÎºÚÆ½ºâ²Ù×÷¡££¨ĞèÒªÏà»úÖ§³Ö±¾¹¦ÄÜ£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Performs a black balance operation. (Requires camera support for this feature)
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetOnceBB(
+/******************************************************/
+// å‡½æ•°å   : CameraSetOnceBB
+// åŠŸèƒ½æè¿° : æ‰§è¡Œä¸€æ¬¡é»‘å¹³è¡¡æ“ä½œã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetOnceBB(
     CameraHandle    hCamera
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief Éè¶¨×Ô¶¯ÆØ¹âµÄÁÁ¶ÈÄ¿±êÖµ¡£Éè¶¨·¶Î§[@link #tSdkExpose.uiTargetMin @endlink, @link #tSdkExpose.uiTargetMax @endlink]
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iAeTarget ÁÁ¶ÈÄ¿±êÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the brightness target for auto exposure. Setting range [@link #tSdkExpose.uiTargetMin @endlink, @link #tSdkExpose.uiTargetMax @endlink]
-/// \param [in] hCamera Camera handle.
-/// \param [in] iAeTarget Brightness target value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeTarget(
-    CameraHandle    hCamera, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeTarget
+// åŠŸèƒ½æè¿° : è®¾å®šè‡ªåŠ¨æ›å…‰çš„äº®åº¦ç›®æ ‡å€¼ã€‚è®¾å®šèŒƒå›´ç”±CameraGetCapability
+//        å‡½æ•°è·å¾—ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iAeTarget  äº®åº¦ç›®æ ‡å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAeTarget(
+    CameraHandle    hCamera,
     int             iAeTarget
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹âµÄÁÁ¶ÈÄ¿±êÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piAeTarget Ö¸Õë£¬·µ»ØÄ¿±êÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the auto exposure's brightness target value.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piAeTarget pointer, return target value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeTarget(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeTarget
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰çš„äº®åº¦ç›®æ ‡å€¼ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            *piAeTarget æŒ‡é’ˆï¼Œè¿”å›ç›®æ ‡å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAeTarget(
+    CameraHandle    hCamera,
     int*            piAeTarget
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief Éè¶¨×Ô¶¯ÆØ¹âÄ£Ê½µÄÆØ¹âÊ±¼äµ÷½Ú·¶Î§
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] fMinExposureTime ×îĞ¡ÆØ¹âÊ±¼ä£¨Î¢Ãë£©
-/// \param [in] fMaxExposureTime ×î´óÆØ¹âÊ±¼ä£¨Î¢Ãë£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Setting the exposure time adjustment range of the automatic exposure mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] fMinExposureTime Minimum exposure time (microseconds)
-/// \param [in] fMaxExposureTime Maximum exposure time (microseconds)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeExposureRange(
-	CameraHandle    hCamera, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeExposureRange
+// åŠŸèƒ½æè¿° : è®¾å®šè‡ªåŠ¨æ›å…‰æ¨¡å¼çš„æ›å…‰æ—¶é—´è°ƒèŠ‚èŒƒå›´
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//           fMinExposureTime æœ€å°æ›å…‰æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+//			 fMaxExposureTime æœ€å¤§æ›å…‰æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetAeExposureRange(
+	CameraHandle    hCamera,
 	double          fMinExposureTime,
 	double			fMaxExposureTime
 	);
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹âÄ£Ê½µÄÆØ¹âÊ±¼äµ÷½Ú·¶Î§
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] fMinExposureTime ×îĞ¡ÆØ¹âÊ±¼ä£¨Î¢Ãë£©
-/// \param [out] fMaxExposureTime ×î´óÆØ¹âÊ±¼ä£¨Î¢Ãë£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Exposure time adjustment range for automatic exposure mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] fMinExposureTime Minimum exposure time (microseconds)
-/// \param [out] fMaxExposureTime Maximum exposure time (microseconds)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeExposureRange(
-	CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeExposureRange
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰æ¨¡å¼çš„æ›å…‰æ—¶é—´è°ƒèŠ‚èŒƒå›´
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//           fMinExposureTime æœ€å°æ›å…‰æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+//			 fMaxExposureTime æœ€å¤§æ›å…‰æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraGetAeExposureRange(
+	CameraHandle    hCamera,
 	double*         fMinExposureTime,
 	double*			fMaxExposureTime
 	);
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief Éè¶¨×Ô¶¯ÆØ¹âÄ£Ê½µÄÔöÒæµ÷½Ú·¶Î§
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMinAnalogGain ×îĞ¡ÔöÒæ
-/// \param [in] iMaxAnalogGain ×î´óÔöÒæ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Setting the gain adjustment range of the automatic exposure mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMinAnalogGain minimum gain
-/// \param [in] iMaxAnalogGain maximum gain
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeAnalogGainRange(
-	CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeAnalogGainRange
+// åŠŸèƒ½æè¿° : è®¾å®šè‡ªåŠ¨æ›å…‰æ¨¡å¼çš„å¢ç›Šè°ƒèŠ‚èŒƒå›´
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//           iMinAnalogGain æœ€å°å¢ç›Š
+//			 iMaxAnalogGain æœ€å¤§å¢ç›Š
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetAeAnalogGainRange(
+	CameraHandle    hCamera,
 	int				iMinAnalogGain,
 	int				iMaxAnalogGain
 	);
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹âÄ£Ê½µÄÔöÒæµ÷½Ú·¶Î§
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] iMinAnalogGain ×îĞ¡ÔöÒæ
-/// \param [out] iMaxAnalogGain ×î´óÔöÒæ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gain adjustment range for automatic exposure mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] iMinAnalogGain minimum gain
-/// \param [out] iMaxAnalogGain maximum gain
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeAnalogGainRange(
-	CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeAnalogGainRange
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰æ¨¡å¼çš„å¢ç›Šè°ƒèŠ‚èŒƒå›´
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//           iMinAnalogGain æœ€å°å¢ç›Š
+//			 iMaxAnalogGain æœ€å¤§å¢ç›Š
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraGetAeAnalogGainRange(
+	CameraHandle    hCamera,
 	int*			iMinAnalogGain,
 	int*			iMaxAnalogGain
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹âÄ£Ê½µÄµ÷½ÚãĞÖµ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iThreshold   Èç¹û abs(Ä¿±êÁÁ¶È-Í¼ÏñÁÁ¶È) < iThreshold ÔòÍ£Ö¹×Ô¶¯µ÷½Ú
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®è‡ªåŠ¨æ›å…‰æ¨¡å¼çš„è°ƒèŠ‚é˜ˆå€¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iThreshold   å¦‚æœ abs(ç›®æ ‡äº®åº¦-å›¾åƒäº®åº¦) < iThreshold åˆ™åœæ­¢è‡ªåŠ¨è°ƒèŠ‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the adjustment threshold for auto exposure mode
 /// \param [in] hCamera Camera handle.
 /// \param [in] iThreshold Stops automatic adjustment if abs (target brightness - image brightness) < iThreshold
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeThreshold(
+MVSDK_API CameraSdkStatus CameraSetAeThreshold(
 	CameraHandle    hCamera, 
 	int				iThreshold
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñÈ¡×Ô¶¯ÆØ¹âÄ£Ê½µÄµ÷½ÚãĞÖµ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] iThreshold   ¶ÁÈ¡µ½µÄµ÷½ÚãĞÖµ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è‡ªåŠ¨æ›å…‰æ¨¡å¼çš„è°ƒèŠ‚é˜ˆå€¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] iThreshold   è¯»å–åˆ°çš„è°ƒèŠ‚é˜ˆå€¼
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get adjustment threshold for auto exposure mode
 /// \param [in] hCamera Camera handle.
 /// \param [out] iThreshold Read Threshold
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeThreshold(
+MVSDK_API CameraSdkStatus CameraGetAeThreshold(
 	CameraHandle    hCamera, 
 	int*			iThreshold
 	);
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃÆØ¹âÊ±¼ä¡£µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] fExposureTime ÆØ¹âÊ±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔÓÚCMOS´«¸ĞÆ÷£¬ÆäÆØ¹âµÄµ¥Î»ÊÇ°´ÕÕĞĞÀ´¼ÆËãµÄ£¬Òò´Ë£¬ÆØ¹âÊ±¼ä²¢²»ÄÜÔÚÎ¢Ãë¼¶±ğÁ¬Ğø¿Éµ÷¡£¶øÊÇ»á°´ÕÕÕûĞĞÀ´È¡Éá¡£ÔÚµ÷ÓÃ±¾º¯ÊıÉè¶¨ÆØ¹âÊ±¼äºó£¬½¨ÒéÔÙµ÷ÓÃ@link #CameraGetExposureTime @endlinkÀ´»ñµÃÊµ¼ÊÉè¶¨µÄÖµ¡£
-/// \~english
-/// \brief Set the exposure time. The unit is microseconds.
-/// \param [in] hCamera Camera handle.
-/// \param [in] fExposureTime Exposure time in microseconds.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note For CMOS sensors, the unit of exposure is calculated in rows, so the exposure time cannot be continuously adjusted in microseconds. Instead, the entire line will be chosen. After calling this function to set the exposure time, it is recommended to call @link #CameraGetExposureTime @endlink to get the actual set value.
-MVSDK_API CameraSdkStatus __stdcall CameraSetExposureTime(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetExposureTime
+// åŠŸèƒ½æè¿° : è®¾ç½®æ›å…‰æ—¶é—´ã€‚å•ä½ä¸ºå¾®ç§’ã€‚å¯¹äºCMOSä¼ æ„Ÿå™¨ï¼Œå…¶æ›å…‰
+//        çš„å•ä½æ˜¯æŒ‰ç…§è¡Œæ¥è®¡ç®—çš„ï¼Œå› æ­¤ï¼Œæ›å…‰æ—¶é—´å¹¶ä¸èƒ½åœ¨å¾®ç§’
+//        çº§åˆ«è¿ç»­å¯è°ƒã€‚è€Œæ˜¯ä¼šæŒ‰ç…§æ•´è¡Œæ¥å–èˆã€‚åœ¨è°ƒç”¨
+//        æœ¬å‡½æ•°è®¾å®šæ›å…‰æ—¶é—´åï¼Œå»ºè®®å†è°ƒç”¨CameraGetExposureTime
+//        æ¥è·å¾—å®é™…è®¾å®šçš„å€¼ã€‚
+// å‚æ•°     : hCamera      ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            fExposureTime æ›å…‰æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetExposureTime(
+    CameraHandle    hCamera,
     double          fExposureTime
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃÒ»ĞĞµÄÆØ¹âÊ±¼ä¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pfLineTime Ö¸Õë£¬·µ»ØÒ»ĞĞµÄÆØ¹âÊ±¼ä£¬µ¥Î»ÎªÎ¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔÓÚCMOS´«¸ĞÆ÷£¬ÆäÆØ¹âµÄµ¥Î»ÊÇ°´ÕÕĞĞÀ´¼ÆËãµÄ£¬Òò´Ë£¬ÆØ¹âÊ±¼ä²¢²»ÄÜÔÚÎ¢Ãë¼¶±ğÁ¬Ğø¿Éµ÷¡£¶øÊÇ»á°´ÕÕÕûĞĞÀ´È¡Éá¡£Õâ¸öº¯ÊıµÄ×÷ÓÃ¾ÍÊÇ·µ»ØCMOSÏà»úÆØ¹âÒ»ĞĞ¶ÔÓ¦µÄÊ±¼ä¡£
-/// \~english
-/// \brief Get a line of exposure time.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pfLineTime returns the exposure time of one line in microseconds.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note For CMOS sensors, the unit of exposure is calculated in rows, so the exposure time cannot be continuously adjusted in microseconds. Instead, the entire line will be chosen. The function of this function is to return the CMOS camera exposure one line corresponding time.
-MVSDK_API CameraSdkStatus __stdcall CameraGetExposureLineTime(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetExposureLineTime
+// åŠŸèƒ½æè¿° : è·å¾—ä¸€è¡Œçš„æ›å…‰æ—¶é—´ã€‚å¯¹äºCMOSä¼ æ„Ÿå™¨ï¼Œå…¶æ›å…‰
+//        çš„å•ä½æ˜¯æŒ‰ç…§è¡Œæ¥è®¡ç®—çš„ï¼Œå› æ­¤ï¼Œæ›å…‰æ—¶é—´å¹¶ä¸èƒ½åœ¨å¾®ç§’
+//        çº§åˆ«è¿ç»­å¯è°ƒã€‚è€Œæ˜¯ä¼šæŒ‰ç…§æ•´è¡Œæ¥å–èˆã€‚è¿™ä¸ªå‡½æ•°çš„
+//          ä½œç”¨å°±æ˜¯è¿”å›CMOSç›¸æœºæ›å…‰ä¸€è¡Œå¯¹åº”çš„æ—¶é—´ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pfLineTime æŒ‡é’ˆï¼Œè¿”å›ä¸€è¡Œçš„æ›å…‰æ—¶é—´ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetExposureLineTime(
+    CameraHandle    hCamera,
     double*         pfLineTime
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄÆØ¹âÊ±¼ä¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pfExposureTime   Ö¸Õë£¬·µ»Øµ±Ç°µÄÆØ¹âÊ±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetExposureTime
-/// \~english
-/// \brief Get camera exposure time.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pfExposureTime returns the current exposure time in microseconds.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetExposureTime
-MVSDK_API CameraSdkStatus __stdcall CameraGetExposureTime(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetExposureTime
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„æ›å…‰æ—¶é—´ã€‚è¯·å‚è§CameraSetExposureTime
+//        çš„åŠŸèƒ½æè¿°ã€‚
+// å‚æ•°     : hCamera        ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pfExposureTime   æŒ‡é’ˆï¼Œè¿”å›å½“å‰çš„æ›å…‰æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetExposureTime(
+    CameraHandle    hCamera,
     double*         pfExposureTime
 );
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄÆØ¹âÊ±¼ä·¶Î§
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pfMin		Ö¸Õë£¬·µ»ØÆØ¹âÊ±¼äµÄ×îĞ¡Öµ£¬µ¥Î»Î¢Ãë¡£
-/// \param [out] pfMax		Ö¸Õë£¬·µ»ØÆØ¹âÊ±¼äµÄ×î´óÖµ£¬µ¥Î»Î¢Ãë¡£
-/// \param [out] pfStep		Ö¸Õë£¬·µ»ØÆØ¹âÊ±¼äµÄ²½½øÖµ£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„æ›å…‰æ—¶é—´èŒƒå›´
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pfMin		æŒ‡é’ˆï¼Œè¿”å›æ›å…‰æ—¶é—´çš„æœ€å°å€¼ï¼Œå•ä½å¾®ç§’ã€‚
+/// \param [out] pfMax		æŒ‡é’ˆï¼Œè¿”å›æ›å…‰æ—¶é—´çš„æœ€å¤§å€¼ï¼Œå•ä½å¾®ç§’ã€‚
+/// \param [out] pfStep		æŒ‡é’ˆï¼Œè¿”å›æ›å…‰æ—¶é—´çš„æ­¥è¿›å€¼ï¼Œå•ä½å¾®ç§’ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get camera exposure time range
 /// \param [in] hCamera Camera handle.
@@ -1439,7 +1241,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetExposureTime(
 /// \param [out] pfMax Returns the maximum exposure time in microseconds.
 /// \param [out] pfStep Returns the exposure time in microseconds.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetExposureTimeRange(
+MVSDK_API CameraSdkStatus CameraGetExposureTimeRange(
 	CameraHandle    hCamera, 
 	double*         pfMin,
 	double*			pfMax,
@@ -1448,12 +1250,12 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetExposureTimeRange(
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âÊ±¼ä¡£µ¥Î»ÎªÎ¢Ãë¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [in] fExposureTime ÆØ¹âÊ±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔÓÚCMOS´«¸ĞÆ÷£¬ÆäÆØ¹âµÄµ¥Î»ÊÇ°´ÕÕĞĞÀ´¼ÆËãµÄ£¬Òò´Ë£¬ÆØ¹âÊ±¼ä²¢²»ÄÜÔÚÎ¢Ãë¼¶±ğÁ¬Ğø¿Éµ÷¡£¶øÊÇ»á°´ÕÕÕûĞĞÀ´È¡Éá¡£ÔÚµ÷ÓÃ±¾º¯ÊıÉè¶¨ÆØ¹âÊ±¼äºó£¬½¨ÒéÔÙµ÷ÓÃ@link #CameraGetMultiExposureTime @endlinkÀ´»ñµÃÊµ¼ÊÉè¶¨µÄÖµ¡£
+/// \brief è®¾ç½®å¤šé‡æ›å…‰æ—¶é—´ã€‚å•ä½ä¸ºå¾®ç§’ã€‚(æ­¤åŠŸèƒ½ä»…çº¿é˜µç›¸æœºæ”¯æŒ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index æ›å…‰ç´¢å¼•ã€‚
+/// \param [in] fExposureTime æ›å…‰æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å¯¹äºCMOSä¼ æ„Ÿå™¨ï¼Œå…¶æ›å…‰çš„å•ä½æ˜¯æŒ‰ç…§è¡Œæ¥è®¡ç®—çš„ï¼Œå› æ­¤ï¼Œæ›å…‰æ—¶é—´å¹¶ä¸èƒ½åœ¨å¾®ç§’çº§åˆ«è¿ç»­å¯è°ƒã€‚è€Œæ˜¯ä¼šæŒ‰ç…§æ•´è¡Œæ¥å–èˆã€‚åœ¨è°ƒç”¨æœ¬å‡½æ•°è®¾å®šæ›å…‰æ—¶é—´åï¼Œå»ºè®®å†è°ƒç”¨@link #CameraGetMultiExposureTime @endlinkæ¥è·å¾—å®é™…è®¾å®šçš„å€¼ã€‚
 /// \~english
 /// \brief Set the multiple exposure time. The unit is microseconds. (This feature is only supported by line camera)
 /// \param [in] hCamera Camera handle.
@@ -1461,7 +1263,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetExposureTimeRange(
 /// \param [in] fExposureTime Exposure time in microseconds.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \note For CMOS sensors, the unit of exposure is calculated in rows, so the exposure time cannot be continuously adjusted in microseconds. Instead, the entire line will be chosen. After calling this function to set the exposure time, it is recommended to call @link #CameraGetMultiExposureTime @endlink to get the actual set value.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureTime(
+MVSDK_API CameraSdkStatus CameraSetMultiExposureTime(
 	CameraHandle    hCamera, 
 	int				index,
 	double          fExposureTime
@@ -1469,18 +1271,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureTime(
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âÊ±¼ä¡£µ¥Î»ÎªÎ¢Ãë¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [out] fExposureTime ·µ»ØÆØ¹âÊ±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–å¤šé‡æ›å…‰æ—¶é—´ã€‚å•ä½ä¸ºå¾®ç§’ã€‚(æ­¤åŠŸèƒ½ä»…çº¿é˜µç›¸æœºæ”¯æŒ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index æ›å…‰ç´¢å¼•ã€‚
+/// \param [out] fExposureTime è¿”å›æ›å…‰æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the multiple exposure time. The unit is microseconds. (This feature is only supported by line camera)
 /// \param [in] hCamera Camera handle.
 /// \param [in] index Exposure index.
 /// \param [out] fExposureTime Returns exposure time in microseconds.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureTime(
+MVSDK_API CameraSdkStatus CameraGetMultiExposureTime(
 	CameraHandle    hCamera, 
 	int				index,
 	double*         fExposureTime
@@ -1488,378 +1290,105 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureTime(
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âµÄgammaÖµ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [in] iGamma ÒªÉè¶¨µÄGammaÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Éè¶¨µÄÖµ»áÂíÉÏ±£´æÔÚSDKÄÚ²¿£¬µ«ÊÇÖ»ÓĞµ±Ïà»ú´¦ÓÚ¶¯Ì¬²ÎÊıÉú³ÉµÄLUTÄ£Ê½Ê±£¬²Å»áÉúĞ§¡£Çë²Î¿¼@link #CameraSetLutMode @endlinkµÄº¯ÊıËµÃ÷²¿·Ö¡£
-/// \~english
-/// \brief Sets the gamma value for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [in] iGamma The gamma to be set.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note The set value will be stored in the SDK immediately, but it will only take effect when the camera is in LUT mode generated by dynamic parameters. Please refer to the function description part of @link #CameraSetLutMode @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureGamma(
-	CameraHandle    hCamera, 
-	int				index,
-	int             iGamma
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄgammaÖµ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [out] piGamma  Ö¸Õë£¬·µ»ØµÄGammaÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetMultiExposureGamma
-/// \~english
-/// \brief Get the gamma value for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [out] piGamma Returns the gamma value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetMultiExposureGamma
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureGamma(
-	CameraHandle    hCamera, 
-	int				index,
-	int*            piGamma
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âµÄÆØ¹âÑÓ³ÙÖµ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [in] fExpDelay ÒªÉè¶¨µÄÆØ¹âÑÓ³ÙÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the exposure delay value for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [in] fExpDelay The exposure delay value to be set.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureExpDelay(
-	CameraHandle    hCamera, 
-	int				index,
-	double          fExpDelay
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄÆØ¹âÑÓ³ÙÖµ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [out] pfExpDelay  Ö¸Õë£¬·µ»ØÆØ¹âÑÓ³ÙÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetMultiExposureExpDelay
-/// \~english
-/// \brief Get the exposure delay value for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [out] pfExpDelay pointer, return exposure delay value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetMultiExposureExpDelay
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureExpDelay(
-	CameraHandle    hCamera, 
-	int				index,
-	double*         pfExpDelay
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âµÄÆµÉÁÂö³å¿í¶È¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [in] fStrobeWidth ÒªÉè¶¨µÄÆµÉÁÂö³å¿í¶ÈÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the strobe pulse width for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [in] fStrobeWidth The strobe pulse width value to be set.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureStrobeWidth(
-	CameraHandle    hCamera, 
-	int				index,
-	double          fStrobeWidth
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄÆµÉÁÂö³å¿í¶È¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [out] pfStrobeWidth  Ö¸Õë£¬·µ»ØÆµÉÁÂö³å¿í¶ÈÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetMultiExposureStrobeWidth
-/// \~english
-/// \brief Get the strobe pulse width for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [out] pfStrobeWidth pointer, return strobe pulse width value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetMultiExposureStrobeWidth
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureStrobeWidth(
-	CameraHandle    hCamera, 
-	int				index,
-	double*         pfStrobeWidth
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âµÄÆµÉÁÊä³öÑ¡Ôñ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [in] uStrobeOutSel ÒªÉè¶¨µÄÆµÉÁÊä³öÑ¡ÔñÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the strobe output selection for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [in] uStrobeOutSel The strobe output selection value to be set.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureStrobeOutSel(
-	CameraHandle    hCamera, 
-	int				index,
-	UINT			uStrobeOutSel
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄÆµÉÁÊä³öÑ¡Ôñ¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ÆØ¹âË÷Òı¡£
-/// \param [out] puStrobeOutSel  Ö¸Õë£¬·µ»ØÆµÉÁÊä³öÑ¡ÔñÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetMultiExposureStrobeOutSel
-/// \~english
-/// \brief Get the strobe output selection for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index Exposure index.
-/// \param [out] puStrobeOutSel pointer, returns the strobe output selection value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetMultiExposureStrobeOutSel
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureStrobeOutSel(
-	CameraHandle    hCamera, 
-	int				index,
-	UINT*			puStrobeOutSel
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹âÊ¹ÄÜ¸öÊı¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] count Ê¹ÄÜ¸öÊı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®å¤šé‡æ›å…‰ä½¿èƒ½ä¸ªæ•°ã€‚(æ­¤åŠŸèƒ½ä»…çº¿é˜µç›¸æœºæ”¯æŒ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] count ä½¿èƒ½ä¸ªæ•°ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the number of multiple exposure enable. (This feature is only supported by line camera)
 /// \param [in] hCamera Camera handle.
 /// \param [in] count The number of exposures enabled.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureCount(
+MVSDK_API CameraSdkStatus CameraSetMultiExposureCount(
 	CameraHandle    hCamera, 
 	int				count
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âÊ¹ÄÜ¸öÊı¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] count Ê¹ÄÜ¸öÊı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–å¤šé‡æ›å…‰ä½¿èƒ½ä¸ªæ•°ã€‚(æ­¤åŠŸèƒ½ä»…çº¿é˜µç›¸æœºæ”¯æŒ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] count ä½¿èƒ½ä¸ªæ•°ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the number of multiple exposure enable. (This feature is only supported by line camera)
 /// \param [in] hCamera Camera handle.
 /// \param [out] count The number of exposures enabled.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureCount(
+MVSDK_API CameraSdkStatus CameraGetMultiExposureCount(
 	CameraHandle    hCamera, 
 	int*			count
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄ×î´óÆØ¹â¸öÊı¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] max_count Ö§³ÖµÄ×î´óÆØ¹â¸öÊı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–å¤šé‡æ›å…‰çš„æœ€å¤§æ›å…‰ä¸ªæ•°ã€‚(æ­¤åŠŸèƒ½ä»…çº¿é˜µç›¸æœºæ”¯æŒ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] max_count æ”¯æŒçš„æœ€å¤§æ›å…‰ä¸ªæ•°ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the maximum number of exposures for multiple exposures. (This feature is only supported by line camera)
 /// \param [in] hCamera Camera handle.
 /// \param [out] max_count The maximum number of exposures supported.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureMaxCount(
+MVSDK_API CameraSdkStatus CameraGetMultiExposureMaxCount(
 	CameraHandle    hCamera, 
 	int*			max_count
 	);
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄ¹¦ÄÜÖ§³ÖÎ»¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pSupported Ö§³ÖµÄ¹¦ÄÜ¡££¨bit0: gamma£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the function support bits for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [out] pSupported Supported functions. (bit0: gamma)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureSupported(
-	CameraHandle    hCamera, 
-	UINT*			pSupported
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄ»ìºÏ¹¦ÄÜÖ§³ÖÎ»¡£(´Ë¹¦ÄÜ½öÏßÕóÏà»úÖ§³Ö)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pSupported Ö§³ÖµÄ»ìºÏ¸öÊı¡££¨bit0=1Ö§³Ö2¸öÆØ¹âµÄ»ìºÏ£¬bit1=1Ö§³Ö3¸ö ¡£¡£¡££©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the blend function support bit for multiple exposures. (This function is only supported by line scan cameras)
-/// \param [in] hCamera Camera handle.
-/// \param [out] pSupported The number of mixes supported. (bit0=1 supports the mixing of 2 exposures, bit1=1 supports 3 exposures...)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureBlendingSupported(
-	CameraHandle    hCamera, 
-	UINT*			pSupported
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÆôÓÃ½ûÓÃ¶àÖØÆØ¹âµÄ»ìºÏ¹¦ÄÜ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable ÊÇ·ñÆôÓÃ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enables and disables the blending function for multiple exposures.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable Whether to enable
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureBlendingEnable(
-	CameraHandle    hCamera, 
-	BOOL			bEnable
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹âµÄ»ìºÏ¹¦ÄÜÊÇ·ñÆôÓÃ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable ·µ»ØÆôÓÃ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get whether the blending function of multiple exposures is enabled
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable returns enable status
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureBlendingEnable(
-	CameraHandle    hCamera, 
-	BOOL*			pbEnable
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ¶àÖØÆØ¹â»ìºÏµÄÏµÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pRatios ÏµÊıÖ¸Õë£¨ÏµÊıÈ¡Öµ·¶Î§0-100£¬±íÊ¾%0-%100£©
-/// \param [in] iNumRatios ÏµÊı¸öÊı£¨ÏµÊı¸öÊı=ÆØ¹âÊıÁ¿-1£¬±ÈÈç3¸öÆØ¹â¾ÍÖ»ĞèÅäÖÃ2¸öÏµÊı£¬ÏµÊı3=100-(ÏµÊı1+ÏµÊı2)£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief set the multi-exposure blend coefficient
-/// \param [in] hCamera Camera handle.
-/// \param [in] pRatios coefficient pointer (The coefficient value range is 0-100, which means %0-%100)
-/// \param [in] iNumRatios Number of coefficients (The number of coefficients = the number of exposures - 1. For example, for 3 exposures, you only need to configure 2 coefficients, coefficient 3 = 100 - (coefficient 1 + coefficient 2))
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMultiExposureBlendingRatios(
-	CameraHandle    hCamera, 
-	int*			pRatios,
-	int				iNumRatios
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñÈ¡¶àÖØÆØ¹â»ìºÏµÄÏµÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pRatios ÏµÊıÖ¸Õë
-/// \param [inout] piNumRatios ÏµÊı¸öÊı£¬ÊäÈë£ºµ÷ÓÃÇ°ÉèÖÃÎªpRatiosÊı×é´óĞ¡   Êä³ö£º·µ»Ø¶ÁÈ¡µ½µÄÏµÊı¸öÊı(ÆØ¹âÊıÁ¿-1)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the coefficient of multiple exposure blending
-/// \param [in] hCamera Camera handle.
-/// \param [out] pRatios coefficient pointer
-/// \param [inout] piNumRatios number of coefficients, input: set to pRatios array size before calling   Output: return the number of coefficients read (number of exposures - 1)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMultiExposureBlendingRatios(
-	CameraHandle    hCamera, 
-	int*			pRatios,
-	int*			piNumRatios
-	);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄÍ¼ÏñÄ£ÄâÔöÒæÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iAnalogGain Éè¶¨µÄÄ£ÄâÔöÒæÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¸ÃÖµ³ËÒÔ@link #tSdkExpose.fAnalogGainStep @endlink£¬¾ÍµÃµ½Êµ¼ÊµÄÍ¼ÏñĞÅºÅ·Å´ó±¶Êı¡£
-/// \note @link CameraSetAnalogGainX @endlinkÒÔ·Å´ó±¶ÊıÎªµ¥Î»¡£
-/// \~english
-/// \brief Set the camera's image analog gain value.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iAnalogGain gain value set
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note This value is multiplied by @link #tSdkExpose.fAnalogGainStep @endlink to get the actual image signal magnification.
-/// \note @link CameraSetAnalogGainX @endlink takes the magnification as the unit.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAnalogGain(
+/******************************************************/
+// å‡½æ•°å   : CameraSetAnalogGain
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºçš„å›¾åƒæ¨¡æ‹Ÿå¢ç›Šå€¼ã€‚è¯¥å€¼ä¹˜ä»¥CameraGetCapabilityè·å¾—
+//        çš„ç›¸æœºå±æ€§ç»“æ„ä½“ä¸­sExposeDesc.fAnalogGainStepï¼Œå°±
+//        å¾—åˆ°å®é™…çš„å›¾åƒä¿¡å·æ”¾å¤§å€æ•°ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iAnalogGain è®¾å®šçš„æ¨¡æ‹Ÿå¢ç›Šå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAnalogGain(
     CameraHandle    hCamera,
     INT             iAnalogGain
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃÍ¼ÏñĞÅºÅµÄÄ£ÄâÔöÒæÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piAnalogGain Ö¸Õë£¬·µ»Øµ±Ç°µÄÄ£ÄâÔöÒæÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note CameraGetAnalogGainXÒÔ·Å´ó±¶ÊıÎªµ¥Î»¡£
-/// \see CameraSetAnalogGain
-/// \~english
-/// \brief Obtain the analog gain value of the image signal.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piAnalogGain Returns the current analog gain value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note CameraGetAnalogGainX takes the magnification as the unit.
-/// \see CameraSetAnalogGain
-MVSDK_API CameraSdkStatus __stdcall CameraGetAnalogGain(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAnalogGain
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒä¿¡å·çš„æ¨¡æ‹Ÿå¢ç›Šå€¼ã€‚å‚è§CameraSetAnalogGain
+//        è¯¦ç»†è¯´æ˜ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piAnalogGain æŒ‡é’ˆï¼Œè¿”å›å½“å‰çš„æ¨¡æ‹Ÿå¢ç›Šå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAnalogGain(
+    CameraHandle    hCamera,
     INT*            piAnalogGain
 );
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úµÄÄ£ÄâÔöÒæ·Å´ó±¶Êı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] fGain Éè¶¨µÄÄ£ÄâÔöÒæ·Å´ó±¶Êı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç›¸æœºçš„æ¨¡æ‹Ÿå¢ç›Šæ”¾å¤§å€æ•°ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] fGain è®¾å®šçš„æ¨¡æ‹Ÿå¢ç›Šæ”¾å¤§å€æ•°ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the image gain magnification of the camera.
 /// \param [in] hCamera Camera handle.
 /// \param [in] fGain Gain magnification.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAnalogGainX(
+MVSDK_API CameraSdkStatus CameraSetAnalogGainX(
 	CameraHandle    hCamera,
 	float    		fGain
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñµÃÍ¼ÏñĞÅºÅµÄÄ£ÄâÔöÒæ·Å´ó±¶Êı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pfGain Ö¸Õë£¬·µ»Øµ±Ç°µÄÄ£ÄâÔöÒæ·Å´ó±¶Êı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—å›¾åƒä¿¡å·çš„æ¨¡æ‹Ÿå¢ç›Šæ”¾å¤§å€æ•°ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pfGain æŒ‡é’ˆï¼Œè¿”å›å½“å‰çš„æ¨¡æ‹Ÿå¢ç›Šæ”¾å¤§å€æ•°ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \see CameraSetAnalogGainX
 /// \~english
 /// \brief Obtain the gain magnification of the image signal.
@@ -1867,19 +1396,19 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetAnalogGainX(
 /// \param [out] pfGain pointer, returns the current gain magnification.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \see CameraSetAnalogGainX
-MVSDK_API CameraSdkStatus __stdcall CameraGetAnalogGainX(
+MVSDK_API CameraSdkStatus CameraGetAnalogGainX(
 	CameraHandle    hCamera, 
 	float*          pfGain
 	);
 
 /// @ingroup API_EXPOSURE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄÄ£ÄâÔöÒæ·Å´ó±¶ÊıÈ¡Öµ·¶Î§
-/// \param [in] hCamera		Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pfMin		Ö¸Õë£¬·µ»Ø×îĞ¡±¶Êı¡£
-/// \param [out] pfMax		Ö¸Õë£¬·µ»Ø×î´ó±¶Êı¡£
-/// \param [out] pfStep		Ö¸Õë£¬·µ»Ø²½½øÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„æ¨¡æ‹Ÿå¢ç›Šæ”¾å¤§å€æ•°å–å€¼èŒƒå›´
+/// \param [in] hCamera		ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pfMin		æŒ‡é’ˆï¼Œè¿”å›æœ€å°å€æ•°ã€‚
+/// \param [out] pfMax		æŒ‡é’ˆï¼Œè¿”å›æœ€å¤§å€æ•°ã€‚
+/// \param [out] pfStep		æŒ‡é’ˆï¼Œè¿”å›æ­¥è¿›å€¼ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the value range of the camera's gain magnification
 /// \param [in] hCamera		Camera handle.
@@ -1887,675 +1416,617 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetAnalogGainX(
 /// \param [out] pfMax		pointer, returns the maximum multiple.
 /// \param [out] pfStep		pointer, returns the step value.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAnalogGainXRange(
+MVSDK_API CameraSdkStatus CameraGetAnalogGainXRange(
 	CameraHandle	hCamera, 
 	float*			pfMin,
 	float*			pfMax,
 	float*			pfStep
 	);
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃÍ¼ÏñµÄÊı×ÖÔöÒæ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iRGain   ºìÉ«Í¨µÀµÄÔöÒæÖµ¡£ 
-/// \param [in] iGGain   ÂÌÉ«Í¨µÀµÄÔöÒæÖµ¡£
-/// \param [in] iBGain   À¶É«Í¨µÀµÄÔöÒæÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Éè¶¨·¶Î§ÓÉ@link #tRgbGainRange @endlink³ÉÔ±±íÊö¡£Êµ¼ÊµÄ·Å´ó±¶ÊıÊÇÉè¶¨Öµ/100¡£
-/// \~english
-/// \brief Set the digital gain of the image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iRGain The gain value of the red channel.
-/// \param [in] iGGain Gain value of green channel.
-/// \param [in] iBGain The gain value of the blue channel.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note The set scope is described by the @link #tRgbGainRange @endlink member. The actual magnification is the setting /100.
-MVSDK_API CameraSdkStatus __stdcall CameraSetGain(
-    CameraHandle    hCamera, 
-    int             iRGain, 
-    int             iGGain, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetGain
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒçš„æ•°å­—å¢ç›Šã€‚è®¾å®šèŒƒå›´ç”±CameraGetCapability
+//        è·å¾—çš„ç›¸æœºå±æ€§ç»“æ„ä½“ä¸­sRgbGainRangeæˆå‘˜è¡¨è¿°ã€‚
+//        å®é™…çš„æ”¾å¤§å€æ•°æ˜¯è®¾å®šå€¼/100ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iRGain   çº¢è‰²é€šé“çš„å¢ç›Šå€¼ã€‚
+//            iGGain   ç»¿è‰²é€šé“çš„å¢ç›Šå€¼ã€‚
+//            iBGain   è“è‰²é€šé“çš„å¢ç›Šå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetGain(
+    CameraHandle    hCamera,
+    int             iRGain,
+    int             iGGain,
     int             iBGain
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃÍ¼Ïñ´¦ÀíµÄÊı×ÖÔöÒæ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piRGain  Ö¸Õë£¬·µ»ØºìÉ«Í¨µÀµÄÊı×ÖÔöÒæÖµ¡£
-/// \param [out] piGGain    Ö¸Õë£¬·µ»ØÂÌÉ«Í¨µÀµÄÊı×ÖÔöÒæÖµ¡£
-/// \param [out] piBGain    Ö¸Õë£¬·µ»ØÀ¶É«Í¨µÀµÄÊı×ÖÔöÒæÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetGain
-/// \~english
-/// \brief Get the digital gain of image processing.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piRGain Returns the digital gain value of the red channel.
-/// \param [out] piGGain Returns the digital gain value of the green channel.
-/// \param [out] piBGain Returns the digital gain value of the blue channel.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetGain
-MVSDK_API CameraSdkStatus __stdcall CameraGetGain(
-    CameraHandle    hCamera, 
-    int*            piRGain, 
-    int*            piGGain, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetGain
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒå¤„ç†çš„æ•°å­—å¢ç›Šã€‚å…·ä½“è¯·å‚è§CameraSetGain
+//        çš„åŠŸèƒ½æè¿°éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piRGain  æŒ‡é’ˆï¼Œè¿”å›çº¢è‰²é€šé“çš„æ•°å­—å¢ç›Šå€¼ã€‚
+//            piGGain    æŒ‡é’ˆï¼Œè¿”å›ç»¿è‰²é€šé“çš„æ•°å­—å¢ç›Šå€¼ã€‚
+//            piBGain    æŒ‡é’ˆï¼Œè¿”å›è“è‰²é€šé“çš„æ•°å­—å¢ç›Šå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetGain(
+    CameraHandle    hCamera,
+    int*            piRGain,
+    int*            piGGain,
     int*            piBGain
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Éè¶¨LUT¶¯Ì¬Éú³ÉÄ£Ê½ÏÂµÄGammaÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iGamma     ÒªÉè¶¨µÄGammaÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Éè¶¨µÄÖµ»áÂíÉÏ±£´æÔÚSDKÄÚ²¿£¬µ«ÊÇÖ»ÓĞµ±Ïà»ú´¦ÓÚ¶¯Ì¬²ÎÊıÉú³ÉµÄLUTÄ£Ê½Ê±£¬²Å»áÉúĞ§¡£Çë²Î¿¼@link #CameraSetLutMode @endlinkµÄº¯ÊıËµÃ÷²¿·Ö¡£
-/// \~english
-/// \brief Set the gamma value in LUT dynamic generation mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iGamma The gamma to be set.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note The set value will be stored in the SDK immediately, but it will only take effect when the camera is in LUT mode generated by dynamic parameters. Please refer to the function description part of @link #CameraSetLutMode @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSetGamma(
-    CameraHandle    hCamera, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetGamma
+// åŠŸèƒ½æè¿° : è®¾å®šLUTåŠ¨æ€ç”Ÿæˆæ¨¡å¼ä¸‹çš„Gammaå€¼ã€‚è®¾å®šçš„å€¼ä¼š
+//        é©¬ä¸Šä¿å­˜åœ¨SDKå†…éƒ¨ï¼Œä½†æ˜¯åªæœ‰å½“ç›¸æœºå¤„äºåŠ¨æ€
+//        å‚æ•°ç”Ÿæˆçš„LUTæ¨¡å¼æ—¶ï¼Œæ‰ä¼šç”Ÿæ•ˆã€‚è¯·å‚è€ƒCameraSetLutMode
+//        çš„å‡½æ•°è¯´æ˜éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iGamma     è¦è®¾å®šçš„Gammaå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetGamma(
+    CameraHandle    hCamera,
     int             iGamma
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃLUT¶¯Ì¬Éú³ÉÄ£Ê½ÏÂµÄGammaÖµ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piGamma    Ö¸Õë£¬·µ»Øµ±Ç°µÄGammaÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetGamma
-/// \~english
-/// \brief Get gamma value in LUT dynamic generation mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] piGamma Returns the current gamma value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetGamma
-MVSDK_API CameraSdkStatus __stdcall CameraGetGamma(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetGamma
+// åŠŸèƒ½æè¿° : è·å¾—LUTåŠ¨æ€ç”Ÿæˆæ¨¡å¼ä¸‹çš„Gammaå€¼ã€‚è¯·å‚è€ƒCameraSetGamma
+//        å‡½æ•°çš„åŠŸèƒ½æè¿°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piGamma    æŒ‡é’ˆï¼Œè¿”å›å½“å‰çš„Gammaå€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetGamma(
+    CameraHandle    hCamera,
     int*            piGamma
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Éè¶¨LUT¶¯Ì¬Éú³ÉÄ£Ê½ÏÂµÄ¶Ô±È¶ÈÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iContrast  Éè¶¨µÄ¶Ô±È¶ÈÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Éè¶¨µÄÖµ»áÂíÉÏ±£´æÔÚSDKÄÚ²¿£¬µ«ÊÇÖ»ÓĞµ±Ïà»ú´¦ÓÚ¶¯Ì¬²ÎÊıÉú³ÉµÄLUTÄ£Ê½Ê±£¬²Å»áÉúĞ§¡£Çë²Î¿¼@link #CameraSetLutMode @endlinkµÄº¯ÊıËµÃ÷²¿·Ö¡£
-/// \~english
-/// \brief Sets the contrast value in LUT dynamic generation mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iContrast Contrast value set by iContrast.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note The set value will be stored in the SDK immediately, but it will only take effect when the camera is in LUT mode generated by dynamic parameters. Please refer to the function description part of @link #CameraSetLutMode @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSetContrast(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetContrast
+// åŠŸèƒ½æè¿° : è®¾å®šLUTåŠ¨æ€ç”Ÿæˆæ¨¡å¼ä¸‹çš„å¯¹æ¯”åº¦å€¼ã€‚è®¾å®šçš„å€¼ä¼š
+//        é©¬ä¸Šä¿å­˜åœ¨SDKå†…éƒ¨ï¼Œä½†æ˜¯åªæœ‰å½“ç›¸æœºå¤„äºåŠ¨æ€
+//        å‚æ•°ç”Ÿæˆçš„LUTæ¨¡å¼æ—¶ï¼Œæ‰ä¼šç”Ÿæ•ˆã€‚è¯·å‚è€ƒCameraSetLutMode
+//        çš„å‡½æ•°è¯´æ˜éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iContrast  è®¾å®šçš„å¯¹æ¯”åº¦å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetContrast(
+    CameraHandle    hCamera,
     int             iContrast
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃLUT¶¯Ì¬Éú³ÉÄ£Ê½ÏÂµÄ¶Ô±È¶ÈÖµ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piContrast Ö¸Õë£¬·µ»Øµ±Ç°µÄ¶Ô±È¶ÈÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetContrast
-/// \~english
-/// \brief Get the contrast value in LUT dynamic generation mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piContrast Returns the current contrast value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetContrast
-MVSDK_API CameraSdkStatus __stdcall CameraGetContrast(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetContrast
+// åŠŸèƒ½æè¿° : è·å¾—LUTåŠ¨æ€ç”Ÿæˆæ¨¡å¼ä¸‹çš„å¯¹æ¯”åº¦å€¼ã€‚è¯·å‚è€ƒ
+//        CameraSetContrastå‡½æ•°çš„åŠŸèƒ½æè¿°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piContrast æŒ‡é’ˆï¼Œè¿”å›å½“å‰çš„å¯¹æ¯”åº¦å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetContrast(
+    CameraHandle    hCamera,
     int*            piContrast
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Éè¶¨Í¼Ïñ´¦ÀíµÄ±¥ºÍ¶È¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iSaturation  Éè¶¨µÄ±¥ºÍ¶ÈÖµ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔºÚ°×Ïà»úÎŞĞ§¡£Éè¶¨·¶Î§ÓÉ@link #tSaturationRange @endlink»ñµÃ¡£100±íÊ¾Ô­Ê¼É«¶È£¬²»ÔöÇ¿¡£
-/// \~english
-/// \brief Sets the saturation of image processing.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iSaturation saturation value.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note is not valid for black and white cameras. The setting range is obtained by @link #tSaturationRange @endlink. 100 represents the original color and is not enhanced.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSaturation(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetSaturation
+// åŠŸèƒ½æè¿° : è®¾å®šå›¾åƒå¤„ç†çš„é¥±å’Œåº¦ã€‚å¯¹é»‘ç™½ç›¸æœºæ— æ•ˆã€‚
+//        è®¾å®šèŒƒå›´ç”±CameraGetCapabilityè·å¾—ã€‚100è¡¨ç¤º
+//        è¡¨ç¤ºåŸå§‹è‰²åº¦ï¼Œä¸å¢å¼ºã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iSaturation  è®¾å®šçš„é¥±å’Œåº¦å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetSaturation(
+    CameraHandle    hCamera,
     int             iSaturation
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃÍ¼Ïñ´¦ÀíµÄ±¥ºÍ¶È¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piSaturation Ö¸Õë£¬·µ»Øµ±Ç°Í¼Ïñ´¦ÀíµÄ±¥ºÍ¶ÈÖµ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetSaturation
-/// \~english
-/// \brief Get image processing saturation.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piSaturation Returns the saturation value of the current image processing.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetSaturation
-MVSDK_API CameraSdkStatus __stdcall CameraGetSaturation(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetSaturation
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒå¤„ç†çš„é¥±å’Œåº¦ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piSaturation æŒ‡é’ˆï¼Œè¿”å›å½“å‰å›¾åƒå¤„ç†çš„é¥±å’Œåº¦å€¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetSaturation(
+    CameraHandle    hCamera,
     int*            piSaturation
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃ²ÊÉ«×ªÎªºÚ°×¹¦ÄÜµÄÊ¹ÄÜ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable   TRUE£¬±íÊ¾½«²ÊÉ«Í¼Ïñ×ªÎªºÚ°×¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the color to mono function enable.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE to change the color image to black and white.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMonochrome(
-    CameraHandle    hCamera, 
-    BOOL            bEnable
-);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃ²ÊÉ«×ª»»ºÚ°×¹¦ÄÜµÄÊ¹ÄÜ×´¿ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable   Ö¸Õë¡£·µ»ØTRUE±íÊ¾¿ªÆôÁË²ÊÉ«Í¼Ïñ×ª»»ÎªºÚ°×Í¼ÏñµÄ¹¦ÄÜ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetMonochrome
-/// \~english
-/// \brief Get the status of enabling black and white color conversion.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns TRUE to enable the conversion of a color image to a mono image.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetMonochrome
-MVSDK_API CameraSdkStatus __stdcall CameraGetMonochrome(
-    CameraHandle    hCamera, 
-    BOOL*           pbEnable
-);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃ²ÊÍ¼ÏñÑÕÉ«·­×ª¹¦ÄÜµÄÊ¹ÄÜ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable    TRUE£¬±íÊ¾¿ªÆôÍ¼ÏñÑÕÉ«·­×ª¹¦ÄÜ£¬¿ÉÒÔ»ñµÃÀàËÆ½º¾íµ×Æ¬µÄĞ§¹û¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the enable for the color image color flip function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE, means that the image color flip function is enabled, and the effect of similar film negatives can be obtained.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetInverse(
-    CameraHandle    hCamera, 
-    BOOL            bEnable
-);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñµÃÍ¼ÏñÑÕÉ«·´×ª¹¦ÄÜµÄÊ¹ÄÜ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable   Ö¸Õë£¬·µ»Ø¸Ã¹¦ÄÜÊ¹ÄÜ×´Ì¬¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the status of the image color inversion function.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns this function enable state.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInverse(
-    CameraHandle    hCamera, 
-    BOOL*           pbEnable
-);
-
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹âÊ±¿¹ÆµÉÁ¹¦ÄÜµÄÊ¹ÄÜ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable    TRUE£¬¿ªÆô¿¹ÆµÉÁ¹¦ÄÜ;FALSE£¬¹Ø±Õ¸Ã¹¦ÄÜ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔÓÚÊÖ¶¯ÆØ¹âÄ£Ê½ÏÂÎŞĞ§¡£
-/// \~english
-/// \brief Set the anti-strobe function's enable state during auto exposure.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE, enable anti-strobe function; FALSE, disable this function.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Not valid for manual exposure mode.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAntiFlick(
+/******************************************************/
+// å‡½æ•°å   : CameraSetMonochrome
+// åŠŸèƒ½æè¿° : è®¾ç½®å½©è‰²è½¬ä¸ºé»‘ç™½åŠŸèƒ½çš„ä½¿èƒ½ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bEnable   TRUEï¼Œè¡¨ç¤ºå°†å½©è‰²å›¾åƒè½¬ä¸ºé»‘ç™½ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetMonochrome(
     CameraHandle    hCamera,
     BOOL            bEnable
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹âÊ±¿¹ÆµÉÁ¹¦ÄÜµÄÊ¹ÄÜ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable   Ö¸Õë£¬·µ»Ø¸Ã¹¦ÄÜµÄÊ¹ÄÜ×´Ì¬¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the anti-strobe function's enable state during auto exposure.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns the enable state of this function.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAntiFlick(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetMonochrome
+// åŠŸèƒ½æè¿° : è·å¾—å½©è‰²è½¬æ¢é»‘ç™½åŠŸèƒ½çš„ä½¿èƒ½çŠ¶å†µã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbEnable   æŒ‡é’ˆã€‚è¿”å›TRUEè¡¨ç¤ºå¼€å¯äº†å½©è‰²å›¾åƒ
+//             è½¬æ¢ä¸ºé»‘ç™½å›¾åƒçš„åŠŸèƒ½ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetMonochrome(
+    CameraHandle    hCamera,
     BOOL*           pbEnable
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹âÊ±£¬ÏûÆµÉÁµÄÆµÂÊÑ¡Ôñ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piFrequencySel Ö¸Õë£¬·µ»ØÑ¡ÔñµÄË÷ÒıºÅ¡£0:50HZ 1:60HZ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the auto exposure is obtained, the frequency of the deflashing is selected.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piFrequencySel Returns the selected index number. 0:50HZ 1:60HZ
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLightFrequency(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetInverse
+// åŠŸèƒ½æè¿° : è®¾ç½®å½©å›¾åƒé¢œè‰²ç¿»è½¬åŠŸèƒ½çš„ä½¿èƒ½ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bEnable    TRUEï¼Œè¡¨ç¤ºå¼€å¯å›¾åƒé¢œè‰²ç¿»è½¬åŠŸèƒ½ï¼Œ
+//             å¯ä»¥è·å¾—ç±»ä¼¼èƒ¶å·åº•ç‰‡çš„æ•ˆæœã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetInverse(
+    CameraHandle    hCamera,
+    BOOL            bEnable
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetInverse
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒé¢œè‰²åè½¬åŠŸèƒ½çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbEnable   æŒ‡é’ˆï¼Œè¿”å›è¯¥åŠŸèƒ½ä½¿èƒ½çŠ¶æ€ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetInverse(
+    CameraHandle    hCamera,
+    BOOL*           pbEnable
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetAntiFlick
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªåŠ¨æ›å…‰æ—¶æŠ—é¢‘é—ªåŠŸèƒ½çš„ä½¿èƒ½çŠ¶æ€ã€‚å¯¹äºæ‰‹åŠ¨
+//        æ›å…‰æ¨¡å¼ä¸‹æ— æ•ˆã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bEnable    TRUEï¼Œå¼€å¯æŠ—é¢‘é—ªåŠŸèƒ½;FALSEï¼Œå…³é—­è¯¥åŠŸèƒ½ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAntiFlick(
+    CameraHandle    hCamera,
+    BOOL            bEnable
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetAntiFlick
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰æ—¶æŠ—é¢‘é—ªåŠŸèƒ½çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbEnable   æŒ‡é’ˆï¼Œè¿”å›è¯¥åŠŸèƒ½çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAntiFlick(
+    CameraHandle    hCamera,
+    BOOL*           pbEnable
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetLightFrequency
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰æ—¶ï¼Œæ¶ˆé¢‘é—ªçš„é¢‘ç‡é€‰æ‹©ã€‚
+// å‚æ•°     : hCamera      ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piFrequencySel æŒ‡é’ˆï¼Œè¿”å›é€‰æ‹©çš„ç´¢å¼•å·ã€‚0:50HZ 1:60HZ
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetLightFrequency(
+    CameraHandle    hCamera,
     int*            piFrequencySel
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹âÊ±ÏûÆµÉÁµÄÆµÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iFrequencySel 0:50HZ , 1:60HZ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the frequency at which the flash disappears during auto exposure.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iFrequencySel 0:50HZ , 1:60HZ 
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLightFrequency(
+/******************************************************/
+// å‡½æ•°å   : CameraSetLightFrequency
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªåŠ¨æ›å…‰æ—¶æ¶ˆé¢‘é—ªçš„é¢‘ç‡ã€‚
+// å‚æ•°     : hCamera     ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iFrequencySel 0:50HZ , 1:60HZ
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetLightFrequency(
     CameraHandle    hCamera,
     int             iFrequencySel
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief Éè¶¨Ïà»úÊä³öÍ¼ÏñµÄÖ¡ÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iFrameSpeed Ñ¡ÔñµÄÖ¡ÂÊÄ£Ê½Ë÷ÒıºÅ£¬·¶Î§´Ó0µ½tSdkCameraCapbility.iFrameSpeedDesc - 1
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the frame rate of the camera output image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iFrameSpeed Frame rate index, ranging from 0 to tSdkCameraCapbility.iFrameSpeedDesc - 1
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetFrameSpeed(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetFrameSpeed
+// åŠŸèƒ½æè¿° : è®¾å®šç›¸æœºè¾“å‡ºå›¾åƒçš„å¸§ç‡ã€‚ç›¸æœºå¯ä¾›é€‰æ‹©çš„å¸§ç‡æ¨¡å¼ç”±
+//        CameraGetCapabilityè·å¾—çš„ä¿¡æ¯ç»“æ„ä½“ä¸­iFrameSpeedDesc
+//        è¡¨ç¤ºæœ€å¤§å¸§ç‡é€‰æ‹©æ¨¡å¼ä¸ªæ•°ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iFrameSpeed é€‰æ‹©çš„å¸§ç‡æ¨¡å¼ç´¢å¼•å·ï¼ŒèŒƒå›´ä»0åˆ°
+//              CameraGetCapabilityè·å¾—çš„ä¿¡æ¯ç»“æ„ä½“ä¸­iFrameSpeedDesc - 1
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetFrameSpeed(
+    CameraHandle    hCamera,
     int             iFrameSpeed
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úÊä³öÍ¼ÏñµÄÖ¡ÂÊÑ¡ÔñË÷ÒıºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piFrameSpeed ·µ»ØÑ¡ÔñµÄÖ¡ÂÊÄ£Ê½Ë÷ÒıºÅ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetFrameSpeed
-/// \~english
-/// \brief Obtain the frame rate selection index number of the camera output image.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piFrameSpeed Returns the selected frame rate mode index number.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetFrameSpeed
-MVSDK_API CameraSdkStatus __stdcall CameraGetFrameSpeed(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetFrameSpeed
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºè¾“å‡ºå›¾åƒçš„å¸§ç‡é€‰æ‹©ç´¢å¼•å·ã€‚å…·ä½“ç”¨æ³•å‚è€ƒ
+//        CameraSetFrameSpeedå‡½æ•°çš„åŠŸèƒ½æè¿°éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piFrameSpeed æŒ‡é’ˆï¼Œè¿”å›é€‰æ‹©çš„å¸§ç‡æ¨¡å¼ç´¢å¼•å·ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetFrameSpeed(
+    CameraHandle    hCamera,
     int*            piFrameSpeed
 );
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief Éè¶¨Ïà»úµÄÖ¡Æµ(ÃæÕó)»òĞĞÆµ(ÏßÕó)¡££¨½ö²¿·ÖÍø¿ÚÏà»úÖ§³Ö£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] RateHZ Ö¡Æµ»òĞĞÆµ£¨<=0±íÊ¾×î´óÆµÂÊ£©¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾å®šç›¸æœºçš„å¸§é¢‘(é¢é˜µ)æˆ–è¡Œé¢‘(çº¿é˜µ)ã€‚ï¼ˆä»…éƒ¨åˆ†ç½‘å£ç›¸æœºæ”¯æŒï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] RateHZ å¸§é¢‘æˆ–è¡Œé¢‘ï¼ˆ<=0è¡¨ç¤ºæœ€å¤§é¢‘ç‡ï¼‰ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the frame frequency (area) or line frequency (line scan). (only supported by some gige camera)
 /// \param [in] hCamera Camera handle.
 /// \param [in] RateHZ frame rate or line rate (<=0 means maximum frequency).
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetFrameRate(
+MVSDK_API CameraSdkStatus CameraSetFrameRate(
 	CameraHandle    hCamera, 
 	int             RateHZ
 	);
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñÈ¡Éè¶¨µÄÏà»úÖ¡Æµ(ÃæÕó)»òĞĞÆµ(ÏßÕó)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] RateHZ Ö¡Æµ»òĞĞÆµ£¨<=0±íÊ¾×î´óÆµÂÊ£©¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è®¾å®šçš„ç›¸æœºå¸§é¢‘(é¢é˜µ)æˆ–è¡Œé¢‘(çº¿é˜µ)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] RateHZ å¸§é¢‘æˆ–è¡Œé¢‘ï¼ˆ<=0è¡¨ç¤ºæœ€å¤§é¢‘ç‡ï¼‰ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the frame frequency (area) or line frequency (line scan).
 /// \param [in] hCamera Camera handle.
 /// \param [out] RateHZ frame rate or line rate (<=0 means maximum frequency).
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFrameRate(
+MVSDK_API CameraSdkStatus CameraGetFrameRate(
 	CameraHandle    hCamera, 
 	int*            RateHZ
 	);
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief Éè¶¨²ÎÊı´æÈ¡µÄÄ¿±ê¶ÔÏó¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMode  ²ÎÊı´æÈ¡µÄ¶ÔÏó¡£²Î¿¼@link #emSdkParameterMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the target object for parameter access.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMode The object accessed by the iMode parameter. Reference @link #emSdkParameterMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetParameterMode(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetParameterMode
+// åŠŸèƒ½æè¿° : è®¾å®šå‚æ•°å­˜å–çš„ç›®æ ‡å¯¹è±¡ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iMode  å‚æ•°å­˜å–çš„å¯¹è±¡ã€‚å‚è€ƒCameraDefine.h
+//          ä¸­emSdkParameterModeçš„ç±»å‹å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetParameterMode(
+    CameraHandle    hCamera,
     int             iMode
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief »ñÈ¡²ÎÊı´æÈ¡µÄÄ¿±ê¶ÔÏó¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piTarget ·µ»Ø²ÎÊı´æÈ¡µÄ¶ÔÏó¡£²Î¿¼@link #emSdkParameterMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the target object for the parameter access.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piTarget Returns the object accessed by the parameter. Reference @link #emSdkParameterMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetParameterMode(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetParameterMode
+// åŠŸèƒ½æè¿° :
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            int* piTarget
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetParameterMode(
+    CameraHandle    hCamera,
     int*            piTarget
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief ÉèÖÃ²ÎÊı´æÈ¡µÄÑÚÂë¡£²ÎÊı¼ÓÔØºÍ±£´æÊ±»á¸ù¾İ¸ÃÑÚÂëÀ´¾ö¶¨¸÷¸öÄ£¿é²ÎÊıµÄÊÇ·ñ¼ÓÔØ»òÕß±£´æ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uMask     ÑÚÂë¡£²Î¿¼@link #emSdkPropSheetMask @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the mask for parameter access. When the parameters are loaded and saved, the mask is used to determine whether each module parameter is loaded or saved.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uMask mask. Reference @link #emSdkPropSheetMask @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetParameterMask(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetParameterMask
+// åŠŸèƒ½æè¿° : è®¾ç½®å‚æ•°å­˜å–çš„æ©ç ã€‚å‚æ•°åŠ è½½å’Œä¿å­˜æ—¶ä¼šæ ¹æ®è¯¥
+//        æ©ç æ¥å†³å®šå„ä¸ªæ¨¡å—å‚æ•°çš„æ˜¯å¦åŠ è½½æˆ–è€…ä¿å­˜ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            uMask     æ©ç ã€‚å‚è€ƒCameraDefine.hä¸­PROP_SHEET_INDEX
+//            ç±»å‹å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetParameterMask(
+    CameraHandle    hCamera,
     UINT            uMask
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief ±£´æµ±Ç°Ïà»ú²ÎÊıµ½Ö¸¶¨µÄ²ÎÊı×éÖĞ¡£Ïà»úÌá¹©ÁËA,B,C,DËÄ×é¿Õ¼äÀ´½øĞĞ²ÎÊıµÄ±£´æ¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iTeam   ²ÎÊı×é£¬²Î¿¼@link #emSdkParameterTeam @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Save current camera parameters to the specified parameter group. The camera provides A, B, C, D four sets of space for parameter preservation.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iTeam parameter group, refer to @link #emSdkParameterTeam @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveParameter(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSaveParameter
+// åŠŸèƒ½æè¿° : ä¿å­˜å½“å‰ç›¸æœºå‚æ•°åˆ°æŒ‡å®šçš„å‚æ•°ç»„ä¸­ã€‚ç›¸æœºæä¾›äº†A,B,C,D
+//        A,B,C,Då››ç»„ç©ºé—´æ¥è¿›è¡Œå‚æ•°çš„ä¿å­˜ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iTeam      PARAMETER_TEAM_A ä¿å­˜åˆ°Aç»„ä¸­,
+//             PARAMETER_TEAM_B ä¿å­˜åˆ°Bç»„ä¸­,
+//             PARAMETER_TEAM_C ä¿å­˜åˆ°Cç»„ä¸­,
+//             PARAMETER_TEAM_D ä¿å­˜åˆ°Dç»„ä¸­
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSaveParameter(
+    CameraHandle    hCamera,
     int             iTeam
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief ±£´æµ±Ç°Ïà»ú²ÎÊıµ½Ö¸¶¨µÄÎÄ¼şÖĞ¡£¸ÃÎÄ¼ş¿ÉÒÔ¸´ÖÆµ½±ğµÄµçÄÔÉÏ¹©ÆäËûÏà»ú¼ÓÔØ£¬Ò²¿ÉÒÔ×ö²ÎÊı±¸·İÓÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] sFileName ²ÎÊıÎÄ¼şµÄÍêÕûÂ·¾¶¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Saves the current camera parameters to the specified file. This file can be copied to another computer for loading by other cameras, or it can be used for parameter backup.
-/// \param [in] hCamera Camera handle.
-/// \param [in] sFileName Full path to the sFileName parameter file.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveParameterToFile(
-  CameraHandle  hCamera, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraSaveParameterToFile
+// åŠŸèƒ½æè¿° : ä¿å­˜å½“å‰ç›¸æœºå‚æ•°åˆ°æŒ‡å®šçš„æ–‡ä»¶ä¸­ã€‚è¯¥æ–‡ä»¶å¯ä»¥å¤åˆ¶åˆ°
+//        åˆ«çš„ç”µè„‘ä¸Šä¾›å…¶ä»–ç›¸æœºåŠ è½½ï¼Œä¹Ÿå¯ä»¥åšå‚æ•°å¤‡ä»½ç”¨ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            sFileName  å‚æ•°æ–‡ä»¶çš„å®Œæ•´è·¯å¾„ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSaveParameterToFile(
+  CameraHandle  hCamera,
   char*       sFileName
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief ´ÓPCÉÏÖ¸¶¨µÄ²ÎÊıÎÄ¼şÖĞ¼ÓÔØ²ÎÊı¡£ÎÒ¹«Ë¾Ïà»ú²ÎÊı±£´æÔÚPCÉÏÎª.configºó×ºµÄÎÄ¼ş£¬Î»ÓÚ°²×°ÏÂµÄCamera\\ConfigsÎÄ¼ş¼ĞÖĞ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] sFileName ²ÎÊıÎÄ¼şµÄÍêÕûÂ·¾¶¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Load parameters from the parameter file specified on the PC. Our camera parameters are saved on the PC as a .config suffix file, which is located in the Camera\\Configs folder under installation.
-/// \param [in] hCamera Camera handle.
-/// \param [in] sFileName Full path to the sFileName parameter file.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraReadParameterFromFile(
+
+/******************************************************/
+// å‡½æ•°å   : CameraReadParameterFromFile
+// åŠŸèƒ½æè¿° : ä»PCä¸ŠæŒ‡å®šçš„å‚æ•°æ–‡ä»¶ä¸­åŠ è½½å‚æ•°ã€‚æˆ‘å…¬å¸ç›¸æœºå‚æ•°
+//        ä¿å­˜åœ¨PCä¸Šä¸º.configåç¼€çš„æ–‡ä»¶ï¼Œä½äºå®‰è£…ä¸‹çš„
+//        Camera\Configsæ–‡ä»¶å¤¹ä¸­ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            *sFileName å‚æ•°æ–‡ä»¶çš„å®Œæ•´è·¯å¾„ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraReadParameterFromFile(
     CameraHandle    hCamera,
     char*           sFileName
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief ¼ÓÔØÖ¸¶¨×éµÄ²ÎÊıµ½Ïà»úÖĞ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iTeam   ²ÎÊı×é£¬²Î¿¼@link #emSdkParameterTeam @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Loads the parameters of the specified group into the camera.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iTeam parameter group, refer to @link #emSdkParameterTeam @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraLoadParameter(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraLoadParameter
+// åŠŸèƒ½æè¿° : åŠ è½½æŒ‡å®šç»„çš„å‚æ•°åˆ°ç›¸æœºä¸­ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iTeam    PARAMETER_TEAM_A åŠ è½½Aç»„å‚æ•°,
+//             PARAMETER_TEAM_B åŠ è½½Bç»„å‚æ•°,
+//             PARAMETER_TEAM_C åŠ è½½Cç»„å‚æ•°,
+//             PARAMETER_TEAM_D åŠ è½½Dç»„å‚æ•°,
+//             PARAMETER_TEAM_DEFAULT åŠ è½½é»˜è®¤å‚æ•°ã€‚
+//             ç±»å‹å®šä¹‰å‚è€ƒCameraDefine.hä¸­emSdkParameterTeamç±»å‹
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraLoadParameter(
+    CameraHandle    hCamera,
     int             iTeam
 );
 
-/// @ingroup API_PARAMETERS
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Ñ¡ÔñµÄ²ÎÊı×é¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] piTeam  Ö¸Õë£¬·µ»Øµ±Ç°Ñ¡ÔñµÄ²ÎÊı×é¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the currently selected parameter group.
-/// \param [in] hCamera Camera handle.
-/// \param [in] piTeam Returns the currently selected parameter group.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCurrentParameterGroup(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetCurrentParameterGroup
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰é€‰æ‹©çš„å‚æ•°ç»„ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piTeam     æŒ‡é’ˆï¼Œè¿”å›å½“å‰é€‰æ‹©çš„å‚æ•°ç»„ã€‚è¿”å›å€¼
+//             å‚è€ƒCameraLoadParameterä¸­iTeamå‚æ•°ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetCurrentParameterGroup(
+    CameraHandle    hCamera,
     int*            piTeam
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»ú´«ÊäÍ¼ÏñÊı¾İµÄ·Ö°ü´óĞ¡¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iPackSel ·Ö°ü³¤¶ÈÑ¡ÔñµÄË÷ÒıºÅ¡£·Ö°ü³¤¶È¿ÉÓÉ»ñµÃÏà»úÊôĞÔ½á¹¹ÌåÖĞ@link #tSdkCameraCapbility.pPackLenDesc @endlink³ÉÔ±±íÊö£¬@link #tSdkCameraCapbility.iPackLenDesc @endlink³ÉÔ±Ôò±íÊ¾×î´ó¿ÉÑ¡µÄ·Ö°üÄ£Ê½¸öÊı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ä¿Ç°µÄSDK°æ±¾ÖĞ£¬¸Ã½Ó¿Ú½ö¶ÔGIGE½Ó¿ÚÏà»úÓĞĞ§£¬ÓÃÀ´¿ØÖÆÍøÂç´«ÊäµÄ·Ö°ü´óĞ¡¡£
-/// \note ¶ÔÓÚÖ§³Ö¾ŞÖ¡µÄÍø¿¨£¬ÎÒÃÇ½¨ÒéÑ¡Ôñ8KµÄ·Ö°ü´óĞ¡£¬¿ÉÒÔÓĞĞ§µÄ½µµÍ´«ÊäËùÕ¼ÓÃµÄCPU´¦ÀíÊ±¼ä¡£
-/// \warning ĞÂ°æ±¾µÄSDKÎŞĞèµ÷ÓÃ´Ëº¯Êı£¬SDK»á×Ô¶¯¸ù¾İÍøÂçÇé¿öĞ­ÉÌ×îÓÅµÄ·Ö°ü´óĞ¡
-/// \~english
-/// \brief Sets the packet size of the camera's transmitted image data.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iPackSel Index number of the iPackSel packet length selection. The packet length can be expressed by the @link #tSdkCameraCapbility.pPackLenDesc @endlink member in the camera attribute structure. The @link #tSdkCameraCapbility.iPackLenDesc @endlink member represents the maximum number of optional packet modes.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note In the current SDK version, this interface is only valid for GIGE interface cameras and is used to control the packet size of the network transmission.
-/// \note For NICs that support Jumbo Frames, we recommend choosing an 8K packet size that can effectively reduce the CPU processing time taken by the transfer.
-/// \warning New version of the SDK does not need to call this function, the SDK will automatically negotiate the optimal packet size according to the network conditions
-MVSDK_API CameraSdkStatus __stdcall CameraSetTransPackLen(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetTransPackLen
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºä¼ è¾“å›¾åƒæ•°æ®çš„åˆ†åŒ…å¤§å°ã€‚
+//        ç›®å‰çš„SDKç‰ˆæœ¬ä¸­ï¼Œè¯¥æ¥å£ä»…å¯¹GIGEæ¥å£ç›¸æœºæœ‰æ•ˆï¼Œ
+//        ç”¨æ¥æ§åˆ¶ç½‘ç»œä¼ è¾“çš„åˆ†åŒ…å¤§å°ã€‚å¯¹äºæ”¯æŒå·¨å¸§çš„ç½‘å¡ï¼Œ
+//        æˆ‘ä»¬å»ºè®®é€‰æ‹©8Kçš„åˆ†åŒ…å¤§å°ï¼Œå¯ä»¥æœ‰æ•ˆçš„é™ä½ä¼ è¾“
+//        æ‰€å ç”¨çš„CPUå¤„ç†æ—¶é—´ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iPackSel   åˆ†åŒ…é•¿åº¦é€‰æ‹©çš„ç´¢å¼•å·ã€‚åˆ†åŒ…é•¿åº¦å¯ç”±
+//             è·å¾—ç›¸æœºå±æ€§ç»“æ„ä½“ä¸­pPackLenDescæˆå‘˜è¡¨è¿°ï¼Œ
+//             iPackLenDescæˆå‘˜åˆ™è¡¨ç¤ºæœ€å¤§å¯é€‰çš„åˆ†åŒ…æ¨¡å¼ä¸ªæ•°ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetTransPackLen(
+    CameraHandle    hCamera,
     INT             iPackSel
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°´«Êä·Ö°ü´óĞ¡µÄÑ¡ÔñË÷ÒıºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piPackSel  Ö¸Õë£¬·µ»Øµ±Ç°Ñ¡ÔñµÄ·Ö°ü´óĞ¡Ë÷ÒıºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetTransPackLen
-/// \~english
-/// \brief Gets the selected index number of the camera's current transmission packet size.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piPackSel Returns the currently selected packet size index number.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetTransPackLen
-MVSDK_API CameraSdkStatus __stdcall CameraGetTransPackLen(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetTransPackLen
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºå½“å‰ä¼ è¾“åˆ†åŒ…å¤§å°çš„é€‰æ‹©ç´¢å¼•å·ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piPackSel  æŒ‡é’ˆï¼Œè¿”å›å½“å‰é€‰æ‹©çš„åˆ†åŒ…å¤§å°ç´¢å¼•å·ã€‚
+//             å‚è§CameraSetTransPackLenä¸­iPackSelçš„
+//             è¯´æ˜ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetTransPackLen(
+    CameraHandle    hCamera,
     INT*            piPackSel
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹â²Î¿¼´°¿ÚµÄÏÔÊ¾×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbIsVisible  Ö¸Õë£¬·µ»ØTRUE£¬Ôò±íÊ¾µ±Ç°´°¿Ú»á±»µş¼ÓÔÚÍ¼ÏñÄÚÈİÉÏ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the display status of the auto exposure reference window.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbIsVisible returns TRUE, indicating that the current window will be overlaid on the image content.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraIsAeWinVisible(
+/******************************************************/
+// å‡½æ•°å   : CameraIsAeWinVisible
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰å‚è€ƒçª—å£çš„æ˜¾ç¤ºçŠ¶æ€ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbIsVisible  æŒ‡é’ˆï¼Œè¿”å›TRUEï¼Œåˆ™è¡¨ç¤ºå½“å‰çª—å£ä¼š
+//               è¢«å åŠ åœ¨å›¾åƒå†…å®¹ä¸Šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraIsAeWinVisible(
     CameraHandle    hCamera,
     BOOL*           pbIsVisible
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹â²Î¿¼´°¿ÚµÄÏÔÊ¾×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bIsVisible  TRUE£¬ÉèÖÃÎªÏÔÊ¾£»FALSE£¬²»ÏÔÊ¾¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ±ÉèÖÃ´°¿Ú×´Ì¬ÎªÏÔÊ¾£¬µ÷ÓÃ@link #CameraImageOverlay @endlinkºó£¬ÄÜ¹»½«´°¿ÚÎ»ÖÃÒÔ¾ØĞÎµÄ·½Ê½µş¼ÓÔÚÍ¼ÏñÉÏ¡£
-/// \~english
-/// \brief Sets the display status of the auto exposure reference window.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bIsVisible TRUE, set to show; FALSE, not show.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note When the window state is set to display, after calling @link #CameraImageOverlay @endlink, the window position can be superimposed on the image in a rectangular manner.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeWinVisible(
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeWinVisible
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªåŠ¨æ›å…‰å‚è€ƒçª—å£çš„æ˜¾ç¤ºçŠ¶æ€ã€‚å½“è®¾ç½®çª—å£çŠ¶æ€
+//        ä¸ºæ˜¾ç¤ºï¼Œè°ƒç”¨CameraImageOverlayåï¼Œèƒ½å¤Ÿå°†çª—å£ä½ç½®
+//        ä»¥çŸ©å½¢çš„æ–¹å¼å åŠ åœ¨å›¾åƒä¸Šã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bIsVisible  TRUEï¼Œè®¾ç½®ä¸ºæ˜¾ç¤ºï¼›FALSEï¼Œä¸æ˜¾ç¤ºã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAeWinVisible(
     CameraHandle    hCamera,
     BOOL            bIsVisible
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃ×Ô¶¯ÆØ¹â²Î¿¼´°¿ÚµÄÎ»ÖÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piHOff     Ö¸Õë£¬·µ»Ø´°¿ÚÎ»ÖÃ×óÉÏ½Çºá×ø±êÖµ¡£
-/// \param [out] piVOff     Ö¸Õë£¬·µ»Ø´°¿ÚÎ»ÖÃ×óÉÏ½Ç×İ×ø±êÖµ¡£
-/// \param [out] piWidth    Ö¸Õë£¬·µ»Ø´°¿ÚµÄ¿í¶È¡£
-/// \param [out] piHeight   Ö¸Õë£¬·µ»Ø´°¿ÚµÄ¸ß¶È¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the position of the auto exposure reference window.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piHOff Returns the abscissa of the upper-left corner of the window.
-/// \param [out] piVOff Returns the ordinate value in the upper left corner of the window.
-/// \param [out] piWidth Returns the width of the window.
-/// \param [out] piHeight Returns the height of the window.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeWindow(
-    CameraHandle    hCamera, 
-    INT*            piHOff, 
-    INT*            piVOff, 
-    INT*            piWidth, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeWindow
+// åŠŸèƒ½æè¿° : è·å¾—è‡ªåŠ¨æ›å…‰å‚è€ƒçª—å£çš„ä½ç½®ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piHOff     æŒ‡é’ˆï¼Œè¿”å›çª—å£ä½ç½®å·¦ä¸Šè§’æ¨ªåæ ‡å€¼ã€‚
+//            piVOff     æŒ‡é’ˆï¼Œè¿”å›çª—å£ä½ç½®å·¦ä¸Šè§’çºµåæ ‡å€¼ã€‚
+//            piWidth    æŒ‡é’ˆï¼Œè¿”å›çª—å£çš„å®½åº¦ã€‚
+//            piHeight   æŒ‡é’ˆï¼Œè¿”å›çª—å£çš„é«˜åº¦ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAeWindow(
+    CameraHandle    hCamera,
+    INT*            piHOff,
+    INT*            piVOff,
+    INT*            piWidth,
     INT*            piHeight
 );
 
-/// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹âµÄ²Î¿¼´°¿Ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iHOff    ´°¿Ú×óÉÏ½ÇµÄºá×ø±ê
-/// \param [in] iVOff      ´°¿Ú×óÉÏ½ÇµÄ×İ×ø±ê
-/// \param [in] iWidth     ´°¿ÚµÄ¿í¶È 
-/// \param [in] iHeight    ´°¿ÚµÄ¸ß¶È
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Èç¹ûiHOff¡¢iVOff¡¢iWidth¡¢iHeightÈ«²¿Îª0£¬Ôò´°¿ÚÉèÖÃÎªÃ¿¸ö·Ö±æÂÊÏÂµÄ¾ÓÖĞ1/2´óĞ¡¡£¿ÉÒÔËæ×Å·Ö±æÂÊµÄ±ä»¯¶ø¸úËæ±ä»¯¡£
-/// \note Èç¹ûiHOff¡¢iVOff¡¢iWidth¡¢iHeightËù¾ö¶¨µÄ´°¿ÚÎ»ÖÃ·¶Î§³¬³öÁËµ±Ç°·Ö±æÂÊ·¶Î§ÄÚ£¬ Ôò×Ô¶¯Ê¹ÓÃ¾ÓÖĞ1/2´óĞ¡´°¿Ú¡£
-/// \~english
-/// \brief Set the reference window for auto exposure.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iHOff The horizontal axis of the window in the upper left corner
-/// \param [in] iVOff The ordinate of the top left corner of the window
-/// \param [in] iWidth width of window
-/// \param [in] iHeight Height of window
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note If iHOff, iVOff, iWidth, and iHeight are all 0, the window is set to the center 1/2 size for each resolution. It can follow changes as the resolution changes.
-/// \note If the window position range determined by iHOff, iVOff, iWidth, and iHeight exceeds the current resolution range, the centered 1/2 size window is automatically used.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeWindow(
-    CameraHandle    hCamera, 
-    int             iHOff, 
-    int             iVOff, 
-    int             iWidth, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeWindow
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªåŠ¨æ›å…‰çš„å‚è€ƒçª—å£ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iHOff    çª—å£å·¦ä¸Šè§’çš„æ¨ªåæ ‡
+//            iVOff      çª—å£å·¦ä¸Šè§’çš„çºµåæ ‡
+//            iWidth     çª—å£çš„å®½åº¦
+//            iHeight    çª—å£çš„é«˜åº¦
+//        å¦‚æœiHOffã€iVOffã€iWidthã€iHeightå…¨éƒ¨ä¸º0ï¼Œåˆ™
+//        çª—å£è®¾ç½®ä¸ºæ¯ä¸ªåˆ†è¾¨ç‡ä¸‹çš„å±…ä¸­1/2å¤§å°ã€‚å¯ä»¥éšç€
+//        åˆ†è¾¨ç‡çš„å˜åŒ–è€Œè·Ÿéšå˜åŒ–ï¼›å¦‚æœiHOffã€iVOffã€iWidthã€iHeight
+//        æ‰€å†³å®šçš„çª—å£ä½ç½®èŒƒå›´è¶…å‡ºäº†å½“å‰åˆ†è¾¨ç‡èŒƒå›´å†…ï¼Œ
+//          åˆ™è‡ªåŠ¨ä½¿ç”¨å±…ä¸­1/2å¤§å°çª—å£ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAeWindow(
+    CameraHandle    hCamera,
+    int             iHOff,
+    int             iVOff,
+    int             iWidth,
     int             iHeight
 );
 
-/// @ingroup API_MIRROR
-/// \~chinese
-/// \brief ÉèÖÃÍ¼Ïñ¾µÏñ²Ù×÷¡£¾µÏñ²Ù×÷·ÖÎªË®Æ½ºÍ´¹Ö±Á½¸ö·½Ïò¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iDir     ±íÊ¾¾µÏñµÄ·½Ïò¡£0£¬±íÊ¾Ë®Æ½·½Ïò£»1£¬±íÊ¾´¹Ö±·½Ïò¡£
-/// \param [in] bEnable  TRUE£¬Ê¹ÄÜ¾µÏñ;FALSE£¬½ûÖ¹¾µÏñ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set image mirroring operation. The mirroring operation is divided into horizontal and vertical directions.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iDir Indicates the direction of the mirror. 0 means horizontal direction; 1 means vertical direction.
-/// \param [in] bEnable TRUE to enable mirroring; FALSE to disable mirroring
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMirror(
-    CameraHandle    hCamera, 
-    int             iDir, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetMirror
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒé•œåƒæ“ä½œã€‚é•œåƒæ“ä½œåˆ†ä¸ºæ°´å¹³å’Œå‚ç›´ä¸¤ä¸ªæ–¹å‘ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iDir     è¡¨ç¤ºé•œåƒçš„æ–¹å‘ã€‚0ï¼Œè¡¨ç¤ºæ°´å¹³æ–¹å‘ï¼›1ï¼Œè¡¨ç¤ºå‚ç›´æ–¹å‘ã€‚
+//            bEnable  TRUEï¼Œä½¿èƒ½é•œåƒ;FALSEï¼Œç¦æ­¢é•œåƒ
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetMirror(
+    CameraHandle    hCamera,
+    int             iDir,
     BOOL            bEnable
 );
 
-/// @ingroup API_MIRROR
-/// \~chinese
-/// \brief »ñµÃÍ¼ÏñµÄ¾µÏñ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iDir     ±íÊ¾Òª»ñµÃµÄ¾µÏñ·½Ïò¡£0£¬±íÊ¾Ë®Æ½·½Ïò£»1£¬±íÊ¾´¹Ö±·½Ïò¡£
-/// \param [out] pbEnable   Ö¸Õë£¬·µ»ØTRUE£¬Ôò±íÊ¾iDirËùÖ¸µÄ·½Ïò¾µÏñ±»Ê¹ÄÜ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the mirrored state of the image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iDir Indicates the mirroring direction to be obtained. 0 means horizontal direction; 1 means vertical direction.
-/// \param [out] pbEnable Returns TRUE, indicating that the direction mirror image of iDir is enabled.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMirror(
-    CameraHandle    hCamera, 
-    int             iDir, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetMirror
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒçš„é•œåƒçŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iDir     è¡¨ç¤ºè¦è·å¾—çš„é•œåƒæ–¹å‘ã€‚
+//             0ï¼Œè¡¨ç¤ºæ°´å¹³æ–¹å‘ï¼›1ï¼Œè¡¨ç¤ºå‚ç›´æ–¹å‘ã€‚
+//            pbEnable   æŒ‡é’ˆï¼Œè¿”å›TRUEï¼Œåˆ™è¡¨ç¤ºiDiræ‰€æŒ‡çš„æ–¹å‘
+//             é•œåƒè¢«ä½¿èƒ½ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetMirror(
+    CameraHandle    hCamera,
+    int             iDir,
     BOOL*           pbEnable
 );
 
 /// @ingroup API_MIRROR
 /// \~chinese
-/// \brief ÉèÖÃÓ²¼ş¾µÏñ¡£·ÖÎªË®Æ½ºÍ´¹Ö±Á½¸ö·½Ïò¡££¨½ö²¿·ÖÍø¿Ú¡¢U3Ïà»úÖ§³Ö´Ë¹¦ÄÜ£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iDir     ±íÊ¾¾µÏñµÄ·½Ïò¡£0£¬±íÊ¾Ë®Æ½·½Ïò£»1£¬±íÊ¾´¹Ö±·½Ïò¡£
-/// \param [in] bEnable  TRUE£¬Ê¹ÄÜ¾µÏñ;FALSE£¬½ûÖ¹¾µÏñ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç¡¬ä»¶é•œåƒã€‚åˆ†ä¸ºæ°´å¹³å’Œå‚ç›´ä¸¤ä¸ªæ–¹å‘ã€‚ï¼ˆä»…éƒ¨åˆ†ç½‘å£ã€U3ç›¸æœºæ”¯æŒæ­¤åŠŸèƒ½ï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iDir     è¡¨ç¤ºé•œåƒçš„æ–¹å‘ã€‚0ï¼Œè¡¨ç¤ºæ°´å¹³æ–¹å‘ï¼›1ï¼Œè¡¨ç¤ºå‚ç›´æ–¹å‘ã€‚
+/// \param [in] bEnable  TRUEï¼Œä½¿èƒ½é•œåƒ;FALSEï¼Œç¦æ­¢é•œåƒ
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set up the hardware mirror. Divided into two directions, horizontal and vertical. (Only some GigE and U3 cameras support this feature)
 /// \param [in] hCamera Camera handle.
 /// \param [in] iDir Indicates the direction of the mirror. 0 means horizontal direction; 1 means vertical direction.
 /// \param [in] bEnable TRUE to enable mirroring; FALSE to disable mirroring
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetHardwareMirror(
+MVSDK_API CameraSdkStatus CameraSetHardwareMirror(
 	CameraHandle    hCamera, 
 	int             iDir, 
 	BOOL            bEnable
@@ -2563,18 +2034,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetHardwareMirror(
 
 /// @ingroup API_MIRROR
 /// \~chinese
-/// \brief »ñÈ¡ÉèÖÃµÄÓ²¼ş¾µÏñ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iDir     ±íÊ¾Òª»ñµÃµÄ¾µÏñ·½Ïò¡£0£¬±íÊ¾Ë®Æ½·½Ïò£»1£¬±íÊ¾´¹Ö±·½Ïò¡£
-/// \param [out] pbEnable   Ö¸Õë£¬·µ»ØTRUE£¬Ôò±íÊ¾iDirËùÖ¸µÄ·½Ïò¾µÏñ±»Ê¹ÄÜ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è®¾ç½®çš„ç¡¬ä»¶é•œåƒçŠ¶æ€ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iDir     è¡¨ç¤ºè¦è·å¾—çš„é•œåƒæ–¹å‘ã€‚0ï¼Œè¡¨ç¤ºæ°´å¹³æ–¹å‘ï¼›1ï¼Œè¡¨ç¤ºå‚ç›´æ–¹å‘ã€‚
+/// \param [out] pbEnable   æŒ‡é’ˆï¼Œè¿”å›TRUEï¼Œåˆ™è¡¨ç¤ºiDiræ‰€æŒ‡çš„æ–¹å‘é•œåƒè¢«ä½¿èƒ½ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the hardware mirrored state of the image.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iDir Indicates the mirroring direction to be obtained. 0 means horizontal direction; 1 means vertical direction.
 /// \param [out] pbEnable Returns TRUE, indicating that the direction mirror image of iDir is enabled.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetHardwareMirror(
+MVSDK_API CameraSdkStatus CameraGetHardwareMirror(
 	CameraHandle    hCamera, 
 	int             iDir, 
 	BOOL*           pbEnable
@@ -2582,190 +2053,164 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetHardwareMirror(
 
 /// @ingroup API_MIRROR
 /// \~chinese
-/// \brief ÉèÖÃÍ¼ÏñĞı×ª²Ù×÷
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iRot    ±íÊ¾Ğı×ªµÄ½Ç¶È£¨ÄæÊ±Õë·½Ïò£©£¨0£º²»Ğı×ª 1:90¶È 2:180¶È 3:270¶È£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®å›¾åƒæ—‹è½¬æ“ä½œ
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iRot    è¡¨ç¤ºæ—‹è½¬çš„è§’åº¦ï¼ˆé€†æ—¶é’ˆæ–¹å‘ï¼‰ï¼ˆ0ï¼šä¸æ—‹è½¬ 1:90åº¦ 2:180åº¦ 3:270åº¦ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set image rotation operation
 /// \param [in] hCamera Camera handle.
 /// \param [in] iRot rotation angle (counterclockwise) (0: no rotation 1:90 degrees 2:180 degrees 3:270 degrees)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetRotate(
-	CameraHandle    hCamera, 
-	int             iRot 
+MVSDK_API CameraSdkStatus CameraSetRotate(
+	CameraHandle    hCamera,
+	int             iRot
 	);
 
 /// @ingroup API_MIRROR
 /// \~chinese
-/// \brief »ñµÃÍ¼ÏñµÄĞı×ª×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] iRot     ±íÊ¾Òª»ñµÃµÄĞı×ª·½Ïò¡££¨ÄæÊ±Õë·½Ïò£©£¨0£º²»Ğı×ª 1:90¶È 2:180¶È 3:270¶È£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—å›¾åƒçš„æ—‹è½¬çŠ¶æ€ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] iRot     è¡¨ç¤ºè¦è·å¾—çš„æ—‹è½¬æ–¹å‘ã€‚ï¼ˆé€†æ—¶é’ˆæ–¹å‘ï¼‰ï¼ˆ0ï¼šä¸æ—‹è½¬ 1:90åº¦ 2:180åº¦ 3:270åº¦ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the rotation state of the image.
 /// \param [in] hCamera Camera handle.
 /// \param [out] iRot Indicates the direction of rotation to get. (Counterclockwise) (0: Do not rotate 1:90 degree 2: 180 degree 3: 270 degree)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRotate(
-	CameraHandle    hCamera, 
-	int*            iRot 
+MVSDK_API CameraSdkStatus CameraGetRotate(
+	CameraHandle    hCamera,
+	int*            iRot
 	);
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃ°×Æ½ºâ²Î¿¼´°¿ÚµÄÎ»ÖÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] PiHOff   Ö¸Õë£¬·µ»Ø²Î¿¼´°¿ÚµÄ×óÉÏ½Çºá×ø±ê ¡£
-/// \param [out] PiVOff     Ö¸Õë£¬·µ»Ø²Î¿¼´°¿ÚµÄ×óÉÏ½Ç×İ×ø±ê ¡£
-/// \param [out] PiWidth    Ö¸Õë£¬·µ»Ø²Î¿¼´°¿ÚµÄ¿í¶È¡£
-/// \param [out] PiHeight   Ö¸Õë£¬·µ»Ø²Î¿¼´°¿ÚµÄ¸ß¶È¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the position of the white balance reference window.
-/// \param [in] hCamera Camera handle.
-/// \param [out] PiHOff Returns the top-left abscissa of the reference window.
-/// \param [out] PiVOff Returns the upper-left ordinate of the reference window.
-/// \param [out] PiWidth Returns the width of the reference window.
-/// \param [out] PiHeight Returns the height of the reference window.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetWbWindow(
-    CameraHandle    hCamera, 
-    INT*            PiHOff, 
-    INT*            PiVOff, 
-    INT*            PiWidth, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetWbWindow
+// åŠŸèƒ½æè¿° : è·å¾—ç™½å¹³è¡¡å‚è€ƒçª—å£çš„ä½ç½®ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            PiHOff   æŒ‡é’ˆï¼Œè¿”å›å‚è€ƒçª—å£çš„å·¦ä¸Šè§’æ¨ªåæ ‡ ã€‚
+//            PiVOff     æŒ‡é’ˆï¼Œè¿”å›å‚è€ƒçª—å£çš„å·¦ä¸Šè§’çºµåæ ‡ ã€‚
+//            PiWidth    æŒ‡é’ˆï¼Œè¿”å›å‚è€ƒçª—å£çš„å®½åº¦ã€‚
+//            PiHeight   æŒ‡é’ˆï¼Œè¿”å›å‚è€ƒçª—å£çš„é«˜åº¦ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetWbWindow(
+    CameraHandle    hCamera,
+    INT*            PiHOff,
+    INT*            PiVOff,
+    INT*            PiWidth,
     INT*            PiHeight
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃ°×Æ½ºâ²Î¿¼´°¿ÚµÄÎ»ÖÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iHOff   ²Î¿¼´°¿ÚµÄ×óÉÏ½Çºá×ø±ê¡£
-/// \param [in] iVOff     ²Î¿¼´°¿ÚµÄ×óÉÏ½Ç×İ×ø±ê¡£
-/// \param [in] iWidth    ²Î¿¼´°¿ÚµÄ¿í¶È¡£
-/// \param [in] iHeight   ²Î¿¼´°¿ÚµÄ¸ß¶È¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the position of the white balance reference window.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iHOff The upper left corner of the reference window.
-/// \param [in] iVOff The upper left ordinate of the reference window.
-/// \param [in] iWidth Width of the reference window.
-/// \param [in] iHeight The height of the reference window.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetWbWindow(
-    CameraHandle    hCamera, 
-    INT             iHOff, 
-    INT             iVOff, 
-    INT             iWidth, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetWbWindow
+// åŠŸèƒ½æè¿° : è®¾ç½®ç™½å¹³è¡¡å‚è€ƒçª—å£çš„ä½ç½®ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iHOff   å‚è€ƒçª—å£çš„å·¦ä¸Šè§’æ¨ªåæ ‡ã€‚
+//            iVOff     å‚è€ƒçª—å£çš„å·¦ä¸Šè§’çºµåæ ‡ã€‚
+//            iWidth    å‚è€ƒçª—å£çš„å®½åº¦ã€‚
+//            iHeight   å‚è€ƒçª—å£çš„é«˜åº¦ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetWbWindow(
+    CameraHandle    hCamera,
+    INT             iHOff,
+    INT             iVOff,
+    INT             iWidth,
     INT             iHeight
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief »ñµÃ°×Æ½ºâ´°¿ÚµÄÏÔÊ¾×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbShow   Ö¸Õë£¬·µ»ØTRUE£¬Ôò±íÊ¾´°¿ÚÊÇ¿É¼ûµÄ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the display status of the white balance window.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbShow returns TRUE, indicating that the window is visible.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraIsWbWinVisible(
+/******************************************************/
+// å‡½æ•°å   : CameraIsWbWinVisible
+// åŠŸèƒ½æè¿° : è·å¾—ç™½å¹³è¡¡çª—å£çš„æ˜¾ç¤ºçŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbShow   æŒ‡é’ˆï¼Œè¿”å›TRUEï¼Œåˆ™è¡¨ç¤ºçª—å£æ˜¯å¯è§çš„ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraIsWbWinVisible(
     CameraHandle    hCamera,
     BOOL*           pbShow
 );
 
-/// @ingroup API_COLOR
-/// \~chinese
-/// \brief ÉèÖÃ°×Æ½ºâ´°¿ÚµÄÏÔÊ¾×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bShow      TRUE£¬Ôò±íÊ¾ÉèÖÃÎª¿É¼û¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÔÚµ÷ÓÃ@link #CameraImageOverlay @endlinkºó£¬Í¼ÏñÄÚÈİÉÏ½«ÒÔ¾ØĞÎµÄ·½Ê½µş¼Ó°×Æ½ºâ²Î¿¼´°¿ÚµÄÎ»ÖÃ¡£
-/// \~english
-/// \brief Sets the display status of the white balance window.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bShow TRUE indicates that the setting is visible.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note After calling @link #CameraImageOverlay @endlink, the white balance reference window's position will be overlaid on the image content in a rectangular manner.
-MVSDK_API CameraSdkStatus __stdcall CameraSetWbWinVisible(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetWbWinVisible
+// åŠŸèƒ½æè¿° : è®¾ç½®ç™½å¹³è¡¡çª—å£çš„æ˜¾ç¤ºçŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bShow      TRUEï¼Œåˆ™è¡¨ç¤ºè®¾ç½®ä¸ºå¯è§ã€‚åœ¨è°ƒç”¨
+//             CameraImageOverlayåï¼Œå›¾åƒå†…å®¹ä¸Šå°†ä»¥çŸ©å½¢
+//             çš„æ–¹å¼å åŠ ç™½å¹³è¡¡å‚è€ƒçª—å£çš„ä½ç½®ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetWbWinVisible(
+    CameraHandle    hCamera,
     BOOL            bShow
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ½«ÊäÈëµÄÍ¼ÏñÊı¾İÉÏµş¼ÓÊ®×ÖÏß¡¢°×Æ½ºâ²Î¿¼´°¿Ú¡¢×Ô¶¯ÆØ¹â²Î¿¼´°¿ÚµÈÍ¼ĞÎ¡£Ö»ÓĞÉèÖÃÎª¿É¼û×´Ì¬µÄÊ®×ÖÏßºÍ²Î¿¼´°¿Ú²ÅÄÜ±»µş¼ÓÉÏ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pRgbBuffer Í¼ÏñÊı¾İ»º³åÇø¡£
-/// \param [in] pFrInfo    Í¼ÏñµÄÖ¡Í·ĞÅÏ¢¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The cross-line, white balance reference window, auto exposure reference window, etc. are superimposed on the input image data. Only crosshairs and reference windows that are set to visible can be overlaid.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pRgbBuffer image data buffer.
-/// \param [in] pFrInfo Frame header information for the image.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraImageOverlay(
+/******************************************************/
+// å‡½æ•°å   : CameraImageOverlay
+// åŠŸèƒ½æè¿° : å°†è¾“å…¥çš„å›¾åƒæ•°æ®ä¸Šå åŠ åå­—çº¿ã€ç™½å¹³è¡¡å‚è€ƒçª—å£ã€
+//        è‡ªåŠ¨æ›å…‰å‚è€ƒçª—å£ç­‰å›¾å½¢ã€‚åªæœ‰è®¾ç½®ä¸ºå¯è§çŠ¶æ€çš„
+//        åå­—çº¿å’Œå‚è€ƒçª—å£æ‰èƒ½è¢«å åŠ ä¸Šã€‚
+//        æ³¨æ„ï¼Œè¯¥å‡½æ•°çš„è¾“å…¥å›¾åƒå¿…é¡»æ˜¯RGBæ ¼å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pRgbBuffer å›¾åƒæ•°æ®ç¼“å†²åŒºã€‚
+//            pFrInfo    å›¾åƒçš„å¸§å¤´ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraImageOverlay(
     CameraHandle    hCamera,
     BYTE*           pRgbBuffer,
     tSdkFrameHead*  pFrInfo
 );
 
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ÉèÖÃÖ¸¶¨Ê®×ÖÏßµÄ²ÎÊı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iLine    ±íÊ¾ÒªÉèÖÃµÚ¼¸ÌõÊ®×ÖÏßµÄ×´Ì¬¡£·¶Î§Îª[0,8]£¬¹²9Ìõ¡£    
-/// \param [in] x          Ê®×ÖÏßÖĞĞÄÎ»ÖÃµÄºá×ø±êÖµ¡£
-/// \param [in] y      Ê®×ÖÏßÖĞĞÄÎ»ÖÃµÄ×İ×ø±êÖµ¡£
-/// \param [in] uColor     Ê®×ÖÏßµÄÑÕÉ«£¬¸ñÊ½Îª(R|(G<<8)|(B<<16))
-/// \param [in] bVisible   Ê®×ÖÏßµÄÏÔÊ¾×´Ì¬¡£TRUE£¬±íÊ¾ÏÔÊ¾¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ö»ÓĞÉèÖÃÎªÏÔÊ¾×´Ì¬µÄÊ®×ÖÏß£¬ÔÚµ÷ÓÃ@link #CameraImageOverlay @endlinkºó²Å»á±»µş¼Óµ½Í¼ÏñÉÏ¡£
-/// \~english
-/// \brief Set the parameters for the specified crosshairs.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iLine Indicates the status of the first few crosshairs. The range is [0,8] for a total of 9.
-/// \param [in] x The abscissa of the crosshair center position.
-/// \param [in] y The y-axis value of the crosshair center position.
-/// \param [in] uColor The color of the crosshair in the format (R|(G<<8)|(B<<16))
-/// \param [in] bVisible Crosshair display status. TRUE, indicates the display.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Only crosshairs set to display state will be superimposed on the image after calling @link #CameraImageOverlay @endlink.
-MVSDK_API CameraSdkStatus __stdcall CameraSetCrossLine(
-    CameraHandle    hCamera, 
-    int             iLine, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetCrossLine
+// åŠŸèƒ½æè¿° : è®¾ç½®æŒ‡å®šåå­—çº¿çš„å‚æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iLine    è¡¨ç¤ºè¦è®¾ç½®ç¬¬å‡ æ¡åå­—çº¿çš„çŠ¶æ€ã€‚èŒƒå›´ä¸º[0,8]ï¼Œå…±9æ¡ã€‚
+//            x          åå­—çº¿ä¸­å¿ƒä½ç½®çš„æ¨ªåæ ‡å€¼ã€‚
+//            y      åå­—çº¿ä¸­å¿ƒä½ç½®çš„çºµåæ ‡å€¼ã€‚
+//            uColor     åå­—çº¿çš„é¢œè‰²ï¼Œæ ¼å¼ä¸º(R|(G<<8)|(B<<16))
+//            bVisible   åå­—çº¿çš„æ˜¾ç¤ºçŠ¶æ€ã€‚TRUEï¼Œè¡¨ç¤ºæ˜¾ç¤ºã€‚
+//             åªæœ‰è®¾ç½®ä¸ºæ˜¾ç¤ºçŠ¶æ€çš„åå­—çº¿ï¼Œåœ¨è°ƒç”¨
+//             CameraImageOverlayåæ‰ä¼šè¢«å åŠ åˆ°å›¾åƒä¸Šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetCrossLine(
+    CameraHandle    hCamera,
+    int             iLine,
     INT             x,
     INT             y,
     UINT            uColor,
     BOOL            bVisible
 );
 
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief »ñµÃÖ¸¶¨Ê®×ÖÏßµÄ×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iLine    ±íÊ¾Òª»ñÈ¡µÄµÚ¼¸ÌõÊ®×ÖÏßµÄ×´Ì¬¡£·¶Î§Îª[0,8]£¬¹²9Ìõ¡£  
-/// \param [out] px     Ö¸Õë£¬·µ»Ø¸ÃÊ®×ÖÏßÖĞĞÄÎ»ÖÃµÄºá×ø±ê¡£
-/// \param [out] py     Ö¸Õë£¬·µ»Ø¸ÃÊ®×ÖÏßÖĞĞÄÎ»ÖÃµÄºá×ø±ê¡£
-/// \param [out] pcolor     Ö¸Õë£¬·µ»Ø¸ÃÊ®×ÖÏßµÄÑÕÉ«£¬¸ñÊ½Îª(R|(G<<8)|(B<<16))¡£
-/// \param [out] pbVisible  Ö¸Õë£¬·µ»ØTRUE£¬Ôò±íÊ¾¸ÃÊ®×ÖÏß¿É¼û¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the status of the designated crosshairs.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iLine Indicates the status of the first few crosshairs to get. The range is [0,8] for a total of 9.
-/// \param [out] px Returns the abscissa of the center of the crosshair.
-/// \param [out] py Returns the abscissa of the center of the crosshair.
-/// \param [out] pcolor Returns the color of this crosshair in the format (R|(G<<8)|(B<<16)).
-/// \param [out] pbVisible returns TRUE, indicating that the crosshairs are visible.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCrossLine(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetCrossLine
+// åŠŸèƒ½æè¿° : è·å¾—æŒ‡å®šåå­—çº¿çš„çŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iLine    è¡¨ç¤ºè¦è·å–çš„ç¬¬å‡ æ¡åå­—çº¿çš„çŠ¶æ€ã€‚èŒƒå›´ä¸º[0,8]ï¼Œå…±9æ¡ã€‚
+//            px     æŒ‡é’ˆï¼Œè¿”å›è¯¥åå­—çº¿ä¸­å¿ƒä½ç½®çš„æ¨ªåæ ‡ã€‚
+//            py     æŒ‡é’ˆï¼Œè¿”å›è¯¥åå­—çº¿ä¸­å¿ƒä½ç½®çš„æ¨ªåæ ‡ã€‚
+//            pcolor     æŒ‡é’ˆï¼Œè¿”å›è¯¥åå­—çº¿çš„é¢œè‰²ï¼Œæ ¼å¼ä¸º(R|(G<<8)|(B<<16))ã€‚
+//            pbVisible  æŒ‡é’ˆï¼Œè¿”å›TRUEï¼Œåˆ™è¡¨ç¤ºè¯¥åå­—çº¿å¯è§ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetCrossLine(
+    CameraHandle    hCamera,
     INT             iLine,
     INT*            px,
     INT*            py,
@@ -2773,665 +2218,641 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetCrossLine(
     BOOL*           pbVisible
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄÌØĞÔÃèÊö½á¹¹Ìå¡£¸Ã½á¹¹ÌåÖĞ°üº¬ÁËÏà»ú¿ÉÉèÖÃµÄ¸÷ÖÖ²ÎÊıµÄ·¶Î§ĞÅÏ¢¡£¾ö¶¨ÁËÏà¹Øº¯ÊıµÄ²ÎÊı·µ»Ø£¬Ò²¿ÉÓÃÓÚ¶¯Ì¬´´½¨Ïà»úµÄÅäÖÃ½çÃæ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pCameraInfo Ö¸Õë£¬·µ»Ø¸ÃÏà»úÌØĞÔÃèÊöµÄ½á¹¹Ìå¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the camera's characteristic description structure. This structure contains range information of various parameters that the camera can set. Determines the return of parameters for related functions and can also be used to dynamically create camera configuration interfaces.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pCameraInfo Returns the structure of the camera's property description.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCapability(
-    CameraHandle            hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetCapability
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„ç‰¹æ€§æè¿°ç»“æ„ä½“ã€‚è¯¥ç»“æ„ä½“ä¸­åŒ…å«äº†ç›¸æœº
+//        å¯è®¾ç½®çš„å„ç§å‚æ•°çš„èŒƒå›´ä¿¡æ¯ã€‚å†³å®šäº†ç›¸å…³å‡½æ•°çš„å‚æ•°
+//        è¿”å›ï¼Œä¹Ÿå¯ç”¨äºåŠ¨æ€åˆ›å»ºç›¸æœºçš„é…ç½®ç•Œé¢ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pCameraInfo æŒ‡é’ˆï¼Œè¿”å›è¯¥ç›¸æœºç‰¹æ€§æè¿°çš„ç»“æ„ä½“ã€‚
+//                        tSdkCameraCapbilityåœ¨CameraDefine.hä¸­å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetCapability(
+    CameraHandle            hCamera,
     tSdkCameraCapbility*    pCameraInfo
 );
 
 /******************************************************/
-// º¯ÊıÃû   : CameraGetCapabilityEx
-// ¹¦ÄÜÃèÊö : »ñµÃÏà»úµÄÌØĞÔÃèÊö½á¹¹Ìå¡£¸Ã½á¹¹ÌåÖĞ°üº¬ÁËÏà»ú
-//        ¿ÉÉèÖÃµÄ¸÷ÖÖ²ÎÊıµÄ·¶Î§ĞÅÏ¢¡£¾ö¶¨ÁËÏà¹Øº¯ÊıµÄ²ÎÊı
-//        ·µ»Ø£¬Ò²¿ÉÓÃÓÚ¶¯Ì¬´´½¨Ïà»úµÄÅäÖÃ½çÃæ¡£
-// ²ÎÊı     : sDeviceModel    Ïà»úµÄĞÍºÅ£¬ÓÉÉ¨ÃèÁĞ±íÖĞ»ñÈ¡
-//            pCameraInfo Ö¸Õë£¬·µ»Ø¸ÃÏà»úÌØĞÔÃèÊöµÄ½á¹¹Ìå¡£
-//                        tSdkCameraCapbilityÔÚCameraDefine.hÖĞ¶¨Òå¡£
-// ·µ»ØÖµ   : ³É¹¦Ê±£¬·µ»ØCAMERA_STATUS_SUCCESS (0);
-//            ·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë,Çë²Î¿¼CameraStatus.h
-//            ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+// å‡½æ•°å   : CameraGetCapabilityEx
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„ç‰¹æ€§æè¿°ç»“æ„ä½“ã€‚è¯¥ç»“æ„ä½“ä¸­åŒ…å«äº†ç›¸æœº
+//        å¯è®¾ç½®çš„å„ç§å‚æ•°çš„èŒƒå›´ä¿¡æ¯ã€‚å†³å®šäº†ç›¸å…³å‡½æ•°çš„å‚æ•°
+//        è¿”å›ï¼Œä¹Ÿå¯ç”¨äºåŠ¨æ€åˆ›å»ºç›¸æœºçš„é…ç½®ç•Œé¢ã€‚
+// å‚æ•°     : sDeviceModel    ç›¸æœºçš„å‹å·ï¼Œç”±æ‰«æåˆ—è¡¨ä¸­è·å–
+//            pCameraInfo æŒ‡é’ˆï¼Œè¿”å›è¯¥ç›¸æœºç‰¹æ€§æè¿°çš„ç»“æ„ä½“ã€‚
+//                        tSdkCameraCapbilityåœ¨CameraDefine.hä¸­å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /******************************************************/
-MVSDK_API CameraSdkStatus __stdcall CameraGetCapabilityEx(
-    char*                   sDeviceModel, 
+MVSDK_API CameraSdkStatus  CameraGetCapabilityEx(
+    char*                   sDeviceModel,
     tSdkCameraCapbility*    pCameraInfo,
     PVOID                   hCameraHandle
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄĞòÁĞºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbySN    ĞòÁĞºÅµÄ»º³åÇø¡£ 
-/// \param [in] iLevel   ÒªÉè¶¨µÄĞòÁĞºÅ¼¶±ğ£¬Ö»ÄÜÊÇ1»òÕß2¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÎÒ¹«Ë¾Ïà»úĞòÁĞºÅ·ÖÎª3¼¶¡£0¼¶µÄÊÇÎÒ¹«Ë¾×Ô¶¨ÒåµÄÏà»úĞòÁĞºÅ£¬³ö³§Ê±ÒÑ¾­Éè¶¨ºÃÇÒÎŞ·¨ĞŞ¸Ä£¬1¼¶ºÍ2¼¶Áô¸ø¶ş´Î¿ª·¢Ê¹ÓÃ¡£Ã¿¼¶ĞòÁĞºÅ³¤¶È¶¼ÊÇ32¸ö×Ö½Ú¡£
-/// \~english
-/// \brief Set the camera's serial number.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbySN The buffer for the serial number.
-/// \param [in] iLevel The serial number to be set can only be 1 or 2.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Our company camera serial number is divided into 3 levels. Level 0 is our company's custom camera serial number, which has been set at the factory and cannot be modified. Levels 1 and 2 are reserved for secondary development. Each serial number length is 32 bytes.
-MVSDK_API CameraSdkStatus __stdcall CameraWriteSN(
-    CameraHandle    hCamera, 
-    BYTE*           pbySN, 
+
+/******************************************************/
+// å‡½æ•°å   : CameraWriteSN
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºçš„åºåˆ—å·ã€‚æˆ‘å…¬å¸ç›¸æœºåºåˆ—å·åˆ†ä¸º3çº§ã€‚
+//        0çº§çš„æ˜¯æˆ‘å…¬å¸è‡ªå®šä¹‰çš„ç›¸æœºåºåˆ—å·ï¼Œå‡ºå‚æ—¶å·²ç»
+//        è®¾å®šå¥½ï¼Œ1çº§å’Œ2çº§ç•™ç»™äºŒæ¬¡å¼€å‘ä½¿ç”¨ã€‚æ¯çº§åºåˆ—
+//        å·é•¿åº¦éƒ½æ˜¯32ä¸ªå­—èŠ‚ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbySN    åºåˆ—å·çš„ç¼“å†²åŒºã€‚
+//            iLevel   è¦è®¾å®šçš„åºåˆ—å·çº§åˆ«ï¼Œåªèƒ½æ˜¯1æˆ–è€…2ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraWriteSN(
+    CameraHandle    hCamera,
+    BYTE*           pbySN,
     INT             iLevel
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ¶ÁÈ¡Ïà»úÖ¸¶¨¼¶±ğµÄĞòÁĞºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pbySN   ĞòÁĞºÅµÄ»º³åÇø¡£
-/// \param [in] iLevel  Òª¶ÁÈ¡µÄĞòÁĞºÅ¼¶±ğ¡£¿ÉÒÔÎª0¡¢1ºÍ2¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraWriteSN
-/// \~english
-/// \brief Reads the camera's assigned level serial number.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pbySN The buffer for the serial number.
-/// \param [in] iLevel The sequence number to read. Can be 0, 1 and 2.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraWriteSN
-MVSDK_API CameraSdkStatus __stdcall CameraReadSN(
-    CameraHandle        hCamera, 
-    BYTE*               pbySN, 
+/******************************************************/
+// å‡½æ•°å   : CameraReadSN
+// åŠŸèƒ½æè¿° : è¯»å–ç›¸æœºæŒ‡å®šçº§åˆ«çš„åºåˆ—å·ã€‚åºåˆ—å·çš„å®šä¹‰è¯·å‚è€ƒ
+//          CameraWriteSNå‡½æ•°çš„åŠŸèƒ½æè¿°éƒ¨åˆ†ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pbySN    åºåˆ—å·çš„ç¼“å†²åŒºã€‚
+//            iLevel     è¦è¯»å–çš„åºåˆ—å·çº§åˆ«ã€‚åªèƒ½æ˜¯1å’Œ2ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraReadSN(
+    CameraHandle        hCamera,
+    BYTE*               pbySN,
     INT                 iLevel
 );
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÓ²¼ş´¥·¢Ä£Ê½ÏÂµÄ´¥·¢ÑÓÊ±Ê±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uDelayTimeUs Ó²´¥·¢ÑÓÊ±¡£µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ±Ó²´¥·¢ĞÅºÅÀ´ÁÙºó£¬¾­¹ıÖ¸¶¨µÄÑÓÊ±£¬ÔÙ¿ªÊ¼²É¼¯Í¼Ïñ¡£
-/// \~english
-/// \brief Set the trigger delay time in hardware trigger mode, in microseconds.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uDelayTimeUs Hard trigger delay. Units microseconds.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note When the hard trigger signal arrives, after a specified delay, it begins to capture the image.
-MVSDK_API CameraSdkStatus __stdcall CameraSetTriggerDelayTime(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetTriggerDelayTime
+// åŠŸèƒ½æè¿° : è®¾ç½®ç¡¬ä»¶è§¦å‘æ¨¡å¼ä¸‹çš„è§¦å‘å»¶æ—¶æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+//        å½“ç¡¬è§¦å‘ä¿¡å·æ¥ä¸´åï¼Œç»è¿‡æŒ‡å®šçš„å»¶æ—¶ï¼Œå†å¼€å§‹é‡‡é›†
+//        å›¾åƒã€‚ä»…éƒ¨åˆ†å‹å·çš„ç›¸æœºæ”¯æŒè¯¥åŠŸèƒ½ã€‚å…·ä½“è¯·æŸ¥çœ‹
+//        äº§å“è¯´æ˜ä¹¦ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            uDelayTimeUs ç¡¬è§¦å‘å»¶æ—¶ã€‚å•ä½å¾®ç§’ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetTriggerDelayTime(
+    CameraHandle    hCamera,
     UINT            uDelayTimeUs
 );
 
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃµ±Ç°Éè¶¨µÄÓ²´¥·¢ÑÓÊ±Ê±¼ä¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] puDelayTimeUs Ö¸Õë£¬·µ»ØÑÓÊ±Ê±¼ä£¬µ¥Î»Î¢Ãë¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the currently set hard trigger delay time.
-/// \param [in] hCamera Camera handle.
-/// \param [out] puDelayTimeUs Returns the delay time in microseconds.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetTriggerDelayTime(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetTriggerDelayTime
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰è®¾å®šçš„ç¡¬è§¦å‘å»¶æ—¶æ—¶é—´ã€‚
+// å‚æ•°     : hCamera     ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            puDelayTimeUs æŒ‡é’ˆï¼Œè¿”å›å»¶æ—¶æ—¶é—´ï¼Œå•ä½å¾®ç§’ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetTriggerDelayTime(
+    CameraHandle    hCamera,
+    UINT*           puDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetTriggerPeriodTime
+// åŠŸèƒ½æè¿°	: ä¸€æ¬¡è§¦å‘å¤šå¸§æ—¶ï¼Œè®¾ç½®2å¸§ä¹‹é—´çš„é—´éš”æ—¶é—´ã€‚
+//           ä»…éƒ¨åˆ†å‹å·çš„ç›¸æœºæ”¯æŒè¯¥åŠŸèƒ½ã€‚
+// å‚æ•°	    : hCamera	   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//              time       é—´éš”æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetTriggerPeriodTime(
+    CameraHandle hCamera,
+    UINT time
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetTriggerPeriodTime
+// åŠŸèƒ½æè¿°	: è·å–å½“å‰è®¾ç½®çš„é—´éš”æ—¶é—´ã€‚
+// å‚æ•°	    : hCamera	   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//              time       é—´éš”æ—¶é—´ï¼ˆå¾®ç§’ï¼‰
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraGetTriggerPeriodTime(
+    CameraHandle hCamera,
+    UINT* time
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetTriggerCount
+// åŠŸèƒ½æè¿° : è®¾ç½®è§¦å‘æ¨¡å¼ä¸‹çš„è§¦å‘å¸§æ•°ã€‚å¯¹è½¯ä»¶è§¦å‘å’Œç¡¬ä»¶è§¦å‘
+//        æ¨¡å¼éƒ½æœ‰æ•ˆã€‚é»˜è®¤ä¸º1å¸§ï¼Œå³ä¸€æ¬¡è§¦å‘ä¿¡å·é‡‡é›†ä¸€å¸§å›¾åƒã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iCount    ä¸€æ¬¡è§¦å‘é‡‡é›†çš„å¸§æ•°ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetTriggerCount(
+    CameraHandle    hCamera,
+    INT             iCount
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetTriggerCount
+// åŠŸèƒ½æè¿° : è·å¾—ä¸€æ¬¡è§¦å‘çš„å¸§æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            INT* piCount
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetTriggerCount(
+    CameraHandle    hCamera,
+    INT*            piCount
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSoftTrigger
+// åŠŸèƒ½æè¿° : æ‰§è¡Œä¸€æ¬¡è½¯è§¦å‘ã€‚æ‰§è¡Œåï¼Œä¼šè§¦å‘ç”±CameraSetTriggerCount
+//          æŒ‡å®šçš„å¸§æ•°ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSoftTrigger(
+    CameraHandle    hCamera
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetTriggerMode
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºçš„è§¦å‘æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iModeSel   æ¨¡å¼é€‰æ‹©ç´¢å¼•å·ã€‚å¯è®¾å®šçš„æ¨¡å¼ç”±
+//             CameraGetCapabilityå‡½æ•°è·å–ã€‚è¯·å‚è€ƒ
+//               CameraDefine.hä¸­tSdkCameraCapbilityçš„å®šä¹‰ã€‚
+//             ä¸€èˆ¬æƒ…å†µï¼Œ0è¡¨ç¤ºè¿ç»­é‡‡é›†æ¨¡å¼ï¼›1è¡¨ç¤º
+//             è½¯ä»¶è§¦å‘æ¨¡å¼ï¼›2è¡¨ç¤ºç¡¬ä»¶è§¦å‘æ¨¡å¼ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetTriggerMode(
+    CameraHandle    hCamera,
+    int             iModeSel
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraGetTriggerMode
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºçš„è§¦å‘æ¨¡å¼ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piModeSel  æŒ‡é’ˆï¼Œè¿”å›å½“å‰é€‰æ‹©çš„ç›¸æœºè§¦å‘æ¨¡å¼çš„ç´¢å¼•å·ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetTriggerMode(
+    CameraHandle    hCamera,
+    INT*            piModeSel
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetStrobeMode
+// åŠŸèƒ½æè¿°	: è®¾ç½®IOå¼•è„šç«¯å­ä¸Šçš„STROBEä¿¡å·ã€‚è¯¥ä¿¡å·å¯ä»¥åšé—ªå…‰ç¯æ§åˆ¶ï¼Œä¹Ÿå¯ä»¥åšå¤–éƒ¨æœºæ¢°å¿«é—¨æ§åˆ¶ã€‚
+// å‚æ•°	    : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iMode   å½“ä¸ºSTROBE_SYNC_WITH_TRIG_AUTO      å’Œè§¦å‘ä¿¡å·åŒæ­¥ï¼Œè§¦å‘åï¼Œç›¸æœºè¿›è¡Œæ›å…‰æ—¶ï¼Œè‡ªåŠ¨ç”ŸæˆSTROBEä¿¡å·ã€‚
+//                                                         æ­¤æ—¶ï¼Œæœ‰æ•ˆææ€§å¯è®¾ç½®(CameraSetStrobePolarity)ã€‚
+//                     å½“ä¸ºSTROBE_SYNC_WITH_TRIG_MANUALæ—¶ï¼Œå’Œè§¦å‘ä¿¡å·åŒæ­¥ï¼Œè§¦å‘åï¼ŒSTROBEå»¶æ—¶æŒ‡å®šçš„æ—¶é—´å(CameraSetStrobeDelayTime)ï¼Œ
+//                                                         å†æŒç»­æŒ‡å®šæ—¶é—´çš„è„‰å†²(CameraSetStrobePulseWidth)ï¼Œ
+//                                                         æœ‰æ•ˆææ€§å¯è®¾ç½®(CameraSetStrobePolarity)ã€‚
+//                     å½“ä¸ºSTROBE_ALWAYS_HIGHæ—¶ï¼ŒSTROBEä¿¡å·æ’ä¸ºé«˜,å¿½ç•¥å…¶ä»–è®¾ç½®
+//                     å½“ä¸ºSTROBE_ALWAYS_LOWæ—¶ï¼ŒSTROBEä¿¡å·æ’ä¸ºä½,å¿½ç•¥å…¶ä»–è®¾ç½®
+//
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetStrobeMode(
+    CameraHandle    hCamera,
+    INT             iMode
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetStrobeMode
+// åŠŸèƒ½æè¿°	: æˆ–è€…å½“å‰STROBEä¿¡å·è®¾ç½®çš„æ¨¡å¼ã€‚
+// å‚æ•°	    : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             piMode  æŒ‡é’ˆï¼Œè¿”å›STROBE_SYNC_WITH_TRIG_AUTO,STROBE_SYNC_WITH_TRIG_MANUALã€STROBE_ALWAYS_HIGHæˆ–è€…STROBE_ALWAYS_LOWã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetStrobeMode(
+    CameraHandle    hCamera,
+    INT*            piMode
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetStrobeDelayTime
+// åŠŸèƒ½æè¿°	: å½“STROBEä¿¡å·å¤„äºSTROBE_SYNC_WITH_TRIGæ—¶ï¼Œé€šè¿‡è¯¥å‡½æ•°è®¾ç½®å…¶ç›¸å¯¹è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             uDelayTimeUs  ç›¸å¯¹è§¦å‘ä¿¡å·çš„å»¶æ—¶æ—¶é—´ï¼Œå•ä½ä¸ºusã€‚å¯ä»¥ä¸º0ï¼Œä½†ä¸èƒ½ä¸ºè´Ÿæ•°ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetStrobeDelayTime(
+    CameraHandle    hCamera,
+    UINT            uDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetStrobeDelayTime
+// åŠŸèƒ½æè¿°	: å½“STROBEä¿¡å·å¤„äºSTROBE_SYNC_WITH_TRIGæ—¶ï¼Œé€šè¿‡è¯¥å‡½æ•°è·å¾—å…¶ç›¸å¯¹è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ã€‚
+// å‚æ•°	    : hCamera           ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             upDelayTimeUs     æŒ‡é’ˆï¼Œè¿”å›å»¶æ—¶æ—¶é—´ï¼Œå•ä½usã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetStrobeDelayTime(
+    CameraHandle    hCamera,
+    UINT*           upDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetStrobePulseWidth
+// åŠŸèƒ½æè¿°	: å½“STROBEä¿¡å·å¤„äºSTROBE_SYNC_WITH_TRIGæ—¶ï¼Œé€šè¿‡è¯¥å‡½æ•°è®¾ç½®å…¶è„‰å†²å®½åº¦ã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             uTimeUs       è„‰å†²çš„å®½åº¦ï¼Œå•ä½ä¸ºæ—¶é—´usã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetStrobePulseWidth(
+    CameraHandle    hCamera,
+    UINT            uTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetStrobePulseWidth
+// åŠŸèƒ½æè¿°	: å½“STROBEä¿¡å·å¤„äºSTROBE_SYNC_WITH_TRIGæ—¶ï¼Œé€šè¿‡è¯¥å‡½æ•°è·å¾—å…¶è„‰å†²å®½åº¦ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             upTimeUs  æŒ‡é’ˆï¼Œè¿”å›è„‰å†²å®½åº¦ã€‚å•ä½ä¸ºæ—¶é—´usã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetStrobePulseWidth(
+    CameraHandle    hCamera,
+    UINT*           upTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetStrobePolarity
+// åŠŸèƒ½æè¿°	: å½“STROBEä¿¡å·å¤„äºSTROBE_SYNC_WITH_TRIGæ—¶ï¼Œé€šè¿‡è¯¥å‡½æ•°è®¾ç½®å…¶æœ‰æ•ˆç”µå¹³çš„ææ€§ã€‚é»˜è®¤ä¸ºé«˜æœ‰æ•ˆï¼Œå½“è§¦å‘ä¿¡å·åˆ°æ¥æ—¶ï¼ŒSTROBEä¿¡å·è¢«æ‹‰é«˜ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iPolarity STROBEä¿¡å·çš„ææ€§ï¼Œ0ä¸ºä½ç”µå¹³æœ‰æ•ˆï¼Œ1ä¸ºé«˜ç”µå¹³æœ‰æ•ˆã€‚é»˜è®¤ä¸ºé«˜ç”µå¹³æœ‰æ•ˆã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetStrobePolarity(
+    CameraHandle    hCamera,
+    INT             uPolarity
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetStrobePolarity
+// åŠŸèƒ½æè¿°	: è·å¾—ç›¸æœºå½“å‰STROBEä¿¡å·çš„æœ‰æ•ˆææ€§ã€‚é»˜è®¤ä¸ºé«˜ç”µå¹³æœ‰æ•ˆã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             ipPolarity    æŒ‡é’ˆï¼Œè¿”å›STROBEä¿¡å·å½“å‰çš„æœ‰æ•ˆææ€§ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetStrobePolarity(
+    CameraHandle    hCamera,
+    INT*            upPolarity
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigSignalType
+// åŠŸèƒ½æè¿°	: è®¾ç½®ç›¸æœºå¤–è§¦å‘ä¿¡å·çš„ç§ç±»ã€‚ä¸Šè¾¹æ²¿ã€ä¸‹è¾¹æ²¿ã€æˆ–è€…é«˜ã€ä½ç”µå¹³æ–¹å¼ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iType     å¤–è§¦å‘ä¿¡å·ç§ç±»ï¼Œè¿”å›å€¼å‚è€ƒCameraDefine.hä¸­
+//                       emExtTrigSignalç±»å‹å®šä¹‰ã€‚
+
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetExtTrigSignalType(
+    CameraHandle    hCamera,
+    INT             iType
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetExtTrigSignalType
+// åŠŸèƒ½æè¿°	: è·å¾—ç›¸æœºå½“å‰å¤–è§¦å‘ä¿¡å·çš„ç§ç±»ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             ipType    æŒ‡é’ˆï¼Œè¿”å›å¤–è§¦å‘ä¿¡å·ç§ç±»ï¼Œè¿”å›å€¼å‚è€ƒCameraDefine.hä¸­
+//                       emExtTrigSignalç±»å‹å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetExtTrigSignalType(
+    CameraHandle    hCamera,
+    INT*            ipType
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigShutterType
+// åŠŸèƒ½æè¿°	: è®¾ç½®å¤–è§¦å‘æ¨¡å¼ä¸‹ï¼Œç›¸æœºå¿«é—¨çš„æ–¹å¼ï¼Œé»˜è®¤ä¸ºæ ‡å‡†å¿«é—¨æ–¹å¼ã€‚
+//              éƒ¨åˆ†æ»šåŠ¨å¿«é—¨çš„CMOSç›¸æœºæ”¯æŒGRRæ–¹å¼ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             iType     å¤–è§¦å‘å¿«é—¨æ–¹å¼ã€‚å‚è€ƒCameraDefine.hä¸­emExtTrigShutterModeç±»å‹ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetExtTrigShutterType(
+    CameraHandle    hCamera,
+    INT             iType
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigShutterType
+// åŠŸèƒ½æè¿°	: è·å¾—å¤–è§¦å‘æ¨¡å¼ä¸‹ï¼Œç›¸æœºå¿«é—¨çš„æ–¹å¼ï¼Œé»˜è®¤ä¸ºæ ‡å‡†å¿«é—¨æ–¹å¼ã€‚
+//              éƒ¨åˆ†æ»šåŠ¨å¿«é—¨çš„CMOSç›¸æœºæ”¯æŒGRRæ–¹å¼ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             ipType    æŒ‡é’ˆï¼Œè¿”å›å½“å‰è®¾å®šçš„å¤–è§¦å‘å¿«é—¨æ–¹å¼ã€‚è¿”å›å€¼å‚è€ƒ
+//                       CameraDefine.hä¸­emExtTrigShutterModeç±»å‹ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetExtTrigShutterType(
+    CameraHandle    hCamera,
+    INT*            ipType
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigDelayTime
+// åŠŸèƒ½æè¿°	: è®¾ç½®å¤–è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+//              å½“è®¾ç½®çš„å€¼uDelayTimeUsä¸ä¸º0æ—¶ï¼Œç›¸æœºæ¥æ”¶åˆ°å¤–è§¦å‘ä¿¡å·åï¼Œå°†å»¶æ—¶uDelayTimeUsä¸ªå¾®ç§’åå†è¿›è¡Œå›¾åƒæ•è·ã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             uDelayTimeUs  å»¶æ—¶æ—¶é—´ï¼Œå•ä½ä¸ºå¾®ç§’ï¼Œé»˜è®¤ä¸º0.
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetExtTrigDelayTime(
+    CameraHandle    hCamera,
+    UINT            uDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetExtTrigDelayTime
+// åŠŸèƒ½æè¿°	: è·å¾—è®¾ç½®çš„å¤–è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            UINT* upDelayTimeUs
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetExtTrigDelayTime(
+    CameraHandle    hCamera,
+    UINT*           upDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigBufferedDelayTime
+// åŠŸèƒ½æè¿°	: è®¾ç½®å¤–è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+//           å½“è®¾ç½®çš„å€¼uDelayTimeUsä¸ä¸º0æ—¶ï¼Œç›¸æœºæ¥æ”¶åˆ°å¤–è§¦å‘ä¿¡å·åï¼Œå°†å»¶æ—¶uDelayTimeUsä¸ªå¾®ç§’åå†è¿›è¡Œå›¾åƒæ•è·ã€‚
+//           å¹¶ä¸”ä¼šæŠŠå»¶æ—¶æœŸé—´æ”¶åˆ°çš„è§¦å‘ä¿¡å·ç¼“å­˜èµ·æ¥ï¼Œè¢«ç¼“å­˜çš„ä¿¡å·ä¹Ÿå°†å»¶æ—¶uDelayTimeUsä¸ªå¾®ç§’åç”Ÿæ•ˆï¼ˆæœ€å¤§ç¼“å­˜ä¸ªæ•°128ï¼‰ã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            uDelayTimeUs   å»¶æ—¶æ—¶é—´ï¼Œå•ä½ä¸ºå¾®ç§’ï¼Œé»˜è®¤ä¸º0.
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetExtTrigBufferedDelayTime(
+    CameraHandle    hCamera,
+    UINT            uDelayTimeUs
+);
+
+/******************************************************/
+// å‡½æ•°å 	: CameraGetExtTrigBufferedDelayTime
+// åŠŸèƒ½æè¿°	: è·å¾—è®¾ç½®çš„å¤–è§¦å‘ä¿¡å·å»¶æ—¶æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+// å‚æ•°	    : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            puDelayTimeUs   å»¶æ—¶æ—¶é—´ï¼Œå•ä½ä¸ºå¾®ç§’ï¼Œé»˜è®¤ä¸º0.
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraGetExtTrigBufferedDelayTime(
+    CameraHandle    hCamera,
     UINT*           puDelayTimeUs
 );
 
 /// @ingroup API_TRIGGER
 /// \~chinese
-/// \brief ÉèÖÃ´¥·¢Ä£Ê½ÏÂµÄ´¥·¢Ö¡Êı¡£¶ÔÈí¼ş´¥·¢ºÍÓ²¼ş´¥·¢Ä£Ê½¶¼ÓĞĞ§¡£Ä¬ÈÏÎª1Ö¡£¬¼´Ò»´Î´¥·¢ĞÅºÅ²É¼¯Ò»Ö¡Í¼Ïñ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iCount    Ò»´Î´¥·¢²É¼¯µÄÖ¡Êı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the number of trigger frames in the trigger mode. Valid for both software and hardware trigger modes. The default is 1 frame, that is, one trigger signal captures a frame of image.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iCount The number of frames triggered at a time.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetTriggerCount(
-    CameraHandle    hCamera, 
-    INT             iCount
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÒ»´Î´¥·¢µÄÖ¡Êı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piCount Ò»´Î´¥·¢ĞÅºÅ²É¼¯µÄÖ¡Êı¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the number of trigger frames.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piCount The number of frames to trigger signal acquisition at one time.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetTriggerCount(
-    CameraHandle    hCamera, 
-    INT*            piCount
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief Ö´ĞĞÒ»´ÎÈí´¥·¢¡£Ö´ĞĞºó£¬»á´¥·¢ÓÉ@link #CameraSetTriggerCount @endlinkÖ¸¶¨µÄÖ¡Êı¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetTriggerMode
-/// \~english
-/// \brief Perform a soft trigger. After execution, the number of frames specified by @link #CameraSetTriggerCount @endlink is triggered.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetTriggerMode
-MVSDK_API CameraSdkStatus __stdcall CameraSoftTrigger(
-    CameraHandle    hCamera
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄ´¥·¢Ä£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iModeSel   Ä£Ê½Ñ¡ÔñË÷ÒıºÅ¡£0: Á¬Ğø²É¼¯£»1: Èí¼ş´¥·¢£»2: Ó²¼ş´¥·¢£¨ÏßÕóÎªÖ¡´¥·¢£©£»3: ĞĞ´¥·¢£¨±àÂëÆ÷´¥·¢£©£¨½öÏßÕó£©£»4: Ìõ¼şĞĞ´¥·¢£¨½öÏßÕó£©£»
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the camera's trigger mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iModeSel mode selects the index number. 0: continuous acquisition; 1: software trigger; 2: hardware trigger (line scan is frame trigger); 3: line trigger (encoder trigger) (line scan only); 4: conditional line trigger (line scan only);
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetTriggerMode(
-    CameraHandle    hCamera, 
-    int             iModeSel
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄ´¥·¢Ä£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piModeSel  Ö¸Õë£¬·µ»Øµ±Ç°Ñ¡ÔñµÄÏà»ú´¥·¢Ä£Ê½µÄË÷ÒıºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the camera's trigger mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piModeSel Returns the index of the currently selected camera trigger mode.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetTriggerMode(
-    CameraHandle    hCamera,
-    INT*            piModeSel
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃIOÒı½Å¶Ë×ÓÉÏµÄSTROBEĞÅºÅ¡£¸ÃĞÅºÅ¿ÉÒÔ×öÉÁ¹âµÆ¿ØÖÆ£¬Ò²¿ÉÒÔ×öÍâ²¿»úĞµ¿ìÃÅ¿ØÖÆ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMode ÉÁ¹âµÆÄ£Ê½£¬²Î¿¼@link #emStrobeControl @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the STROBE signal on the IO pin terminal. This signal can be used for flash control or external mechanical shutter control.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iMode strobe mode, refer to @link #emStrobeControl @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetStrobeMode(
-    CameraHandle    hCamera, 
-    INT             iMode
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñÈ¡µ±Ç°STROBEĞÅºÅÉèÖÃµÄÄ£Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piMode ·µ»ØÄ£Ê½
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the mode of the current STROBE signal setting.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piMode Return Mode
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetStrobeMode(
-    CameraHandle    hCamera, 
-    INT*            piMode
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±STROBEĞÅºÅ´¦ÓÚSTROBE_SYNC_WITH_TRIGÊ±£¬Í¨¹ı¸Ãº¯ÊıÉèÖÃÆäÏà¶Ô´¥·¢ĞÅºÅÑÓÊ±Ê±¼ä¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uDelayTimeUs  Ïà¶Ô´¥·¢ĞÅºÅµÄÑÓÊ±Ê±¼ä£¬µ¥Î»Îªus¡£¿ÉÒÔÎª0£¬µ«²»ÄÜÎª¸ºÊı¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the STROBE signal is in STROBE_SYNC_WITH_TRIG, set its relative trigger signal delay time by this function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uDelayTimeUs Delay time relative to the trigger signal, in units of us. Can be 0, but it cannot be negative.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetStrobeDelayTime(
-    CameraHandle    hCamera, 
-    UINT            uDelayTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±STROBEĞÅºÅ´¦ÓÚSTROBE_SYNC_WITH_TRIGÊ±£¬Í¨¹ı¸Ãº¯Êı»ñµÃÆäÏà¶Ô´¥·¢ĞÅºÅÑÓÊ±Ê±¼ä¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] upDelayTimeUs     Ö¸Õë£¬·µ»ØÑÓÊ±Ê±¼ä£¬µ¥Î»us¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the STROBE signal is in STROBE_SYNC_WITH_TRIG, the relative trigger signal delay time is obtained through this function.
-/// \param [in] hCamera Camera handle.
-/// \param [out] upDelayTimeUs Returns the delay time in us.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetStrobeDelayTime(
-    CameraHandle    hCamera, 
-    UINT*           upDelayTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±STROBEĞÅºÅ´¦ÓÚSTROBE_SYNC_WITH_TRIGÊ±£¬Í¨¹ı¸Ãº¯ÊıÉèÖÃÆäÂö³å¿í¶È¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uTimeUs Âö³åµÄ¿í¶È£¬µ¥Î»ÎªÊ±¼äus¡£  
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the STROBE signal is in STROBE_SYNC_WITH_TRIG, set its pulse width by this function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uTimeUs The width of the pulse in units of time us.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetStrobePulseWidth(
-    CameraHandle    hCamera, 
-    UINT            uTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±STROBEĞÅºÅ´¦ÓÚSTROBE_SYNC_WITH_TRIGÊ±£¬Í¨¹ı¸Ãº¯Êı»ñµÃÆäÂö³å¿í¶È¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] upTimeUs  Ö¸Õë£¬·µ»ØÂö³å¿í¶È¡£µ¥Î»Îªus¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the STROBE signal is at STROBE_SYNC_WITH_TRIG, its pulse width is obtained by this function.
-/// \param [in] hCamera Camera handle.
-/// \param [out] upTimeUs Returns the pulse width. The unit is us.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetStrobePulseWidth(
-    CameraHandle    hCamera, 
-    UINT*           upTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±STROBEĞÅºÅ´¦ÓÚSTROBE_SYNC_WITH_TRIGÊ±£¬Í¨¹ı¸Ãº¯ÊıÉèÖÃÆäÓĞĞ§µçÆ½µÄ¼«ĞÔ¡£Ä¬ÈÏÎª¸ßÓĞĞ§£¬µ±´¥·¢ĞÅºÅµ½À´Ê±£¬STROBEĞÅºÅ±»À­¸ß¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uPolarity STROBEĞÅºÅµÄ¼«ĞÔ£¬0ÎªµÍµçÆ½ÓĞĞ§£¬1Îª¸ßµçÆ½ÓĞĞ§¡£Ä¬ÈÏÎª¸ßµçÆ½ÓĞĞ§¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the STROBE signal is at STROBE_SYNC_WITH_TRIG, the polarity of its active level is set by this function. The default is high active. When the trigger signal arrives, the STROBE signal is pulled high.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uPolarity Polarity of STROBE signal, 0 is active low and 1 is active high. The default is active high.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetStrobePolarity(
-    CameraHandle    hCamera, 
-    INT             uPolarity
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°STROBEĞÅºÅµÄÓĞĞ§¼«ĞÔ¡£Ä¬ÈÏÎª¸ßµçÆ½ÓĞĞ§¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] upPolarity    Ö¸Õë£¬·µ»ØSTROBEĞÅºÅµ±Ç°µÄÓĞĞ§¼«ĞÔ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Obtain the effective polarity of the camera's current STROBE signal. The default is active high.
-/// \param [in] hCamera Camera handle.
-/// \param [in] upPolarity Returns the current effective polarity of the STROBE signal.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetStrobePolarity(
-    CameraHandle    hCamera, 
-    INT*            upPolarity
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÍâ´¥·¢ĞÅºÅµÄÖÖÀà¡£ÉÏ±ßÑØ¡¢ÏÂ±ßÑØ¡¢»òÕß¸ß¡¢µÍµçÆ½·½Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iType   Íâ´¥·¢ĞÅºÅÖÖÀà£¬²Î¿¼@link #emExtTrigSignal @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the type of trigger signal outside the camera. Upper edge, lower edge, or high and low level.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iType External trigger signal type, refer to @link #emExtTrigSignal @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetExtTrigSignalType(
-    CameraHandle    hCamera, 
-    INT             iType
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÏà»úµ±Ç°Íâ´¥·¢ĞÅºÅµÄÖÖÀà¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] ipType Ö¸Õë£¬·µ»ØÍâ´¥·¢ĞÅºÅÖÖÀà£¬²Î¿¼@link #emExtTrigSignal @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the type of camera's current external trigger signal.
-/// \param [in] hCamera Camera handle.
-/// \param [out] ipType Returns the type of external trigger signal, see @link #emExtTrigSignal @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigSignalType(
-    CameraHandle    hCamera, 
-    INT*            ipType
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÍâ´¥·¢Ä£Ê½ÏÂ£¬Ïà»ú¿ìÃÅµÄ·½Ê½£¬Ä¬ÈÏÎª±ê×¼¿ìÃÅ·½Ê½¡£²¿·Ö¹ö¶¯¿ìÃÅµÄCMOSÏà»úÖ§³ÖGRR·½Ê½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iType   Íâ´¥·¢¿ìÃÅ·½Ê½¡£²Î¿¼@link #emExtTrigShutterMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief In the external trigger mode, the camera shutter mode defaults to the standard shutter mode. Part of the rolling shutter CMOS camera supports GRR mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iType triggers the shutter. Reference @link #emExtTrigShutterMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetExtTrigShutterType(
-    CameraHandle    hCamera, 
-    INT             iType
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÍâ´¥·¢Ä£Ê½ÏÂ£¬Ïà»ú¿ìÃÅµÄ·½Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] ipType    Ö¸Õë£¬·µ»Øµ±Ç°Éè¶¨µÄÍâ´¥·¢¿ìÃÅ·½Ê½¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetExtTrigShutterType
-/// \~english
-/// \brief Get the camera shutter mode in external trigger mode
-/// \param [in] hCamera Camera handle.
-/// \param [out] ipType Returns the currently set external trigger shutter mode.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetExtTrigShutterType
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigShutterType(
-    CameraHandle    hCamera, 
-    INT*            ipType
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÍâ´¥·¢ĞÅºÅÑÓÊ±Ê±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uDelayTimeUs  ÑÓÊ±Ê±¼ä£¬µ¥Î»ÎªÎ¢Ãë£¬Ä¬ÈÏÎª0.
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the delay time of external trigger signal. The default is 0 and the unit is microsecond.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uDelayTimeUs Delay time in microseconds. Default is 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetExtTrigDelayTime(
-    CameraHandle    hCamera, 
-    UINT            uDelayTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÉèÖÃµÄÍâ´¥·¢ĞÅºÅÑÓÊ±Ê±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] upDelayTimeUs ´¥·¢ÑÓÊ±
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the set external trigger signal delay time, the default is 0, the unit is microseconds.
-/// \param [in] hCamera Camera handle.
-/// \param [out] upDelayTimeUs trigger delay
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigDelayTime(
-    CameraHandle    hCamera, 
-    UINT*           upDelayTimeUs
-);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÍâ´¥·¢ĞÅºÅÑÓÊ±¼¤»îÊ±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£µ±ÉèÖÃµÄÖµuDelayTimeUs²»Îª0Ê±£¬Ïà»ú½ÓÊÕµ½Íâ´¥·¢ĞÅºÅºó£¬½«ÑÓÊ±uDelayTimeUs¸öÎ¢ÃëºóÔÙ½øĞĞÍ¼Ïñ²¶»ñ¡£²¢ÇÒ»á°ÑÑÓÊ±ÆÚ¼äÊÕµ½µÄ´¥·¢ĞÅºÅ»º´æÆğÀ´£¬±»»º´æµÄĞÅºÅÒ²½«ÑÓÊ±uDelayTimeUs¸öÎ¢ÃëºóÉúĞ§£¨×î´ó»º´æ¸öÊı128£©¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uDelayTimeUs  ÑÓÊ±Ê±¼ä£¬µ¥Î»ÎªÎ¢Ãë£¬Ä¬ÈÏÎª0.
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the delay activation time of the external trigger signal. The default is 0, and the unit is microsecond. When the set value uDelayTimeUs is not 0, after the camera receives the external trigger signal, it will delay uDelayTimeUs for several microseconds before performing image capture. And the trigger signal received during the delay period will be buffered, and the buffered signal will also take effect after a delay of uDelayTimeUs (the maximum number of buffers is 128).
-/// \param [in] hCamera Camera handle.
-/// \param [in] uDelayTimeUs Delay time in microseconds. Default is 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetExtTrigBufferedDelayTime(
-	CameraHandle    hCamera,
-	UINT            uDelayTimeUs
-	);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÉèÖÃµÄÍâ´¥·¢ĞÅºÅÑÓÊ±¼¤»îÊ±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] puDelayTimeUs ´¥·¢ÑÓÊ±
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the delay activation time of the external trigger signal. The default is 0 and the unit is microsecond.
-/// \param [in] hCamera Camera handle.
-/// \param [out] puDelayTimeUs trigger delay
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetExtTrigBufferedDelayTime(
-	CameraHandle    hCamera,
-	UINT*           puDelayTimeUs
-	);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÍâ´¥·¢ĞÅºÅ¼ä¸ôÊ±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uTimeUs  ¼ä¸ôÊ±¼ä£¬µ¥Î»ÎªÎ¢Ãë£¬Ä¬ÈÏÎª0.
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®å¤–è§¦å‘ä¿¡å·é—´éš”æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚ 
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] uTimeUs  é—´éš”æ—¶é—´ï¼Œå•ä½ä¸ºå¾®ç§’ï¼Œé»˜è®¤ä¸º0.
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the interval time of external trigger signal. The default is 0 and the unit is microsecond.
 /// \param [in] hCamera Camera handle.
 /// \param [in] uTimeUs Interval time in microseconds. Default is 0.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetExtTrigIntervalTime(
+MVSDK_API CameraSdkStatus CameraSetExtTrigIntervalTime(
 	CameraHandle    hCamera, 
 	UINT            uTimeUs
 	);
 
 /// @ingroup API_TRIGGER
 /// \~chinese
-/// \brief »ñµÃÉèÖÃµÄÍâ´¥·¢ĞÅºÅ¼ä¸ôÊ±¼ä£¬Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] upTimeUs ´¥·¢¼ä¸ô
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—è®¾ç½®çš„å¤–è§¦å‘ä¿¡å·é—´éš”æ—¶é—´ï¼Œé»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] upTimeUs è§¦å‘é—´éš”
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the set external trigger signal interval time, the default is 0, the unit is microseconds.
 /// \param [in] hCamera Camera handle.
 /// \param [out] upTimeUs trigger interval
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigIntervalTime(
+MVSDK_API CameraSdkStatus CameraGetExtTrigIntervalTime(
 	CameraHandle    hCamera, 
 	UINT*           upTimeUs
 	);
 
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÍâ´¥·¢ĞÅºÅµÄÏû¶¶Ê±¼ä¡£Ä¬ÈÏÎª0£¬µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uTimeUs Ê±¼ä
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the debouncing time of the trigger signal outside the camera. The default is 0 and the unit is microseconds.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uTimeUs time
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraSetExtTrigJitterTime(
+/******************************************************/
+// å‡½æ•°å 	: CameraSetExtTrigJitterTime
+// åŠŸèƒ½æè¿°	: è®¾ç½®ç›¸æœºå¤–è§¦å‘ä¿¡å·çš„æ¶ˆæŠ–æ—¶é—´ã€‚é»˜è®¤ä¸º0ï¼Œå•ä½ä¸ºå¾®ç§’ã€‚
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            UINT uTimeUs
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraSetExtTrigJitterTime(
     CameraHandle    hCamera,
     UINT            uTimeUs
 );
 
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÉèÖÃµÄÏà»úÍâ´¥·¢Ïû¶¶Ê±¼ä£¬Ä¬ÈÏÎª0.µ¥Î»ÎªÎ¢Ãë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] upTimeUs Ê±¼ä
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the set camera trigger debounce time, the default is 0. The unit is microseconds.
-/// \param [in] hCamera Camera handle.
-/// \param [out] upTimeUs time
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigJitterTime(
+/******************************************************/
+// å‡½æ•°å 	: CameraGetExtTrigJitterTime
+// åŠŸèƒ½æè¿°	: è·å¾—è®¾ç½®çš„ç›¸æœºå¤–è§¦å‘æ¶ˆæŠ–æ—¶é—´ï¼Œé»˜è®¤ä¸º0.å•ä½ä¸ºå¾®å¦™
+// å‚æ•°	    : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            UINT* upTimeUs
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetExtTrigJitterTime(
     CameraHandle    hCamera,
     UINT*           upTimeUs
 );
 
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief »ñµÃÏà»úÍâ´¥·¢µÄÊôĞÔÑÚÂë
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] puCapabilityMask  Ö¸Õë£¬·µ»Ø¸ÃÏà»úÍâ´¥·¢ÌØĞÔÑÚÂë£¬ÑÚÂë²Î¿¼CameraDefine.hÖĞEXT_TRIG_MASK_ ¿ªÍ·µÄºê¶¨Òå¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the triggering attribute mask outside the camera
-/// \param [in] hCamera Camera handle.
-/// \param [out] puCapabilityMask Returns the mask of the camera's triggering property, masked by the macro definition at the beginning of EXT_TRIG_MASK_ in CameraDefine.h.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraGetExtTrigCapability(
+/******************************************************/
+// å‡½æ•°å 	: CameraGetExtTrigCapability
+// åŠŸèƒ½æè¿°	: è·å¾—ç›¸æœºå¤–è§¦å‘çš„å±æ€§æ©ç 
+// å‚æ•°	    : hCamera           ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             puCapabilityMask  æŒ‡é’ˆï¼Œè¿”å›è¯¥ç›¸æœºå¤–è§¦å‘ç‰¹æ€§æ©ç ï¼Œæ©ç å‚è€ƒCameraDefine.hä¸­
+//                               EXT_TRIG_MASK_ å¼€å¤´çš„å®å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus   CameraGetExtTrigCapability(
     CameraHandle    hCamera,
     UINT*           puCapabilityMask
 );
 
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief µ±Íâ´¥·¢ĞÅºÅÎªµçÆ½Ä£Ê½Ê±£¬ÔİÊ±Í£Ö¹´¥·¢Ïà»ú£¬Ö±µ½µçÆ½ĞÅºÅÌø±äºó¼ÌĞø´¥·¢¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the external trigger signal is in level mode, it temporarily stops triggering the camera until the level signal jumps and continues to trigger.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall  CameraPauseLevelTrigger(
-	CameraHandle    hCamera
-	);
 
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief »ñµÃ×¥ÅÄÄ£Ê½ÏÂµÄ·Ö±æÂÊÑ¡ÔñË÷ÒıºÅ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageResolution Ö¸Õë£¬·µ»Ø×¥ÅÄÄ£Ê½µÄ·Ö±æÂÊ¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the resolution selection index number in snap mode.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageResolution Pointer to return the resolution of the snap mode.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetResolutionForSnap(
+/******************************************************/
+// å‡½æ•°å   : CameraGetResolutionForSnap
+// åŠŸèƒ½æè¿° : è·å¾—æŠ“æ‹æ¨¡å¼ä¸‹çš„åˆ†è¾¨ç‡é€‰æ‹©ç´¢å¼•å·ã€‚
+// å‚æ•°     : hCamera        ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pImageResolution æŒ‡é’ˆï¼Œè¿”å›æŠ“æ‹æ¨¡å¼çš„åˆ†è¾¨ç‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetResolutionForSnap(
     CameraHandle            hCamera,
     tSdkImageResolution*    pImageResolution
 );
 
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief ÉèÖÃ×¥ÅÄÄ£Ê½ÏÂÏà»úÊä³öÍ¼ÏñµÄ·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pImageResolution ·Ö±æÂÊ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Èç¹ûpImageResolution->iWidth = pImageResolution->iHeight = 0£¬Ôò±íÊ¾Éè¶¨Îª¸úËæµ±Ç°Ô¤ÀÀ·Ö±æÂÊ¡£×¥ÅÄµ½µÄÍ¼ÏñµÄ·Ö±æÂÊ»áºÍµ±Ç°Éè¶¨µÄÔ¤ÀÀ·Ö±æÂÊÒ»Ñù¡£
-/// \~english
-/// \brief Sets the resolution of the camera's output image in snap shot mode.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pImageResolution Resolution
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note If pImageResolution->iWidth = pImageResolution->iHeight = 0, then it is set to follow the current preview resolution. The resolution of the captured image will be the same as the currently set preview resolution.
-MVSDK_API CameraSdkStatus __stdcall CameraSetResolutionForSnap(
-    CameraHandle            hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSetResolutionForSnap
+// åŠŸèƒ½æè¿° : è®¾ç½®æŠ“æ‹æ¨¡å¼ä¸‹ç›¸æœºè¾“å‡ºå›¾åƒçš„åˆ†è¾¨ç‡ã€‚
+// å‚æ•°     : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pImageResolution å¦‚æœpImageResolution->iWidth
+//                 å’Œ pImageResolution->iHeightéƒ½ä¸º0ï¼Œ
+//                         åˆ™è¡¨ç¤ºè®¾å®šä¸ºè·Ÿéšå½“å‰é¢„è§ˆåˆ†è¾¨ç‡ã€‚æŠ“
+//                         æ€•åˆ°çš„å›¾åƒçš„åˆ†è¾¨ç‡ä¼šå’Œå½“å‰è®¾å®šçš„
+//                 é¢„è§ˆåˆ†è¾¨ç‡ä¸€æ ·ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetResolutionForSnap(
+    CameraHandle            hCamera,
     tSdkImageResolution*    pImageResolution
 );
 
-/// @ingroup API_ROI
-/// \~chinese
-/// \brief ´ò¿ª·Ö±æÂÊ×Ô¶¨ÒåÃæ°å£¬²¢Í¨¹ı¿ÉÊÓ»¯µÄ·½Ê½À´ÅäÖÃÒ»¸ö×Ô¶¨Òå·Ö±æÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageCustom Ö¸Õë£¬·µ»Ø×Ô¶¨ÒåµÄ·Ö±æÂÊ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Open the resolution custom panel and configure a custom resolution visually.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageCustom Returns the custom resolution.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCustomizeResolution(
+/******************************************************/
+// å‡½æ•°å   : CameraCustomizeResolution
+// åŠŸèƒ½æè¿° : æ‰“å¼€åˆ†è¾¨ç‡è‡ªå®šä¹‰é¢æ¿ï¼Œå¹¶é€šè¿‡å¯è§†åŒ–çš„æ–¹å¼
+//        æ¥é…ç½®ä¸€ä¸ªè‡ªå®šä¹‰åˆ†è¾¨ç‡ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pImageCustom æŒ‡é’ˆï¼Œè¿”å›è‡ªå®šä¹‰çš„åˆ†è¾¨ç‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraCustomizeResolution(
     CameraHandle            hCamera,
     tSdkImageResolution*    pImageCustom
 );
 
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ´ò¿ª²Î¿¼´°¿Ú×Ô¶¨ÒåÃæ°å¡£²¢Í¨¹ı¿ÉÊÓ»¯µÄ·½Ê½À´»ñµÃÒ»¸ö×Ô¶¨Òå´°¿ÚµÄÎ»ÖÃ¡£Ò»°ãÊÇÓÃ×Ô¶¨Òå°×Æ½ºâºÍ×Ô¶¯ÆØ¹âµÄ²Î¿¼´°¿Ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iWinType   ÒªÉú³ÉµÄ²Î¿¼´°¿ÚµÄÓÃÍ¾¡£0:×Ô¶¯ÆØ¹â²Î¿¼´°¿Ú£»1:°×Æ½ºâ²Î¿¼´°¿Ú¡£
-/// \param [in] hParent    µ÷ÓÃ¸Ãº¯ÊıµÄ´°¿ÚµÄ¾ä±ú¡£¿ÉÒÔÎªNULL¡£
-/// \param [out] piHOff     Ö¸Õë£¬·µ»Ø×Ô¶¨Òå´°¿ÚµÄ×óÉÏ½Çºá×ø±ê¡£
-/// \param [out] piVOff     Ö¸Õë£¬·µ»Ø×Ô¶¨Òå´°¿ÚµÄ×óÉÏ½Ç×İ×ø±ê¡£
-/// \param [out] piWidth    Ö¸Õë£¬·µ»Ø×Ô¶¨Òå´°¿ÚµÄ¿í¶È¡£ 
-/// \param [out] piHeight   Ö¸Õë£¬·µ»Ø×Ô¶¨Òå´°¿ÚµÄ¸ß¶È¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Open the reference window custom panel. And through a visual way to get a custom window location. It is generally a reference window with custom white balance and auto exposure.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iWinType Purpose of the reference window to be generated. 0: Auto exposure reference window; 1: White balance reference window.
-/// \param [in] hParent The handle of the window that called the function. Can be NULL.
-/// \param [out] piHOff Returns the upper left-hand abscissa of the custom window.
-/// \param [out] piVOff Returns the upper left ordinate of the custom window.
-/// \param [out] piWidth Returns the width of the custom window.
-/// \param [out] piHeight Returns the height of the custom window.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCustomizeReferWin(
+/******************************************************/
+// å‡½æ•°å   : CameraCustomizeReferWin
+// åŠŸèƒ½æè¿° : æ‰“å¼€å‚è€ƒçª—å£è‡ªå®šä¹‰é¢æ¿ã€‚å¹¶é€šè¿‡å¯è§†åŒ–çš„æ–¹å¼æ¥
+//        è·å¾—ä¸€ä¸ªè‡ªå®šä¹‰çª—å£çš„ä½ç½®ã€‚ä¸€èˆ¬æ˜¯ç”¨è‡ªå®šä¹‰ç™½å¹³è¡¡
+//        å’Œè‡ªåŠ¨æ›å…‰çš„å‚è€ƒçª—å£ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iWinType   è¦ç”Ÿæˆçš„å‚è€ƒçª—å£çš„ç”¨é€”ã€‚0,è‡ªåŠ¨æ›å…‰å‚è€ƒçª—å£ï¼›
+//             1,ç™½å¹³è¡¡å‚è€ƒçª—å£ã€‚
+//            hParent    è°ƒç”¨è¯¥å‡½æ•°çš„çª—å£çš„å¥æŸ„ã€‚å¯ä»¥ä¸ºNULLã€‚
+//            piHOff     æŒ‡é’ˆï¼Œè¿”å›è‡ªå®šä¹‰çª—å£çš„å·¦ä¸Šè§’æ¨ªåæ ‡ã€‚
+//            piVOff     æŒ‡é’ˆï¼Œè¿”å›è‡ªå®šä¹‰çª—å£çš„å·¦ä¸Šè§’çºµåæ ‡ã€‚
+//            piWidth    æŒ‡é’ˆï¼Œè¿”å›è‡ªå®šä¹‰çª—å£çš„å®½åº¦ã€‚
+//            piHeight   æŒ‡é’ˆï¼Œè¿”å›è‡ªå®šä¹‰çª—å£çš„é«˜åº¦ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraCustomizeReferWin(
     CameraHandle    hCamera,
     INT             iWinType,
-    HWND            hParent, 
+    HWND            hParent,
     INT*            piHOff,
     INT*            piVOff,
     INT*            piWidth,
     INT*            piHeight
 );
 
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÊôĞÔÅäÖÃ´°¿ÚÏÔÊ¾×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bShow    TRUE£¬ÏÔÊ¾;FALSE£¬Òş²Ø¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ±ØĞëÏÈµ÷ÓÃ@link #CameraCreateSettingPage @endlink³É¹¦´´½¨Ïà»úÊôĞÔÅäÖÃ´°¿Úºó£¬²ÅÄÜµ÷ÓÃ±¾º¯Êı½øĞĞÏÔÊ¾¡£
-/// \~english
-/// \brief Set the camera property configuration window display status.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bShow TRUE, show; FALSE, hide.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note You must call @link #CameraCreateSettingPage @endlink successfully to create the camera property configuration window before calling this function to display.
-MVSDK_API CameraSdkStatus __stdcall CameraShowSettingPage(
+/******************************************************/
+// å‡½æ•°å   : CameraShowSettingPage
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºå±æ€§é…ç½®çª—å£æ˜¾ç¤ºçŠ¶æ€ã€‚å¿…é¡»å…ˆè°ƒç”¨CameraCreateSettingPage
+//        æˆåŠŸåˆ›å»ºç›¸æœºå±æ€§é…ç½®çª—å£åï¼Œæ‰èƒ½è°ƒç”¨æœ¬å‡½æ•°è¿›è¡Œ
+//        æ˜¾ç¤ºã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bShow    TRUEï¼Œæ˜¾ç¤º;FALSEï¼Œéšè—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraShowSettingPage(
     CameraHandle    hCamera,
     BOOL            bShow
 );
 
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief ´´½¨¸ÃÏà»úµÄÊôĞÔÅäÖÃ´°¿Ú¡£µ÷ÓÃ¸Ãº¯Êı£¬SDKÄÚ²¿»á°ïÄú´´½¨ºÃÏà»úµÄÅäÖÃ´°¿Ú£¬Ê¡È¥ÁËÄúÖØĞÂ¿ª·¢Ïà»úÅäÖÃ½çÃæµÄÊ±¼ä¡£Ç¿ÁÒ½¨ÒéÊ¹ÓÃÄúÊ¹ÓÃ¸Ãº¯ÊıÈÃSDKÎªÄú´´½¨ºÃÅäÖÃ´°¿Ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] hParent       Ó¦ÓÃ³ÌĞòÖ÷´°¿ÚµÄ¾ä±ú¡£¿ÉÒÔÎªNULL¡£
-/// \param [in] pWinText      ×Ö·û´®Ö¸Õë£¬´°¿ÚÏÔÊ¾µÄ±êÌâÀ¸¡£
-/// \param [in] pCallbackFunc ´°¿ÚÏûÏ¢µÄ»Øµ÷º¯Êı£¬µ±ÏàÓ¦µÄÊÂ¼ş·¢ÉúÊ±£¬pCallbackFuncËùÖ¸ÏòµÄº¯Êı»á±»µ÷ÓÃ
-/// \param [in] pCallbackCtx  »Øµ÷º¯ÊıµÄ¸½¼Ó²ÎÊı¡£¿ÉÒÔÎªNULL¡£
-/// \param [in] uReserved     Ô¤Áô¡£±ØĞëÉèÖÃÎª0¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Create the camera's property configuration window. Call this function, the SDK will help you create a camera configuration window, eliminating the need to redevelop the camera configuration interface. It is strongly recommended that you use this function to have the SDK create a configuration window for you.
-/// \param [in] hCamera Camera handle.
-/// \param [in] hParent Handle to the main window of the application. Can be NULL.
-/// \param [in] pWinText string pointer, window title bar.
-/// \param [in] pCallbackFunc Callback function of window message. The function pointed to by pCallbackFunc will be called when the corresponding event occurs.
-/// \param [in] pCallbackCtx Additional parameters for the callback function. Can be NULL.
-/// \param [in] uReserved Reserved. Must be set to 0.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCreateSettingPage(
+/******************************************************/
+// å‡½æ•°å   : CameraCreateSettingPage
+// åŠŸèƒ½æè¿° : åˆ›å»ºè¯¥ç›¸æœºçš„å±æ€§é…ç½®çª—å£ã€‚è°ƒç”¨è¯¥å‡½æ•°ï¼ŒSDKå†…éƒ¨ä¼š
+//        å¸®æ‚¨åˆ›å»ºå¥½ç›¸æœºçš„é…ç½®çª—å£ï¼Œçœå»äº†æ‚¨é‡æ–°å¼€å‘ç›¸æœº
+//        é…ç½®ç•Œé¢çš„æ—¶é—´ã€‚å¼ºçƒˆå»ºè®®ä½¿ç”¨æ‚¨ä½¿ç”¨è¯¥å‡½æ•°è®©
+//        SDKä¸ºæ‚¨åˆ›å»ºå¥½é…ç½®çª—å£ã€‚
+// å‚æ•°     : hCamera     ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            hParent       åº”ç”¨ç¨‹åºä¸»çª—å£çš„å¥æŸ„ã€‚å¯ä»¥ä¸ºNULLã€‚
+//            pWinText      å­—ç¬¦ä¸²æŒ‡é’ˆï¼Œçª—å£æ˜¾ç¤ºçš„æ ‡é¢˜æ ã€‚
+//            pCallbackFunc çª—å£æ¶ˆæ¯çš„å›è°ƒå‡½æ•°ï¼Œå½“ç›¸åº”çš„äº‹ä»¶å‘ç”Ÿæ—¶ï¼Œ
+//              pCallbackFuncæ‰€æŒ‡å‘çš„å‡½æ•°ä¼šè¢«è°ƒç”¨ï¼Œ
+//              ä¾‹å¦‚åˆ‡æ¢äº†å‚æ•°ä¹‹ç±»çš„æ“ä½œæ—¶ï¼ŒpCallbackFunc
+//              è¢«å›è°ƒæ—¶ï¼Œåœ¨å…¥å£å‚æ•°å¤„æŒ‡æ˜äº†æ¶ˆæ¯ç±»å‹ã€‚
+//              è¿™æ ·å¯ä»¥æ–¹ä¾¿æ‚¨è‡ªå·±å¼€å‘çš„ç•Œé¢å’Œæˆ‘ä»¬ç”Ÿæˆçš„UI
+//              ä¹‹é—´è¿›è¡ŒåŒæ­¥ã€‚è¯¥å‚æ•°å¯ä»¥ä¸ºNULLã€‚
+//            pCallbackCtx  å›è°ƒå‡½æ•°çš„é™„åŠ å‚æ•°ã€‚å¯ä»¥ä¸ºNULLã€‚pCallbackCtx
+//              ä¼šåœ¨pCallbackFuncè¢«å›è°ƒæ—¶ï¼Œåšä¸ºå‚æ•°ä¹‹ä¸€ä¼ å…¥ã€‚
+//              æ‚¨å¯ä»¥ä½¿ç”¨è¯¥å‚æ•°æ¥åšä¸€äº›çµæ´»çš„åˆ¤æ–­ã€‚
+//            uReserved     é¢„ç•™ã€‚å¿…é¡»è®¾ç½®ä¸º0ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraCreateSettingPage(
     CameraHandle            hCamera,
     HWND                    hParent,
     char*                   pWinText,
@@ -3440,327 +2861,287 @@ MVSDK_API CameraSdkStatus __stdcall CameraCreateSettingPage(
     UINT                    uReserved
 );
 
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief Ê¹ÓÃÄ¬ÈÏ²ÎÊı´´½¨¸ÃÏà»úµÄÊôĞÔÅäÖÃ´°¿Ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Use the default parameters to create the camera's property configuration window.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCreateSettingPageEx(
+/******************************************************/
+// å‡½æ•°å   : CameraCreateSettingPageEx
+// åŠŸèƒ½æè¿° : åˆ›å»ºè¯¥ç›¸æœºçš„å±æ€§é…ç½®çª—å£ã€‚è°ƒç”¨è¯¥å‡½æ•°ï¼ŒSDKå†…éƒ¨ä¼š
+//        å¸®æ‚¨åˆ›å»ºå¥½ç›¸æœºçš„é…ç½®çª—å£ï¼Œçœå»äº†æ‚¨é‡æ–°å¼€å‘ç›¸æœº
+//        é…ç½®ç•Œé¢çš„æ—¶é—´ã€‚å¼ºçƒˆå»ºè®®ä½¿ç”¨æ‚¨ä½¿ç”¨è¯¥å‡½æ•°è®©
+//        SDKä¸ºæ‚¨åˆ›å»ºå¥½é…ç½®çª—å£ã€‚
+// å‚æ•°     : hCamera     ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraCreateSettingPageEx(
     CameraHandle            hCamera
 );
 
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÅäÖÃ´°¿ÚµÄ¼¤»îÒ³Ãæ¡£Ïà»úÅäÖÃ´°¿ÚÓĞ¶à¸ö×ÓÒ³Ãæ¹¹³É£¬¸Ãº¯Êı¿ÉÒÔÉè¶¨µ±Ç°ÄÄÒ»¸ö×ÓÒ³ÃæÎª¼¤»î×´Ì¬£¬ÏÔÊ¾ÔÚ×îÇ°¶Ë¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index   ×ÓÒ³ÃæµÄË÷ÒıºÅ¡£²Î¿¼@link #emSdkPropSheetMask @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the camera configuration window's activation page. The camera configuration window is composed of multiple sub-pages. This function can set which sub-page is currently active and displayed at the forefront.
-/// \param [in] hCamera Camera handle.
-/// \param [in] index The index number of the subpage. Reference @link #emSdkPropSheetMask @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetActiveSettingSubPage(
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetActiveSettingSubPage
+// åŠŸèƒ½æè¿° : è®¾ç½®ç›¸æœºé…ç½®çª—å£çš„æ¿€æ´»é¡µé¢ã€‚ç›¸æœºé…ç½®çª—å£æœ‰å¤šä¸ª
+//        å­é¡µé¢æ„æˆï¼Œè¯¥å‡½æ•°å¯ä»¥è®¾å®šå½“å‰å“ªä¸€ä¸ªå­é¡µé¢
+//        ä¸ºæ¿€æ´»çŠ¶æ€ï¼Œæ˜¾ç¤ºåœ¨æœ€å‰ç«¯ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            index      å­é¡µé¢çš„ç´¢å¼•å·ã€‚å‚è€ƒCameraDefine.hä¸­
+//             PROP_SHEET_INDEXçš„å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetActiveSettingSubPage(
     CameraHandle    hCamera,
     INT             index
 );
 
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief °ÑÏà»úÅäÖÃÒ³ÉèÖÃÎª×Ó´°¿Ú·ç¸ñ£¬²¢ÇÒÖ¸¶¨ËüµÄ¸¸´°¿Ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] hParentWnd ¸¸´°¿Ú¾ä±ú£¬ÎªNULL(0)Ôò»Ö¸´ÅäÖÃÒ³Îªµ¯³ö´°¿Ú¡£
-/// \param [in] Flags ¹¦ÄÜ±êÖ¾Î»£¬bit0: Òş²Ø±êÌâÀ¸£¬bit1-31: ±£Áô(±ØĞëÎª0)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the camera configuration page to child window style and specifies its parent window.
-/// \param [in] hCamera Camera handle.
-/// \param [in] hParentWnd The parent window handle, NULL (0) restores the configuration page to a popup window.
-/// \param [in] Flags function flag, bit0: Hide title bar, bit1-31: Reserved (must be 0)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSettingPageParent(
-	CameraHandle    hCamera,
-	HWND            hParentWnd,
-	DWORD			Flags
-	);
-
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief »ñÈ¡Ïà»úÅäÖÃÒ³µÄ´°¿Ú¾ä±ú¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] hWnd ·µ»ØÅäÖÃÒ³µÄ´°¿Ú¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Gets the window handle of the camera configuration page.
-/// \param [in] hCamera Camera handle.
-/// \param [out] hWnd Returns the window handle of the configuration page.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetSettingPageHWnd(
-	CameraHandle    hCamera,
-	HWND*           hWnd
-	);
-
-/// @ingroup API_SETTINGS_PAGE
-/// \~chinese
-/// \brief Ë¢ĞÂÏà»úÅäÖÃÒ³
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Refresh camera configuration page
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraUpdateSettingPage(
-	CameraHandle    hCamera
-	);
-
-MVSDK_API CameraSdkStatus __stdcall CameraSpecialControl(
-    CameraHandle    hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraSpecialControl
+// åŠŸèƒ½æè¿° : ç›¸æœºä¸€äº›ç‰¹æ®Šé…ç½®æ‰€è°ƒç”¨çš„æ¥å£ï¼ŒäºŒæ¬¡å¼€å‘æ—¶ä¸€èˆ¬ä¸éœ€è¦
+//        è°ƒç”¨ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            dwCtrlCode æ§åˆ¶ç ã€‚
+//            dwParam    æ§åˆ¶å­ç ï¼Œä¸åŒçš„dwCtrlCodeæ—¶ï¼Œæ„ä¹‰ä¸åŒã€‚
+//            lpData     é™„åŠ å‚æ•°ã€‚ä¸åŒçš„dwCtrlCodeæ—¶ï¼Œæ„ä¹‰ä¸åŒã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSpecialControl(
+    CameraHandle    hCamera,
     DWORD           dwCtrlCode,
     DWORD           dwParam,
     LPVOID          lpData
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃÏà»ú½ÓÊÕÖ¡ÂÊµÄÍ³¼ÆĞÅÏ¢£¬°üÀ¨´íÎóÖ¡ºÍ¶ªÖ¡µÄÇé¿ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] psFrameStatistic Ö¸Õë£¬·µ»ØÍ³¼ÆĞÅÏ¢¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the frame rate statistics of the camera, including error frame and frame loss.
-/// \param [in] hCamera Camera handle.
-/// \param [out] psFrameStatistic Returns statistics.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFrameStatistic(
-    CameraHandle            hCamera, 
+/******************************************************/
+// å‡½æ•°å   : CameraGetFrameStatistic
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºæ¥æ”¶å¸§ç‡çš„ç»Ÿè®¡ä¿¡æ¯ï¼ŒåŒ…æ‹¬é”™è¯¯å¸§å’Œä¸¢å¸§çš„æƒ…å†µã€‚
+// å‚æ•°     : hCamera        ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            psFrameStatistic æŒ‡é’ˆï¼Œè¿”å›ç»Ÿè®¡ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetFrameStatistic(
+    CameraHandle            hCamera,
     tSdkFrameStatistic*     psFrameStatistic
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Ê¹ÄÜ2D½µÔë
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable   TRUE£¬Ê¹ÄÜ£»FALSE£¬½ûÖ¹¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enable 2D noise reduction
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE, enable; FALSE, disable.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetNoiseFilter(
+/******************************************************/
+// å‡½æ•°å   : CameraGetStatisticResend
+// åŠŸèƒ½æè¿° : è·å¾—ç›¸æœºç»Ÿè®¡ä¿¡æ¯ä¹‹é‡ä¼ æ•°é‡
+// å‚æ•°     : hCamera        ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pResendCount  æŒ‡é’ˆï¼Œè¿”å›é‡ä¼ æ•°é‡ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetStatisticResend(
+    CameraHandle            hCamera,
+    UINT*                   pResendCount
+);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetNoiseFilter
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒé™å™ªæ¨¡å—çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            bEnable   TRUEï¼Œä½¿èƒ½ï¼›FALSEï¼Œç¦æ­¢ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetNoiseFilter(
     CameraHandle    hCamera,
     BOOL            bEnable
 );
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡2D½µÔëÊ¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pEnable   Ö¸Õë£¬·µ»Ø×´Ì¬¡£TRUE£¬ÎªÊ¹ÄÜ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get 2D noise reduction enable status
-/// \param [in] hCamera Camera handle.
-/// \param [out] pEnable Returns status. TRUE, to enable.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetNoiseFilterState(
+/******************************************************/
+// å‡½æ•°å   : CameraGetNoiseFilterState
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒé™å™ªæ¨¡å—çš„ä½¿èƒ½çŠ¶æ€ã€‚
+// å‚æ•°     : hCamera  ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            *pEnable   æŒ‡é’ˆï¼Œè¿”å›çŠ¶æ€ã€‚TRUEï¼Œä¸ºä½¿èƒ½ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetNoiseFilterState(
     CameraHandle    hCamera,
     BOOL*           pEnable
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ¸´Î»Í¼Ïñ²É¼¯µÄÊ±¼ä´Á£¬´Ó0¿ªÊ¼¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Resets the time stamp of the image acquisition, starting from 0.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraRstTimeStamp(
+/******************************************************/
+// å‡½æ•°å   : CameraRstTimeStamp
+// åŠŸèƒ½æè¿° : å¤ä½å›¾åƒé‡‡é›†çš„æ—¶é—´æˆ³ï¼Œä»0å¼€å§‹ã€‚
+// å‚æ•°     : CameraHandle hCamera
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraRstTimeStamp(
     CameraHandle    hCamera
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ½«ÓÃ»§×Ô¶¨ÒåµÄÊı¾İ±£´æµ½Ïà»úµÄ·ÇÒ×ĞÔ´æ´¢Æ÷ÖĞ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uStartAddr  ÆğÊ¼µØÖ·£¬´Ó0¿ªÊ¼¡£
-/// \param [in] pbData      Êı¾İ»º³åÇøÖ¸Õë
-/// \param [in] ilen        Ğ´ÈëÊı¾İµÄ³¤¶È£¬ilen + uStartAddr±ØĞëĞ¡ÓÚÓÃ»§Çø×î´ó³¤¶È
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ã¿¸öĞÍºÅµÄÏà»ú¿ÉÄÜÖ§³ÖµÄÓÃ»§Êı¾İÇø×î´ó³¤¶È²»Ò»Ñù¡£¿ÉÒÔ´ÓÉè±¸µÄÌØĞÔÃèÊöÖĞ»ñÈ¡¸Ã³¤¶ÈĞÅÏ¢¡£
-/// \~english
-/// \brief Save user-defined data to the camera's non-volatile memory.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uStartAddr Start address, starting from 0.
-/// \param [in] pbData data buffer pointer
-/// \param [in] ilen The length of the write data, ilen + uStartAddr must be less than the maximum length of the user area
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note The maximum length of the user data area that each model of camera may support is different. This length information can be obtained from the device's feature description.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveUserData(
+/******************************************************/
+// å‡½æ•°å   : CameraSaveUserData
+// åŠŸèƒ½æè¿° : å°†ç”¨æˆ·è‡ªå®šä¹‰çš„æ•°æ®ä¿å­˜åˆ°ç›¸æœºçš„éæ˜“æ€§å­˜å‚¨å™¨ä¸­ã€‚
+//              æ¯ä¸ªå‹å·çš„ç›¸æœºå¯èƒ½æ”¯æŒçš„ç”¨æˆ·æ•°æ®åŒºæœ€å¤§é•¿åº¦ä¸ä¸€æ ·ã€‚
+//              å¯ä»¥ä»è®¾å¤‡çš„ç‰¹æ€§æè¿°ä¸­è·å–è¯¥é•¿åº¦ä¿¡æ¯ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            uStartAddr  èµ·å§‹åœ°å€ï¼Œä»0å¼€å§‹ã€‚
+//            pbData      æ•°æ®ç¼“å†²åŒºæŒ‡é’ˆ
+//            ilen        å†™å…¥æ•°æ®çš„é•¿åº¦ï¼Œilen + uStartAddrå¿…é¡»
+//                        å°äºç”¨æˆ·åŒºæœ€å¤§é•¿åº¦
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSaveUserData(
     CameraHandle    hCamera,
     UINT            uStartAddr,
     BYTE            *pbData,
     int             ilen
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ´ÓÏà»úµÄ·ÇÒ×ĞÔ´æ´¢Æ÷ÖĞ¶ÁÈ¡ÓÃ»§×Ô¶¨ÒåµÄÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uStartAddr  ÆğÊ¼µØÖ·£¬´Ó0¿ªÊ¼¡£
-/// \param [out] pbData     Êı¾İ»º³åÇøÖ¸Õë
-/// \param [in] ilen        Êı¾İµÄ³¤¶È£¬ilen + uStartAddr±ØĞëĞ¡ÓÚÓÃ»§Çø×î´ó³¤¶È
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Read user-defined data from the camera's non-volatile memory.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uStartAddr Start address, starting from 0.
-/// \param [out] pbData data buffer pointer
-/// \param [in] ilen The length of the data, ilen + uStartAddr must be less than the maximum length of the user area
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraLoadUserData(
+/******************************************************/
+// å‡½æ•°å   : CameraLoadUserData
+// åŠŸèƒ½æè¿° : ä»ç›¸æœºçš„éæ˜“æ€§å­˜å‚¨å™¨ä¸­è¯»å–ç”¨æˆ·è‡ªå®šä¹‰çš„æ•°æ®ã€‚
+//              æ¯ä¸ªå‹å·çš„ç›¸æœºå¯èƒ½æ”¯æŒçš„ç”¨æˆ·æ•°æ®åŒºæœ€å¤§é•¿åº¦ä¸ä¸€æ ·ã€‚
+//              å¯ä»¥ä»è®¾å¤‡çš„ç‰¹æ€§æè¿°ä¸­è·å–è¯¥é•¿åº¦ä¿¡æ¯ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            uStartAddr  èµ·å§‹åœ°å€ï¼Œä»0å¼€å§‹ã€‚
+//            pbData      æ•°æ®ç¼“å†²åŒºæŒ‡é’ˆï¼Œè¿”å›è¯»åˆ°çš„æ•°æ®ã€‚
+//            ilen        è¯»å–æ•°æ®çš„é•¿åº¦ï¼Œilen + uStartAddrå¿…é¡»
+//                        å°äºç”¨æˆ·åŒºæœ€å¤§é•¿åº¦
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraLoadUserData(
     CameraHandle    hCamera,
     UINT            uStartAddr,
     BYTE            *pbData,
     int             ilen
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ¶ÁÈ¡ÓÃ»§×Ô¶¨ÒåµÄÉè±¸êÇ³Æ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pName  Ö¸Õë£¬·µ»ØÖ¸Ïò0½áÎ²µÄ×Ö·û´®£¬Éè±¸êÇ³Æ²»³¬¹ı32¸ö×Ö½Ú£¬Òò´Ë¸ÃÖ¸ÕëÖ¸ÏòµÄ»º³åÇø±ØĞë´óÓÚµÈÓÚ32¸ö×Ö½Ú¿Õ¼ä¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Read user-defined device nicknames.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pName returns a string that points to the end of 0, the device nickname does not exceed 32 bytes, so the buffer pointed to by this pointer must be greater than or equal to 32 bytes.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFriendlyName(
+/******************************************************/
+// å‡½æ•°å   : CameraGetFriendlyName
+// åŠŸèƒ½æè¿° : è¯»å–ç”¨æˆ·è‡ªå®šä¹‰çš„è®¾å¤‡æ˜µç§°ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pName      æŒ‡é’ˆï¼Œè¿”å›æŒ‡å‘0ç»“å°¾çš„å­—ç¬¦ä¸²ï¼Œ
+//             è®¾å¤‡æ˜µç§°ä¸è¶…è¿‡32ä¸ªå­—èŠ‚ï¼Œå› æ­¤è¯¥æŒ‡é’ˆ
+//             æŒ‡å‘çš„ç¼“å†²åŒºå¿…é¡»å¤§äºç­‰äº32ä¸ªå­—èŠ‚ç©ºé—´ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetFriendlyName(
   CameraHandle  hCamera,
   char*     pName
 );
 
-/// @ingroup API_USERDATA
-/// \~chinese
-/// \brief ÉèÖÃÓÃ»§×Ô¶¨ÒåµÄÉè±¸êÇ³Æ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pName   Ö¸Õë£¬Ö¸Ïò0½áÎ²µÄ×Ö·û´®£¬Éè±¸êÇ³Æ²»³¬¹ı32¸ö×Ö½Ú£¬Òò´Ë¸ÃÖ¸ÕëÖ¸Ïò×Ö·û´®±ØĞëĞ¡ÓÚµÈÓÚ32¸ö×Ö½Ú¿Õ¼ä¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set user-defined device nicknames.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pName A string that ends with 0, the device nickname does not exceed 32 bytes, so the pointer to the string must be less than or equal to 32 bytes.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetFriendlyName(
+/******************************************************/
+// å‡½æ•°å   : CameraSetFriendlyName
+// åŠŸèƒ½æè¿° : è®¾ç½®ç”¨æˆ·è‡ªå®šä¹‰çš„è®¾å¤‡æ˜µç§°ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pName      æŒ‡é’ˆï¼ŒæŒ‡å‘0ç»“å°¾çš„å­—ç¬¦ä¸²ï¼Œ
+//             è®¾å¤‡æ˜µç§°ä¸è¶…è¿‡32ä¸ªå­—èŠ‚ï¼Œå› æ­¤è¯¥æŒ‡é’ˆ
+//             æŒ‡å‘å­—ç¬¦ä¸²å¿…é¡»å°äºç­‰äº32ä¸ªå­—èŠ‚ç©ºé—´ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetFriendlyName(
   CameraHandle  hCamera,
   char*       pName
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief ¶ÁÈ¡SDK°æ±¾ºÅ
-/// \param [out] pVersionString Ö¸Õë£¬·µ»ØSDK°æ±¾×Ö·û´®¡£¸ÃÖ¸ÕëÖ¸ÏòµÄ»º³åÇø´óĞ¡±ØĞë´óÓÚ32¸ö×Ö½Ú
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Read the SDK version number
-/// \param [out] pVersionString Returns the SDK version string. The buffer pointed to by this pointer must be larger than 32 bytes
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSdkGetVersionString(
+/******************************************************/
+// å‡½æ•°å   : CameraSdkGetVersionString
+// åŠŸèƒ½æè¿° :
+// å‚æ•°     : pVersionString æŒ‡é’ˆï¼Œè¿”å›SDKç‰ˆæœ¬å­—ç¬¦ä¸²ã€‚
+//                            è¯¥æŒ‡é’ˆæŒ‡å‘çš„ç¼“å†²åŒºå¤§å°å¿…é¡»å¤§äº
+//                            32ä¸ªå­—èŠ‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSdkGetVersionString(
   char*       pVersionString
 );
 
 /******************************************************/
-// º¯ÊıÃû   : CameraCheckFwUpdate
-// ¹¦ÄÜÃèÊö : ¼ì²â¹Ì¼ş°æ±¾£¬ÊÇ·ñĞèÒªÉı¼¶¡£
-// ²ÎÊı     : hCamera Ïà»úµÄ¾ä±ú£¬ÓÉCameraInitº¯Êı»ñµÃ¡£
-//            pNeedUpdate Ö¸Õë£¬·µ»Ø¹Ì¼ş¼ì²â×´Ì¬£¬TRUE±íÊ¾ĞèÒª¸üĞÂ
-// ·µ»ØÖµ   : ³É¹¦Ê±£¬·µ»ØCAMERA_STATUS_SUCCESS (0);
-//            ·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë,Çë²Î¿¼CameraStatus.h
-//            ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+// å‡½æ•°å   : CameraCheckFwUpdate
+// åŠŸèƒ½æè¿° : æ£€æµ‹å›ºä»¶ç‰ˆæœ¬ï¼Œæ˜¯å¦éœ€è¦å‡çº§ã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pNeedUpdate æŒ‡é’ˆï¼Œè¿”å›å›ºä»¶æ£€æµ‹çŠ¶æ€ï¼ŒTRUEè¡¨ç¤ºéœ€è¦æ›´æ–°
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /******************************************************/
-MVSDK_API CameraSdkStatus __stdcall CameraCheckFwUpdate(
+MVSDK_API CameraSdkStatus  CameraCheckFwUpdate(
   CameraHandle  hCamera,
   BOOL*     pNeedUpdate
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃ¹Ì¼ş°æ±¾µÄ×Ö·û´®
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pVersion ±ØĞëÖ¸ÏòÒ»¸ö´óÓÚ32×Ö½ÚµÄ»º³åÇø£¬·µ»Ø¹Ì¼şµÄ°æ±¾×Ö·û´®¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the firmware version string
-/// \param [in] hCamera Camera handle.
-/// \param [out] pVersion must point to a buffer larger than 32 bytes and return the firmware version string.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFirmwareVersion(
-	CameraHandle  hCamera,
-	char*     pVersion
-	);
-
-// ¹¦ÄÜÓëCameraGetFirmwareVersionÏàÍ¬¡£VersionÆ´Ğ´´íÎó£¬ÎªÁË¼æÈİĞÔ±£Áô
-// Same function as CameraGetFirmwareVersion. Version misspelled, reserved for compatibility
-MVSDK_API CameraSdkStatus __stdcall CameraGetFirmwareVision(
+/******************************************************/
+// å‡½æ•°å   : CameraGetFirmwareVision
+// åŠŸèƒ½æè¿° : è·å¾—å›ºä»¶ç‰ˆæœ¬çš„å­—ç¬¦ä¸²
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pVersion å¿…é¡»æŒ‡å‘ä¸€ä¸ªå¤§äº32å­—èŠ‚çš„ç¼“å†²åŒºï¼Œ
+//                      è¿”å›å›ºä»¶çš„ç‰ˆæœ¬å­—ç¬¦ä¸²ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetFirmwareVersion(
   CameraHandle  hCamera,
   char*     pVersion
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃÖ¸¶¨Éè±¸µÄÃ¶¾ÙĞÅÏ¢
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pCameraInfo Ö¸Õë£¬·µ»ØÉè±¸µÄÃ¶¾ÙĞÅÏ¢¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get enumeration information for the specified device
-/// \param [in] hCamera Camera handle.
-/// \param [out] pCameraInfo Returns the enumeration information for the device.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetEnumInfo(
+/******************************************************/
+// å‡½æ•°å   : CameraGetEnumInfo
+// åŠŸèƒ½æè¿° : è·å¾—æŒ‡å®šè®¾å¤‡çš„æšä¸¾ä¿¡æ¯
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pCameraInfo æŒ‡é’ˆï¼Œè¿”å›è®¾å¤‡çš„æšä¸¾ä¿¡æ¯ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetEnumInfo(
   CameraHandle    hCamera,
   tSdkCameraDevInfo*  pCameraInfo
 );
 
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃÖ¸¶¨Éè±¸½Ó¿ÚµÄ°æ±¾
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pVersion Ö¸ÏòÒ»¸ö´óÓÚ32×Ö½ÚµÄ»º³åÇø£¬·µ»Ø½Ó¿Ú°æ±¾×Ö·û´®¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the version of the specified device interface
-/// \param [in] hCamera Camera handle.
-/// \param [out] pVersion points to a buffer larger than 32 bytes and returns the interface version string.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInerfaceVersion(
+/******************************************************/
+// å‡½æ•°å   : CameraGetInerfaceVersion
+// åŠŸèƒ½æè¿° : è·å¾—æŒ‡å®šè®¾å¤‡æ¥å£çš„ç‰ˆæœ¬
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pVersion æŒ‡å‘ä¸€ä¸ªå¤§äº32å­—èŠ‚çš„ç¼“å†²åŒºï¼Œè¿”å›æ¥å£ç‰ˆæœ¬å­—ç¬¦ä¸²ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetInerfaceVersion(
   CameraHandle    hCamera,
   char*       pVersion
 );
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃÖ¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊä³öĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iOutputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] uState ÒªÉè¶¨µÄ×´Ì¬(GE¡¢SUA: 0(¸ß)  1(µÍ))
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÒÑ·ÏÆú£¬Ê¹ÓÃCameraSetIOStateEx£¬Ëü¶ÔËùÓĞĞÍºÅÏà»úµÄÊä³ö×´Ì¬ÖµÍ³Ò»Îª1¸ß 0µÍ
+/// \brief è®¾ç½®æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å‡ºå‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iOutputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [in] uState è¦è®¾å®šçš„çŠ¶æ€(GEã€SUA: 0(é«˜)  1(ä½))
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å·²åºŸå¼ƒï¼Œä½¿ç”¨CameraSetIOStateExï¼Œå®ƒå¯¹æ‰€æœ‰å‹å·ç›¸æœºçš„è¾“å‡ºçŠ¶æ€å€¼ç»Ÿä¸€ä¸º1é«˜ 0ä½
 /// \~english
 /// \brief Set the level state of the specified IO. IO is the output IO. The number of programmable output IOs for the camera is determined by @link #tSdkCameraCapbility.iOutputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
-/// \param [in] uState The state to set(GE¡¢SUA: 0(high)  1(low))
+/// \param [in] uState The state to set(GEã€SUA: 0(high)  1(low))
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \note Obsolete, use CameraSetIOStateEx, which has a unified output state value of 1 high and 0 low for all models of cameras
-MVSDK_API CameraSdkStatus __stdcall CameraSetIOState(
+MVSDK_API CameraSdkStatus CameraSetIOState(
   CameraHandle    hCamera,
   INT         iOutputIOIndex,
   UINT        uState
@@ -3768,18 +3149,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetIOState(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃÖ¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊä³öĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iOutputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] uState ÒªÉè¶¨µÄ×´Ì¬£¨1Îª¸ß£¬0ÎªµÍ£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å‡ºå‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iOutputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [in] uState è¦è®¾å®šçš„çŠ¶æ€ï¼ˆ1ä¸ºé«˜ï¼Œ0ä¸ºä½ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the level state of the specified IO. IO is the output IO. The number of programmable output IOs for the camera is determined by @link #tSdkCameraCapbility.iOutputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [in] uState The state to set, 1 is high, 0 is low
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetIOStateEx(
+MVSDK_API CameraSdkStatus CameraSetIOStateEx(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	UINT        uState
@@ -3787,20 +3168,20 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetIOStateEx(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ¶ÁÈ¡Ö¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊä³öĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iOutputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] puState ·µ»ØIO×´Ì¬(GE¡¢SUA: 0(¸ß)  1(µÍ))
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÒÑ·ÏÆú£¬Ê¹ÓÃCameraGetOutPutIOStateEx£¬Ëü¶ÔËùÓĞĞÍºÅÏà»úµÄÊä³ö×´Ì¬ÖµÍ³Ò»Îª1¸ß 0µÍ
+/// \brief è¯»å–æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å‡ºå‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iOutputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] puState è¿”å›IOçŠ¶æ€(GEã€SUA: 0(é«˜)  1(ä½))
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å·²åºŸå¼ƒï¼Œä½¿ç”¨CameraGetOutPutIOStateExï¼Œå®ƒå¯¹æ‰€æœ‰å‹å·ç›¸æœºçš„è¾“å‡ºçŠ¶æ€å€¼ç»Ÿä¸€ä¸º1é«˜ 0ä½
 /// \~english
 /// \brief Read the level state of the specified IO. IO is the output IO. The number of programmable output IOs for the camera is determined by @link #tSdkCameraCapbility.iOutputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
-/// \param [out] puState return IO state(GE¡¢SUA: 0(high)  1(low))
+/// \param [out] puState return IO state(GEã€SUA: 0(high)  1(low))
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \note Obsolete, use CameraGetOutPutIOStateEx, which has a unified output state value of 1 high and 0 low for all models of cameras
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOState(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOState(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	UINT*       puState
@@ -3808,18 +3189,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOState(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ¶ÁÈ¡Ö¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊä³öĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iOutputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] puState ·µ»ØIO×´Ì¬£¬1Îª¸ß£¬0ÎªµÍ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è¯»å–æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å‡ºå‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iOutputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] puState è¿”å›IOçŠ¶æ€ï¼Œ1ä¸ºé«˜ï¼Œ0ä¸ºä½
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Read the level state of the specified IO. IO is the output IO. The number of programmable output IOs for the camera is determined by @link #tSdkCameraCapbility.iOutputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [out] puState return IO state, 1 is high, 0 is low
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOStateEx(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOStateEx(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	UINT*       puState
@@ -3827,20 +3208,20 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOStateEx(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ¶ÁÈ¡Ö¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊäÈëĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iInputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] puState Ö¸Õë£¬·µ»ØIO×´Ì¬(GE¡¢SUA: 0(¸ß)  1(µÍ))
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÒÑ·ÏÆú£¬Ê¹ÓÃCameraGetIOStateEx£¬Ëü¶ÔËùÓĞĞÍºÅÏà»úµÄÊäÈë×´Ì¬ÖµÍ³Ò»Îª1¸ß 0µÍ
+/// \brief è¯»å–æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å…¥å‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iInputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] puState æŒ‡é’ˆï¼Œè¿”å›IOçŠ¶æ€(GEã€SUA: 0(é«˜)  1(ä½))
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å·²åºŸå¼ƒï¼Œä½¿ç”¨CameraGetIOStateExï¼Œå®ƒå¯¹æ‰€æœ‰å‹å·ç›¸æœºçš„è¾“å…¥çŠ¶æ€å€¼ç»Ÿä¸€ä¸º1é«˜ 0ä½
 /// \~english
 /// \brief Read the level state of the specified IO, IO is input type IO, the number of programmable output IOs that the camera reserves is decided by @link #tSdkCameraCapbility.iInputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
-/// \param [out] puState returns IO state(GE¡¢SUA: 0(high)  1(low))
+/// \param [out] puState returns IO state(GEã€SUA: 0(high)  1(low))
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \note Obsolete, use CameraGetIOStateEx, which has a unified input state value of 1 high and 0 low for all models of cameras
-MVSDK_API CameraSdkStatus __stdcall CameraGetIOState(
+MVSDK_API CameraSdkStatus CameraGetIOState(
   CameraHandle    hCamera,
   INT         iInputIOIndex,
   UINT*         puState
@@ -3848,94 +3229,92 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetIOState(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ¶ÁÈ¡Ö¸¶¨IOµÄµçÆ½×´Ì¬£¬IOÎªÊäÈëĞÍIO£¬Ïà»úÔ¤Áô¿É±à³ÌÊä³öIOµÄ¸öÊıÓÉ@link #tSdkCameraCapbility.iInputIoCounts @endlink¾ö¶¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] puState Ö¸Õë£¬·µ»ØIO×´Ì¬,1Îª¸ß£¬0ÎªµÍ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è¯»å–æŒ‡å®šIOçš„ç”µå¹³çŠ¶æ€ï¼ŒIOä¸ºè¾“å…¥å‹IOï¼Œç›¸æœºé¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±@link #tSdkCameraCapbility.iInputIoCounts @endlinkå†³å®šã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] puState æŒ‡é’ˆï¼Œè¿”å›IOçŠ¶æ€,1ä¸ºé«˜ï¼Œ0ä¸ºä½
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Read the level state of the specified IO, IO is input type IO, the number of programmable output IOs that the camera reserves is decided by @link #tSdkCameraCapbility.iInputIoCounts @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [out] puState returns IO state, 1 is high, 0 is low
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetIOStateEx(
+MVSDK_API CameraSdkStatus CameraGetIOStateEx(
 	CameraHandle    hCamera,
 	INT         iInputIOIndex,
 	UINT*         puState
 	);
 
-/// @ingroup API_GPIO
-/// \~chinese
-/// \brief ÉèÖÃÊäÈëIOµÄÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] iMode IOÄ£Ê½,²Î¿¼@link #emCameraGPIOMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the input IO mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] iInputIOIndex IO index, starting from 0.
-/// \param [in] iMode IO mode, reference @link #emCameraGPIOMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetInPutIOMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetInPutIOMode
+// åŠŸèƒ½æè¿° : è®¾ç½®è¾“å…¥IOçš„æ¨¡å¼ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iInputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            iMode IOæ¨¡å¼,å‚è€ƒCameraDefine.hä¸­emCameraGPIOMode
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetInPutIOMode(
 	CameraHandle    hCamera,
 	INT         iInputIOIndex,
 	INT			iMode
 	);
-
+	
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡ÊäÈëIOµÄÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piMode IOÄ£Ê½,²Î¿¼@link #emCameraGPIOMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å…¥IOçš„æ¨¡å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piMode IOæ¨¡å¼,å‚è€ƒ@link #emCameraGPIOMode @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the input IO mode
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [out] piMode IO mode, reference @link #emCameraGPIOMode @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOMode(
+MVSDK_API CameraSdkStatus CameraGetInPutIOMode(
 	CameraHandle    hCamera,
 	INT				iInputIOIndex,
 	INT*			piMode
 	);
 
-/// @ingroup API_GPIO
-/// \~chinese
-/// \brief ÉèÖÃÊä³öIOµÄÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] iMode IOÄ£Ê½,²Î¿¼@link #emCameraGPIOMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the output IO mode
-/// \param [in] hCamera Camera handle.
-/// \param [in] iOutputIOIndex IO index, starting from 0.
-/// \param [in] iMode IO mode, reference @link #emCameraGPIOMode @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetOutPutIOMode(
+/******************************************************/
+// å‡½æ•°å   : CameraSetOutPutIOMode
+// åŠŸèƒ½æè¿° : è®¾ç½®è¾“å‡ºIOçš„æ¨¡å¼ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iOutputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            iMode IOæ¨¡å¼,å‚è€ƒCameraDefine.hä¸­emCameraGPIOMode
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetOutPutIOMode(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	INT			iMode
 	);
-
+	
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡Êä³öIOµÄÄ£Ê½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piMode IOÄ£Ê½,²Î¿¼@link #emCameraGPIOMode @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å‡ºIOçš„æ¨¡å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piMode IOæ¨¡å¼,å‚è€ƒ@link #emCameraGPIOMode @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the output IO mode
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [out] piMode IO mode, reference @link #emCameraGPIOMode @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOMode(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOMode(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	INT*		piMode
@@ -3943,18 +3322,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOMode(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡ÊäÈëIOµÄÄ£Ê½Ö§³ÖÄÜÁ¦
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piCapbility IOÄ£Ê½Ö§³ÖÎ»ÑÚÂë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å…¥IOçš„æ¨¡å¼æ”¯æŒèƒ½åŠ›
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piCapbility IOæ¨¡å¼æ”¯æŒä½æ©ç 
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the mode support capability of the input IO
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [out] piCapbility IO mode support bit mask
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOModeCapbility(
+MVSDK_API CameraSdkStatus CameraGetInPutIOModeCapbility(
 	CameraHandle    hCamera,
 	INT				iInputIOIndex,
 	UINT*			piCapbility
@@ -3962,39 +3341,37 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOModeCapbility(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡Êä³öIOµÄÄ£Ê½Ö§³ÖÄÜÁ¦
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piCapbility IOÄ£Ê½Ö§³ÖÎ»ÑÚÂë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å‡ºIOçš„æ¨¡å¼æ”¯æŒèƒ½åŠ›
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piCapbility IOæ¨¡å¼æ”¯æŒä½æ©ç 
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the mode support capability of the output IO
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [out] piCapbility IO mode support bit mask
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOModeCapbility(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOModeCapbility(
 	CameraHandle    hCamera,
 	INT				iOutputIOIndex,
 	UINT*			piCapbility
 	);
 
-/// @ingroup API_GPIO
-/// \~chinese
-/// \brief ÉèÖÃPWMĞÍÊä³öµÄ²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] iCycle PWMµÄÖÜÆÚ£¬µ¥Î»(us)
-/// \param [in] uDuty  Õ¼ÓÃ±È£¬È¡Öµ1%~99%
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the PWM output parameters
-/// \param [in] hCamera Camera handle.
-/// \param [in] iOutputIOIndex IO index, starting from 0.
-/// \param [in] iCycle Cycle of PWM, unit (us)
-/// \param [in] uDuty Occupancy ratio, 1%~99%
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetOutPutPWM(
+/******************************************************/
+// å‡½æ•°å   : CameraSetOutPutPWM
+// åŠŸèƒ½æè¿° : è®¾ç½®PWMå‹è¾“å‡ºçš„å‚æ•°ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iOutputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            iCycle PWMçš„å‘¨æœŸï¼Œå•ä½(us)
+//			  uDuty  å ç”¨æ¯”ï¼Œå–å€¼1%~99%
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetOutPutPWM(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	UINT		iCycle,
@@ -4003,50 +3380,50 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetOutPutPWM(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃ±àÂëÆ÷ÓĞĞ§·½Ïò
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] dir ÓĞĞ§·½Ïò£¨0:Õı·´×ª¶¼ÓĞĞ§   1£ºË³Ê±Õë£¨AÏà³¬Ç°ÓÚB£©   2:ÄæÊ±Õë£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç¼–ç å™¨æœ‰æ•ˆæ–¹å‘
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] dir æœ‰æ•ˆæ–¹å‘ï¼ˆ0:æ­£åè½¬éƒ½æœ‰æ•ˆ   1ï¼šé¡ºæ—¶é’ˆï¼ˆAç›¸è¶…å‰äºBï¼‰   2:é€†æ—¶é’ˆï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the effective direction of the rotary encoder
 /// \param [in] hCamera Camera handle.
 /// \param [in] dir Valid direction (0: Both positive and negative are valid    1: Clockwise (A phase leads B)    2: Counterclockwise)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetRotaryEncDir(
+MVSDK_API CameraSdkStatus CameraSetRotaryEncDir(
 	CameraHandle    hCamera,
 	INT				dir
 	);
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡±àÂëÆ÷ÓĞĞ§·½Ïò
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] dir ÓĞĞ§·½Ïò£¨0:Õı·´×ª¶¼ÓĞĞ§   1£ºË³Ê±Õë£¨AÏà³¬Ç°ÓÚB£©   2:ÄæÊ±Õë£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–ç¼–ç å™¨æœ‰æ•ˆæ–¹å‘
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] dir æœ‰æ•ˆæ–¹å‘ï¼ˆ0:æ­£åè½¬éƒ½æœ‰æ•ˆ   1ï¼šé¡ºæ—¶é’ˆï¼ˆAç›¸è¶…å‰äºBï¼‰   2:é€†æ—¶é’ˆï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the effective direction of the rotary encoder
 /// \param [in] hCamera Camera handle.
 /// \param [out] dir Valid direction (0: Both positive and negative are valid    1: Clockwise (A phase leads B)    2: Counterclockwise)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRotaryEncDir(
+MVSDK_API CameraSdkStatus CameraGetRotaryEncDir(
 	CameraHandle    hCamera,
 	INT*			dir
 	);
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃ±àÂëÆ÷ÆµÂÊ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] mul ±¶Æµ
-/// \param [in] div ·ÖÆµ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç¼–ç å™¨é¢‘ç‡
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] mul å€é¢‘
+/// \param [in] div åˆ†é¢‘
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the frequency of the rotary encoder
 /// \param [in] hCamera Camera handle.
 /// \param [in] mul frequency multiplier
 /// \param [in] div frequency division
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetRotaryEncFreq(
+MVSDK_API CameraSdkStatus CameraSetRotaryEncFreq(
 	CameraHandle hCamera,
 	INT			mul,
 	INT			div
@@ -4054,37 +3431,37 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetRotaryEncFreq(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡±àÂëÆ÷ÆµÂÊ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] mul ±¶Æµ
-/// \param [out] div ·ÖÆµ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–ç¼–ç å™¨é¢‘ç‡
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] mul å€é¢‘
+/// \param [out] div åˆ†é¢‘
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the frequency of the rotary encoder
 /// \param [in] hCamera Camera handle.
 /// \param [out] mul frequency multiplier
 /// \param [out] div frequency division
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRotaryEncFreq(
+MVSDK_API CameraSdkStatus CameraGetRotaryEncFreq(
 	CameraHandle hCamera,
 	INT*		mul,
 	INT*		div
 	);
-
+	
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃÊäÈëIOµÄ¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] iFormat IO¸ñÊ½,²Î¿¼@link #emCameraGPIOFormat @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®è¾“å…¥IOçš„æ ¼å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [in] iFormat IOæ ¼å¼,å‚è€ƒ@link #emCameraGPIOFormat @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the input IO format
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [in] iFormat IO format, reference @link #emCameraGPIOFormat @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetInPutIOFormat(
+MVSDK_API CameraSdkStatus CameraSetInPutIOFormat(
 	CameraHandle    hCamera,
 	INT         iInputIOIndex,
 	INT			iFormat
@@ -4092,18 +3469,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetInPutIOFormat(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡ÊäÈëIOµÄ¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piFormat IO¸ñÊ½,²Î¿¼@link #emCameraGPIOFormat @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å…¥IOçš„æ ¼å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piFormat IOæ ¼å¼,å‚è€ƒ@link #emCameraGPIOFormat @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the input IO format
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [out] piFormat IO format, reference @link #emCameraGPIOFormat @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOFormat(
+MVSDK_API CameraSdkStatus CameraGetInPutIOFormat(
 	CameraHandle    hCamera,
 	INT				iInputIOIndex,
 	INT*			piFormat
@@ -4111,18 +3488,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOFormat(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief ÉèÖÃÊä³öIOµÄ¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] iFormat IO¸ñÊ½,²Î¿¼@link #emCameraGPIOFormat @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®è¾“å‡ºIOçš„æ ¼å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [in] iFormat IOæ ¼å¼,å‚è€ƒ@link #emCameraGPIOFormat @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the output IO format
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [in] iFormat IO format, reference @link #emCameraGPIOFormat @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetOutPutIOFormat(
+MVSDK_API CameraSdkStatus CameraSetOutPutIOFormat(
 	CameraHandle    hCamera,
 	INT         iOutputIOIndex,
 	INT			iFormat
@@ -4130,18 +3507,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetOutPutIOFormat(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡Êä³öIOµÄ¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piFormat IO¸ñÊ½,²Î¿¼@link #emCameraGPIOFormat @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å‡ºIOçš„æ ¼å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piFormat IOæ ¼å¼,å‚è€ƒ@link #emCameraGPIOFormat @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the output IO format
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [out] piFormat IO format, reference @link #emCameraGPIOFormat @endlink
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOFormat(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOFormat(
 	CameraHandle    hCamera,
 	INT				iOutputIOIndex,
 	INT*			piFormat
@@ -4149,18 +3526,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOFormat(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡ÊäÈëIOµÄ¸ñÊ½Ö§³ÖÄÜÁ¦
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iInputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piCapbility IO¸ñÊ½Ö§³ÖÎ»ÑÚÂë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å…¥IOçš„æ ¼å¼æ”¯æŒèƒ½åŠ›
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iInputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piCapbility IOæ ¼å¼æ”¯æŒä½æ©ç 
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the format support capability of the input IO
 /// \param [in] hCamera Camera handle.
 /// \param [in] iInputIOIndex IO index, starting from 0.
 /// \param [out] piCapbility IO format support bit mask
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOFormatCapbility(
+MVSDK_API CameraSdkStatus CameraGetInPutIOFormatCapbility(
 	CameraHandle    hCamera,
 	INT				iInputIOIndex,
 	UINT*			piCapbility
@@ -4168,371 +3545,320 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetInPutIOFormatCapbility(
 
 /// @ingroup API_GPIO
 /// \~chinese
-/// \brief »ñÈ¡Êä³öIOµÄ¸ñÊ½Ö§³ÖÄÜÁ¦
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iOutputIOIndex IOµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] piCapbility IO¸ñÊ½Ö§³ÖÎ»ÑÚÂë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–è¾“å‡ºIOçš„æ ¼å¼æ”¯æŒèƒ½åŠ›
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+/// \param [out] piCapbility IOæ ¼å¼æ”¯æŒä½æ©ç 
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the format support capability of the output IO
 /// \param [in] hCamera Camera handle.
 /// \param [in] iOutputIOIndex IO index, starting from 0.
 /// \param [out] piCapbility IO format support bit mask
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetOutPutIOFormatCapbility(
+MVSDK_API CameraSdkStatus CameraGetOutPutIOFormatCapbility(
 	CameraHandle    hCamera,
 	INT				iOutputIOIndex,
 	UINT*			piCapbility
 	);
 
-// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief ÉèÖÃ×Ô¶¯ÆØ¹âÊ±Ñ¡ÔñµÄËã·¨£¬²»Í¬µÄËã·¨ÊÊÓÃÓÚ²»Í¬µÄ³¡¾°¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIspProcessor   Ñ¡ÔñÖ´ĞĞ¸ÃËã·¨µÄ¶ÔÏó,²Î¿¼@link #emSdkIspProcessor @endlink
-/// \param [in] iAeAlgorithmSel   ÒªÑ¡ÔñµÄËã·¨±àºÅ¡£´Ó0¿ªÊ¼£¬×î´óÖµÓÉ@link #tSdkCameraCapbility.iAeAlmSwDesc @endlinkºÍ@link #tSdkCameraCapbility.iAeAlmHdDesc @endlink¾ö¶¨¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The algorithm selected when setting up the automatic exposure, different algorithms are suitable for different scenes.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iIspProcessor Select the object to execute the algorithm, refer to @link #emSdkIspProcessor @endlink
-/// \param [in] iAeAlgorithmSel The algorithm number to select. From 0, the maximum value is determined by @link #tSdkCameraCapbility.iAeAlmSwDesc @endlink and @link #tSdkCameraCapbility.iAeAlmHdDesc @endlink.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAeAlgorithm(
+/******************************************************/
+// å‡½æ•°å   : CameraSetOutPutDelayTime
+// åŠŸèƒ½æè¿° : è®¾ç½®è¾“å‡ºå»¶æ—¶ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iOutputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            uDelayTimeUs å»¶æ—¶ï¼Œå•ä½(us)
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetOutPutDelayTime(
+	CameraHandle    hCamera,
+	INT             iOutputIOIndex,
+	UINT            uDelayTimeUs
+	);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetOutPutPulseWidth
+// åŠŸèƒ½æè¿° : è®¾ç½®è¾“å‡ºè„‰å®½ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iOutputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            uTimeUs è„‰å®½ï¼Œå•ä½(us)
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetOutPutPulseWidth(
+	CameraHandle    hCamera,
+	INT             iOutputIOIndex,
+	UINT            uTimeUs
+	);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetOutPutPolarity
+// åŠŸèƒ½æè¿° : è®¾ç½®è¾“å‡ºææ€§ï¼Œç›¸æœº
+//              é¢„ç•™å¯ç¼–ç¨‹è¾“å‡ºIOçš„ä¸ªæ•°ç”±tSdkCameraCapbilityä¸­
+//              iOutputIoCountså†³å®šã€‚
+// å‚æ•°     : hCamera ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iOutputIOIndex IOçš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚
+//            uPolarity    0:æ­£å‘    1ï¼šåå‘
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraSetOutPutPolarity(
+	CameraHandle    hCamera,
+	INT             iOutputIOIndex,
+	UINT            uPolarity
+	);
+
+/******************************************************/
+// å‡½æ•°å   : CameraSetAeAlgorithm
+// åŠŸèƒ½æè¿° : è®¾ç½®è‡ªåŠ¨æ›å…‰æ—¶é€‰æ‹©çš„ç®—æ³•ï¼Œä¸åŒçš„ç®—æ³•é€‚ç”¨äº
+//        ä¸åŒçš„åœºæ™¯ã€‚
+// å‚æ•°     : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iIspProcessor   é€‰æ‹©æ‰§è¡Œè¯¥ç®—æ³•çš„å¯¹è±¡ï¼Œå‚è€ƒCameraDefine.h
+//                emSdkIspProcessorçš„å®šä¹‰
+//            iAeAlgorithmSel   è¦é€‰æ‹©çš„ç®—æ³•ç¼–å·ã€‚ä»0å¼€å§‹ï¼Œæœ€å¤§å€¼ç”±tSdkCameraCapbility
+//                ä¸­iAeAlmSwDescå’ŒiAeAlmHdDescå†³å®šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetAeAlgorithm(
     CameraHandle    hCamera,
     INT             iIspProcessor,
     INT             iAeAlgorithmSel
 );
 
-// @ingroup API_EXPOSURE
-/// \~chinese
-/// \brief »ñµÃµ±Ç°×Ô¶¯ÆØ¹âËùÑ¡ÔñµÄËã·¨
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIspProcessor   Ñ¡ÔñÖ´ĞĞ¸ÃËã·¨µÄ¶ÔÏó,²Î¿¼@link #emSdkIspProcessor @endlink
-/// \param [out] piAlgorithmSel   ·µ»Øµ±Ç°Ñ¡ÔñµÄËã·¨±àºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the current auto exposure selected algorithm
-/// \param [in] hCamera Camera handle.
-/// \param [in] iIspProcessor Select the object to execute the algorithm, refer to @link #emSdkIspProcessor @endlink
-/// \param [out] piAlgorithmSel Returns the currently selected algorithm number.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAeAlgorithm(
+/******************************************************/
+// å‡½æ•°å   : CameraGetAeAlgorithm
+// åŠŸèƒ½æè¿° : è·å¾—å½“å‰è‡ªåŠ¨æ›å…‰æ‰€é€‰æ‹©çš„ç®—æ³•
+// å‚æ•°     : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iIspProcessor   é€‰æ‹©æ‰§è¡Œè¯¥ç®—æ³•çš„å¯¹è±¡ï¼Œå‚è€ƒCameraDefine.h
+//                emSdkIspProcessorçš„å®šä¹‰
+//            piAeAlgorithmSel  è¿”å›å½“å‰é€‰æ‹©çš„ç®—æ³•ç¼–å·ã€‚ä»0å¼€å§‹ï¼Œæœ€å¤§å€¼ç”±tSdkCameraCapbility
+//                ä¸­iAeAlmSwDescå’ŒiAeAlmHdDescå†³å®šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetAeAlgorithm(
     CameraHandle    hCamera,
     INT             iIspProcessor,
     INT*            piAlgorithmSel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ÉèÖÃBayerÊı¾İ×ª²ÊÉ«µÄËã·¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIspProcessor   Ñ¡ÔñÖ´ĞĞ¸ÃËã·¨µÄ¶ÔÏó£¬²Î¿¼@link #emSdkIspProcessor @endlink
-/// \param [in] iAlgorithmSel     ÒªÑ¡ÔñµÄËã·¨±àºÅ¡£´Ó0¿ªÊ¼£¬×î´óÖµÓÉtSdkCameraCapbility.iBayerDecAlmSwDescºÍtSdkCameraCapbility.iBayerDecAlmHdDesc¾ö¶¨¡£  
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set Bayer data to color algorithm.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iIspProcessor Select the object to execute the algorithm, refer to @link #emSdkIspProcessor @endlink
-/// \param [in] iAlgorithmSel The algorithm number to select. From 0, the maximum value is determined by tSdkCameraCapbility.iBayerDecAlmSwDesc and tSdkCameraCapbility.iBayerDecAlmHdDesc.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetBayerDecAlgorithm(
+/******************************************************/
+// å‡½æ•°å   : CameraSetBayerDecAlgorithm
+// åŠŸèƒ½æè¿° : è®¾ç½®Bayeræ•°æ®è½¬å½©è‰²çš„ç®—æ³•ã€‚
+// å‚æ•°     : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iIspProcessor   é€‰æ‹©æ‰§è¡Œè¯¥ç®—æ³•çš„å¯¹è±¡ï¼Œå‚è€ƒCameraDefine.h
+//                emSdkIspProcessorçš„å®šä¹‰
+//            iAlgorithmSel     è¦é€‰æ‹©çš„ç®—æ³•ç¼–å·ã€‚ä»0å¼€å§‹ï¼Œæœ€å¤§å€¼ç”±tSdkCameraCapbility
+//                ä¸­iBayerDecAlmSwDescå’ŒiBayerDecAlmHdDescå†³å®šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetBayerDecAlgorithm(
     CameraHandle    hCamera,
     INT             iIspProcessor,
     INT             iAlgorithmSel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief »ñµÃBayerÊı¾İ×ª²ÊÉ«ËùÑ¡ÔñµÄËã·¨¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIspProcessor   Ñ¡ÔñÖ´ĞĞ¸ÃËã·¨µÄ¶ÔÏó£¬²Î¿¼@link #emSdkIspProcessor @endlink
-/// \param [in] piAlgorithmSel  ·µ»Øµ±Ç°Ñ¡ÔñµÄËã·¨±àºÅ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the algorithm chosen by Bayer data to color.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iIspProcessor Select the object to execute the algorithm, refer to @link #emSdkIspProcessor @endlink
-/// \param [in] piAlgorithmSel Returns the currently selected algorithm number.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetBayerDecAlgorithm(
+/******************************************************/
+// å‡½æ•°å   : CameraGetBayerDecAlgorithm
+// åŠŸèƒ½æè¿° : è·å¾—Bayeræ•°æ®è½¬å½©è‰²æ‰€é€‰æ‹©çš„ç®—æ³•ã€‚
+// å‚æ•°     : hCamera       ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iIspProcessor   é€‰æ‹©æ‰§è¡Œè¯¥ç®—æ³•çš„å¯¹è±¡ï¼Œå‚è€ƒCameraDefine.h
+//                emSdkIspProcessorçš„å®šä¹‰
+//            piAlgorithmSel    è¿”å›å½“å‰é€‰æ‹©çš„ç®—æ³•ç¼–å·ã€‚ä»0å¼€å§‹ï¼Œæœ€å¤§å€¼ç”±tSdkCameraCapbility
+//                ä¸­iBayerDecAlmSwDescå’ŒiBayerDecAlmHdDescå†³å®šã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetBayerDecAlgorithm(
     CameraHandle    hCamera,
     INT             iIspProcessor,
     INT*            piAlgorithmSel
 );
 
-// @ingroup API_ISP
-/// \~chinese
-/// \brief ÉèÖÃÍ¼Ïñ´¦Àíµ¥ÔªµÄËã·¨Ö´ĞĞ¶ÔÏó£¬ÓÉPC¶Ë»òÕßÏà»ú¶ËÀ´Ö´ĞĞËã·¨£¬µ±ÓÉÏà»ú¶ËÖ´ĞĞÊ±£¬»á½µµÍPC¶ËµÄCPUÕ¼ÓÃÂÊ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iIspProcessor ²Î¿¼@link #emSdkIspProcessor @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the algorithm execution object of the image processing unit. The algorithm is executed by the PC or the camera. When executed by the camera, the CPU usage of the PC is reduced.
-/// \param [in] hCamera Camera handle.
-/// \param [in] iIspProcessor Reference @link #emSdkIspProcessor @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetIspProcessor(
+/******************************************************/
+// å‡½æ•°å   : CameraSetIspProcessor
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒå¤„ç†å•å…ƒçš„ç®—æ³•æ‰§è¡Œå¯¹è±¡ï¼Œç”±PCç«¯æˆ–è€…ç›¸æœºç«¯
+//        æ¥æ‰§è¡Œç®—æ³•ï¼Œå½“ç”±ç›¸æœºç«¯æ‰§è¡Œæ—¶ï¼Œä¼šé™ä½PCç«¯çš„CPUå ç”¨ç‡ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iIspProcessor å‚è€ƒCameraDefine.hä¸­
+//              emSdkIspProcessorçš„å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetIspProcessor(
     CameraHandle    hCamera,
     INT             iIspProcessor
 );
 
-// @ingroup API_ISP
-/// \~chinese
-/// \brief »ñµÃÍ¼Ïñ´¦Àíµ¥ÔªµÄËã·¨Ö´ĞĞ¶ÔÏó¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piIspProcessor ·µ»ØÑ¡ÔñµÄ¶ÔÏó
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the image processing unit's algorithm execution object.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piIspProcessor returns the selected object
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetIspProcessor(
+/******************************************************/
+// å‡½æ•°å   : CameraGetIspProcessor
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒå¤„ç†å•å…ƒçš„ç®—æ³•æ‰§è¡Œå¯¹è±¡ã€‚
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piIspProcessor è¿”å›é€‰æ‹©çš„å¯¹è±¡ï¼Œè¿”å›å€¼å‚è€ƒCameraDefine.hä¸­
+//               emSdkIspProcessorçš„å®šä¹‰ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetIspProcessor(
     CameraHandle    hCamera,
     INT*            piIspProcessor
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ÉèÖÃÍ¼ÏñµÄºÚµçÆ½»ù×¼£¬Ä¬ÈÏÖµÎª0
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iBlackLevel ÒªÉè¶¨µÄµçÆ½Öµ¡£·¶Î§Îª0µ½255¡£ 
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the black level reference of the image. The default value is 0
-/// \param [in] hCamera Camera handle.
-/// \param [in] iBlackLevel The value to set. The range is 0 to 255.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetBlackLevel(
+/******************************************************/
+// å‡½æ•°å   : CameraSetBlackLevel
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒçš„é»‘ç”µå¹³åŸºå‡†ï¼Œé»˜è®¤å€¼ä¸º0
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iBlackLevel è¦è®¾å®šçš„ç”µå¹³å€¼ã€‚èŒƒå›´ä¸º0åˆ°255ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetBlackLevel(
   CameraHandle    hCamera,
   INT         iBlackLevel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief »ñµÃÍ¼ÏñµÄºÚµçÆ½»ù×¼£¬Ä¬ÈÏÖµÎª0
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piBlackLevel ·µ»Øµ±Ç°µÄºÚµçÆ½Öµ¡£·¶Î§Îª0µ½255¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the black level of the image, the default value is 0
-/// \param [in] hCamera Camera handle.
-/// \param [out] piBlackLevel Returns the current black level value. The range is 0 to 255.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetBlackLevel(
+/******************************************************/
+// å‡½æ•°å   : CameraGetBlackLevel
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒçš„é»‘ç”µå¹³åŸºå‡†ï¼Œé»˜è®¤å€¼ä¸º0
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piBlackLevel è¿”å›å½“å‰çš„é»‘ç”µå¹³å€¼ã€‚èŒƒå›´ä¸º0åˆ°255ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetBlackLevel(
   CameraHandle    hCamera,
   INT*        piBlackLevel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ÉèÖÃÍ¼ÏñµÄ°×µçÆ½»ù×¼£¬Ä¬ÈÏÖµÎª255
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iWhiteLevel ÒªÉè¶¨µÄµçÆ½Öµ¡£·¶Î§Îª0µ½255¡£  
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the white level reference of the image. The default value is 255
-/// \param [in] hCamera Camera handle.
-/// \param [in] iWhiteLevel The level to be set. The range is 0 to 255.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetWhiteLevel(
+/******************************************************/
+// å‡½æ•°å   : CameraSetWhiteLevel
+// åŠŸèƒ½æè¿° : è®¾ç½®å›¾åƒçš„ç™½ç”µå¹³åŸºå‡†ï¼Œé»˜è®¤å€¼ä¸º255
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            iWhiteLevel è¦è®¾å®šçš„ç”µå¹³å€¼ã€‚èŒƒå›´ä¸º0åˆ°255ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetWhiteLevel(
   CameraHandle    hCamera,
   INT         iWhiteLevel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief »ñµÃÍ¼ÏñµÄ°×µçÆ½»ù×¼£¬Ä¬ÈÏÖµÎª255
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piWhiteLevel ·µ»Øµ±Ç°µÄ°×µçÆ½Öµ¡£·¶Î§Îª0µ½255¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the white level of the image, the default value is 255
-/// \param [in] hCamera Camera handle.
-/// \param [out] piWhiteLevel Returns the current white level value. The range is 0 to 255.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetWhiteLevel(
+/******************************************************/
+// å‡½æ•°å   : CameraGetWhiteLevel
+// åŠŸèƒ½æè¿° : è·å¾—å›¾åƒçš„ç™½ç”µå¹³åŸºå‡†ï¼Œé»˜è®¤å€¼ä¸º255
+// å‚æ•°     : hCamera    ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            piWhiteLevel è¿”å›å½“å‰çš„ç™½ç”µå¹³å€¼ã€‚èŒƒå›´ä¸º0åˆ°255ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetWhiteLevel(
   CameraHandle    hCamera,
   INT*        piWhiteLevel
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief ÉèÖÃ@link #CameraImageProcess @endlinkº¯ÊıµÄÍ¼Ïñ´¦ÀíµÄÊä³ö¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uFormat	Êä³ö¸ñÊ½¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ö§³ÖµÄ¸ñÊ½£ºCAMERA_MEDIA_TYPE_MONO8¡¢CAMERA_MEDIA_TYPE_MONO16¡¢CAMERA_MEDIA_TYPE_RGB8¡¢CAMERA_MEDIA_TYPE_RGBA8	¡¢CAMERA_MEDIA_TYPE_BGR8¡¢CAMERA_MEDIA_TYPE_BGRA8
-/// \~english
-/// \brief Sets the output format of image processing for the @link #CameraImageProcess @endlink function.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uFormat output format.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Supported formats: CAMERA_MEDIA_TYPE_MONO8, CAMERA_MEDIA_TYPE_MONO16, CAMERA_MEDIA_TYPE_RGB8, CAMERA_MEDIA_TYPE_RGBA8, CAMERA_MEDIA_TYPE_BGR8, CAMERA_MEDIA_TYPE_BGRA8
-MVSDK_API CameraSdkStatus __stdcall CameraSetIspOutFormat(
+/******************************************************/
+// å‡½æ•°å 	: CameraSetIspOutFormat
+// åŠŸèƒ½æè¿°	: è®¾ç½®CameraGetImageBufferå‡½æ•°çš„å›¾åƒå¤„ç†çš„è¾“å‡ºæ ¼å¼ï¼Œæ”¯æŒ
+//              CAMERA_MEDIA_TYPE_MONO8å’ŒCAMERA_MEDIA_TYPE_RGB8
+//              (åœ¨CameraDefine.hä¸­å®šä¹‰)ä¸‰ç§ï¼Œåˆ†åˆ«å¯¹åº”8ä½ç°åº¦å›¾åƒå’Œ24ä½å½©è‰²å›¾åƒã€‚
+// å‚æ•°	    : hCamera		ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             uFormat	è¦è®¾å®šæ ¼å¼ã€‚CAMERA_MEDIA_TYPE_MONO8æˆ–è€…CAMERA_MEDIA_TYPE_RGB8
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraSetIspOutFormat(
     CameraHandle    hCamera,
     UINT            uFormat
 );
 
-/// @ingroup API_ISP
-/// \~chinese
-/// \brief »ñÈ¡Êä³ö¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] puFormat	·µ»Øµ±Ç°Êä³ö¸ñÊ½
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSetIspOutFormat
-/// \~english
-/// \brief Get output format
-/// \param [in] hCamera Camera handle.
-/// \param [out] puFormat returns the current output format
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSetIspOutFormat
-MVSDK_API CameraSdkStatus __stdcall CameraGetIspOutFormat(
+/******************************************************/
+// å‡½æ•°å 	: CameraGetIspOutFormat
+// åŠŸèƒ½æè¿°	: è·å¾—å›¾åƒå¤„ç†çš„è¾“å‡ºæ ¼å¼ï¼Œç›®å‰åªæ”¯æŒ
+//              CAMERA_MEDIA_TYPE_MONO8å’ŒCAMERA_MEDIA_TYPE_RGB8
+//              (åœ¨CameraDefine.hä¸­å®šä¹‰)ä¸¤ç§ï¼Œå…¶ä»–çš„å‚æ•°ä¼šè¿”å›é”™è¯¯ã€‚
+// å‚æ•°	    : hCamera		ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//             puFormat	è¿”å›å½“å‰è®¾å®šçš„æ ¼å¼ã€‚CAMERA_MEDIA_TYPE_MONO8æˆ–è€…CAMERA_MEDIA_TYPE_RGB8
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus  CameraGetIspOutFormat(
     CameraHandle    hCamera,
     UINT*           puFormat
 );
 
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief »ñµÃ´íÎóÂë¶ÔÓ¦µÄÃèÊö×Ö·û´®
-/// \param [in] iStatusCode		´íÎóÂë¡£(¶¨ÒåÓÚCameraStatus.hÖĞ)
-/// \return ³É¹¦Ê±£¬·µ»Ø´íÎóÂë¶ÔÓ¦µÄ×Ö·û´®Ê×µØÖ·;·ñÔò·µ»ØNULL¡£
-/// \~english
-/// \brief Get the description string corresponding to the error code
-/// \param [in] iStatusCode error code. (Defined in CameraStatus.h)
-/// When the return is successful, the first address of the string corresponding to the error code is returned; otherwise it returns NULL.
-MVSDK_API char* __stdcall CameraGetErrorString(
+/******************************************************/
+// å‡½æ•°å 	: CameraGetErrorString
+// åŠŸèƒ½æè¿°	: è·å¾—é”™è¯¯ç å¯¹åº”çš„æè¿°å­—ç¬¦ä¸²
+// å‚æ•°	    : iStatusCode		é”™è¯¯ç ã€‚(å®šä¹‰äºCameraStatus.hä¸­)
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›é”™è¯¯ç å¯¹åº”çš„å­—ç¬¦ä¸²é¦–åœ°å€;
+//            å¦åˆ™è¿”å›NULLã€‚
+/******************************************************/
+MVSDK_API char*  CameraGetErrorString(
     CameraSdkStatus     iStatusCode
 );
 
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊÇ¾­¹ı´¦ÀíºóµÄRGB¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageData  ½ÓÊÕÍ¼ÏñÊı¾İµÄ»º³åÇø£¬´óĞ¡±ØĞëºÍuOutFormatÖ¸¶¨µÄ¸ñÊ½ÏàÆ¥Åä£¬·ñÔòÊı¾İ»áÒç³ö
-/// \param [in] uOutFormat	 Êä³ö¸ñÊ½ 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth     ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È
-/// \param [out] piHeight    ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È
-/// \param [in] wTimes      ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ²»ĞèÒªµ÷ÓÃ @link #CameraReleaseImageBuffer @endlink
-/// \~english
-/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageData The buffer to receive the image data, the size must match the format specified by uOutFormat, otherwise the data will overflow
-/// \param [in] uOutFormat output format 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth Returns the width of the image
-/// \param [out] piHeight Returns the height of the image
-/// \param [in] wTimes The time-out time for capturing images.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note does not need to call @link #CameraReleaseImageBuffer @endlink
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBufferEx2(
-    CameraHandle    hCamera, 
-    BYTE*           pImageData,
-    UINT            uOutFormat,
-    int*            piWidth,
-    int*            piHeight,
-    UINT            wTimes
-);
 
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊÇ¾­¹ı´¦ÀíºóµÄRGB¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageData  ½ÓÊÕÍ¼ÏñÊı¾İµÄ»º³åÇø£¬´óĞ¡±ØĞëºÍuOutFormatÖ¸¶¨µÄ¸ñÊ½ÏàÆ¥Åä£¬·ñÔòÊı¾İ»áÒç³ö
-/// \param [in] uOutFormat	 Êä³ö¸ñÊ½ 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth     ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È
-/// \param [out] piHeight    ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È
-/// \param [out] puTimeStamp ·µ»ØÍ¼ÏñÊ±¼ä´Á 
-/// \param [in] wTimes      ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ²»ĞèÒªµ÷ÓÃ @link #CameraReleaseImageBuffer @endlink
-/// \~english
-/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageData The buffer to receive the image data, the size must match the format specified by uOutFormat, otherwise the data will overflow
-/// \param [in] uOutFormat output format 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth Returns the width of the image
-/// \param [out] piHeight Returns the height of the image
-/// \param [out] puTimeStamp returns image timestamp
-/// \param [in] wTimes The time-out time for capturing images.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note does not need to call @link #CameraReleaseImageBuffer @endlink
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBufferEx3(
-	CameraHandle hCamera, 
-	BYTE*pImageData,
-	UINT uOutFormat,
-	int *piWidth,
-	int *piHeight,
-	UINT* puTimeStamp,
-	UINT wTimes
-);
-
-/// @ingroup API_BASIC
-/// \~chinese
-/// \brief »ñµÃ¸ÃÏà»úµÄÒ»Ğ©ÌØĞÔ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pMaxWidth	    ·µ»Ø¸ÃÏà»ú×î´ó·Ö±æÂÊµÄ¿í¶È
-/// \param [out] pMaxHeight      ·µ»Ø¸ÃÏà»ú×î´ó·Ö±æÂÊµÄ¸ß¶È 
-/// \param [out] pbColorCamera    ·µ»Ø¸ÃÏà»úÊÇ·ñÊÇ²ÊÉ«Ïà»ú¡£1±íÊ¾²ÊÉ«Ïà»ú£¬0±íÊ¾ºÚ°×Ïà»ú
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get some of the camera's features.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pMaxWidth Returns the width of the camera's maximum resolution
-/// \param [out] pMaxHeight Returns the height of the camera's maximum resolution
-/// \param [out] pbColorCamera Returns whether the camera is a color camera. 1 indicates a color camera, 0 indicates a black and white camera
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCapabilityEx2(
-    CameraHandle    hCamera,
-    int*            pMaxWidth,
-    int*            pMaxHeight,
-    int*            pbColorCamera
-);
-
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief ÖØĞÂÁ¬½ÓÉè±¸£¬ÓÃÓÚÁ¬½Ó»Ö¸´ºóÊÖ¶¯ÖØÁ¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \warning Ïà»úÄ¬ÈÏÊ¹ÄÜÁË×Ô¶¯ÖØÁ¬£¬ÔÚ×Ô¶¯ÖØÁ¬Ä£Ê½ÖĞÇëÎğµ÷ÓÃ±¾º¯Êı¡£@see CameraSetAutoConnect
-/// \~english
-/// \brief Reconnect the device to manually reconnect after the connection is restored
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \warning The camera automatically enables reconnection by default. Do not call this function in auto reconnect mode. @see CameraSetAutoConnect
-MVSDK_API CameraSdkStatus __stdcall CameraReConnect(
+/******************************************************/
+// å‡½æ•°å 	: CameraReConnect
+// åŠŸèƒ½æè¿°	: é‡æ–°è¿æ¥è®¾å¤‡ï¼Œç”¨äºUSBè®¾å¤‡æ„å¤–æ‰çº¿åé‡è¿
+// å‚æ•°	    : hCamera	   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraReConnect(
     CameraHandle    hCamera
 );
 
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief ²âÊÔÏà»úµÄÁ¬½Ó×´Ì¬£¬ÓÃÓÚ¼ì²âÏà»úÊÇ·ñµôÏß
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return Á¬½ÓÕı³£·µ»ØCAMERA_STATUS_SUCCESS(0)¡£·ñÔò±íÊ¾ÒÑµôÏß
-/// \~english
-/// \brief Test camera connection status to detect if camera is dropped
-/// \param [in] hCamera Camera handle.
-/// \return The connection normally returns CAMERA_STATUS_SUCCESS(0). Otherwise it is dropped
-MVSDK_API CameraSdkStatus __stdcall CameraConnectTest(
+
+/******************************************************/
+// å‡½æ•°å 	: CameraConnectTest
+// åŠŸèƒ½æè¿°	: æµ‹è¯•ç›¸æœºçš„è¿æ¥çŠ¶æ€ï¼Œç”¨äºæ£€æµ‹ç›¸æœºæ˜¯å¦æ‰çº¿
+// å‚æ•°	    : hCamera	   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0)ï¼Œè¡¨ç¤ºç›¸æœºè¿æ¥çŠ¶æ€æ­£å¸¸;
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraConnectTest(
     CameraHandle    hCamera
 );
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úµÄLEDÊ¹ÄÜ×´Ì¬£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index       LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [in] enable      Ê¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç›¸æœºçš„LEDä½¿èƒ½çŠ¶æ€ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index       LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [in] enable      ä½¿èƒ½çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the camera's LED enable status, without the LED's model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [in] enable enable state
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLedEnable(
+MVSDK_API CameraSdkStatus CameraSetLedEnable(
 	CameraHandle    hCamera,
 	int             index,
 	BOOL            enable
@@ -4540,18 +3866,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetLedEnable(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄLEDÊ¹ÄÜ×´Ì¬£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index       LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [out] enable      Ö¸Õë£¬·µ»ØLEDÊ¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„LEDä½¿èƒ½çŠ¶æ€ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index       LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [out] enable      æŒ‡é’ˆï¼Œè¿”å›LEDä½¿èƒ½çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the camera's LED enable status, without the LED's model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [out] enable Return LED enable status
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLedEnable(
+MVSDK_API CameraSdkStatus CameraGetLedEnable(
 	CameraHandle    hCamera,
 	int             index,
 	BOOL*           enable
@@ -4559,18 +3885,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetLedEnable(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úµÄLED¿ª¹Ø×´Ì¬£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index       LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [in] onoff	   LED¿ª¹Ø×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç›¸æœºçš„LEDå¼€å…³çŠ¶æ€ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index       LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [in] onoff	   LEDå¼€å…³çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the camera's LED switch status, without the LED's model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [in] onoff LED on/off status
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLedOnOff(
+MVSDK_API CameraSdkStatus CameraSetLedOnOff(
 	CameraHandle    hCamera,
 	int             index,
 	BOOL            onoff
@@ -4578,18 +3904,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetLedOnOff(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄLED¿ª¹Ø×´Ì¬£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index      LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [out] onoff	   ·µ»ØLED¿ª¹Ø×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„LEDå¼€å…³çŠ¶æ€ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index      LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [out] onoff	   è¿”å›LEDå¼€å…³çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the camera's LED switch status, without the LED model, this function returns an error code that does not support.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [out] onoff Returns LED switch status
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLedOnOff(
+MVSDK_API CameraSdkStatus CameraGetLedOnOff(
 	CameraHandle    hCamera,
 	int             index,
 	BOOL*           onoff
@@ -4597,18 +3923,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetLedOnOff(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úµÄLED³ÖĞøÊ±¼ä£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index        LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [in] duration		LED³ÖĞøÊ±¼ä£¬µ¥Î»ºÁÃë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç›¸æœºçš„LEDæŒç»­æ—¶é—´ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index        LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [in] duration		LEDæŒç»­æ—¶é—´ï¼Œå•ä½æ¯«ç§’
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the camera's LED duration, without the LED model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [in] duration LED duration in milliseconds
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLedDuration(
+MVSDK_API CameraSdkStatus CameraSetLedDuration(
 	CameraHandle    hCamera,
 	int             index,
 	UINT            duration
@@ -4616,18 +3942,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetLedDuration(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄLED³ÖĞøÊ±¼ä£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index        LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [out] duration	 ·µ»ØLED³ÖĞøÊ±¼ä£¬µ¥Î»ºÁÃë
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„LEDæŒç»­æ—¶é—´ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index        LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [out] duration	 è¿”å›LEDæŒç»­æ—¶é—´ï¼Œå•ä½æ¯«ç§’
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the camera's LED duration, without the LED model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [out] duration Returns the LED duration in milliseconds
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLedDuration(
+MVSDK_API CameraSdkStatus CameraGetLedDuration(
 	CameraHandle    hCamera,
 	int             index,
 	UINT*           duration
@@ -4635,18 +3961,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetLedDuration(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úµÄLEDÁÁ¶È£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index      LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [in] uBrightness LEDÁÁ¶ÈÖµ£¬·¶Î§0µ½255. 0±íÊ¾¹Ø±Õ£¬255×îÁÁ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç›¸æœºçš„LEDäº®åº¦ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index      LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [in] uBrightness LEDäº®åº¦å€¼ï¼ŒèŒƒå›´0åˆ°255. 0è¡¨ç¤ºå…³é—­ï¼Œ255æœ€äº®ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the camera's LED brightness, without the LED model, this function returns an error code indicating that it is not supported.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [in] uBrightness LED brightness value, range 0 to 255. 0 means off, 255 brightest.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLedBrightness(
+MVSDK_API CameraSdkStatus CameraSetLedBrightness(
     CameraHandle    hCamera,
     int             index,
     UINT            uBrightness
@@ -4654,1382 +3980,72 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetLedBrightness(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñµÃÏà»úµÄLEDÁÁ¶È£¬²»´øLEDµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index      LEDµÆµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£Èç¹ûÖ»ÓĞÒ»¸ö¿É¿ØÖÆÁÁ¶ÈµÄLED£¬Ôò¸Ã²ÎÊıÎª0 ¡£
-/// \param [out] uBrightness Ö¸Õë£¬·µ»ØLEDÁÁ¶ÈÖµ£¬·¶Î§0µ½255. 0±íÊ¾¹Ø±Õ£¬255×îÁÁ¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å¾—ç›¸æœºçš„LEDäº®åº¦ï¼Œä¸å¸¦LEDçš„å‹å·ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index      LEDç¯çš„ç´¢å¼•å·ï¼Œä»0å¼€å§‹ã€‚å¦‚æœåªæœ‰ä¸€ä¸ªå¯æ§åˆ¶äº®åº¦çš„LEDï¼Œåˆ™è¯¥å‚æ•°ä¸º0 ã€‚
+/// \param [out] uBrightness æŒ‡é’ˆï¼Œè¿”å›LEDäº®åº¦å€¼ï¼ŒèŒƒå›´0åˆ°255. 0è¡¨ç¤ºå…³é—­ï¼Œ255æœ€äº®ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the camera's LED brightness, without the LED model, this function returns an error code that does not support.
 /// \param [in] hCamera Camera handle.
 /// \param [in] index The index of the LED, starting from 0. If there is only one LED that can control the brightness, this parameter is 0.
 /// \param [out] uBrightness Returns the LED brightness value in the range 0 to 255. 0 means off, 255 is the brightest.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLedBrightness(
+MVSDK_API CameraSdkStatus CameraGetLedBrightness(
     CameraHandle    hCamera,
     int             index,
     UINT*           uBrightness
 );
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief Ê¹ÄÜ»òÕß½ûÖ¹Ïà»úµÄ¶àÇøÓò´«Êä¹¦ÄÜ£¬²»´ø¸Ã¹¦ÄÜµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uEnableMask ÇøÓòÊ¹ÄÜ×´Ì¬ÑÚÂë£¬¶ÔÓ¦µÄ±ÈÌØÎ»Îª1±íÊ¾Ê¹ÄÜ¡£0Îª½ûÖ¹¡£Ä¿Ç°SDKÖ§³Ö4¸ö¿É±à¼­ÇøÓò£¬index·¶Î§Îª0µ½3£¬¼´bit0 £¬bit1£¬bit2£¬bit3¿ØÖÆ4¸öÇøÓòµÄÊ¹ÄÜ×´Ì¬¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¸Ã¹¦ÄÜÖ÷ÒªÓÃÓÚÔÚÏà»ú¶Ë½«²É¼¯µÄÕû·ù»­ÃæÇĞ·Ö£¬Ö»´«ÊäÖ¸¶¨µÄ¶à¸öÇøÓò£¬ÒÔÌá¸ß´«ÊäÖ¡ÂÊ¡£¶à¸öÇøÓò´«Êäµ½PCÉÏºó£¬»á×Ô¶¯Æ´½Ó³ÉÕû·ù»­Ãæ£¬Ã»ÓĞ±»´«ÊäµÄ²¿·Ö£¬»áÓÃºÚÉ«Ìî³ä¡£
-/// \~english
-/// \brief Enables or disables the camera's multi-zone transfer function. For models without this function, this function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uEnableMask Area enable mask. The corresponding bit is 1 to enable. 0 is prohibited. Currently, the SDK supports four editable regions. The index range is 0 to 3, that is, bit0, bit1, bit2, and bit3 control the enabling status of the four regions.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note This function is mainly used to split the entire picture collected on the camera side and only transmit specified multiple areas to increase the transmission frame rate. After multiple areas are transferred to the PC, they will be automatically spliced into an entire frame. Parts that have not been transmitted will be filled with black.
-MVSDK_API CameraSdkStatus __stdcall CameraEnableTransferRoi(
-    CameraHandle    hCamera,
-    UINT            uEnableMask
-);
+// ç”³è¯·ä¸€æ®µå¯¹é½çš„å†…å­˜ç©ºé—´ã€‚åŠŸèƒ½å’Œmallocç±»ä¼¼ï¼Œä½†æ˜¯è¿”å›çš„å†…å­˜æ˜¯ä»¥alignæŒ‡å®šçš„å­—èŠ‚æ•°å¯¹é½çš„
+MVSDK_API BYTE* CameraAlignMalloc(int size, int align);
 
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»ú´«ÊäµÄ²Ã¼ôÇøÓò¡£ÔÚÏà»ú¶Ë£¬Í¼Ïñ´Ó´«¸ĞÆ÷ÉÏ±»²É¼¯ºó£¬½«»á±»²Ã¼ô³ÉÖ¸¶¨µÄÇøÓòÀ´´«ËÍ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera		Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index		ROIÇøÓòµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [in] X1			ROIÇøÓòµÄ×óÉÏ½ÇX×ø±ê
-/// \param [in] Y1			ROIÇøÓòµÄ×óÉÏ½ÇY×ø±ê
-/// \param [in] X2			ROIÇøÓòµÄÓÒÏÂ½ÇX×ø±ê
-/// \param [in] Y2			ROIÇøÓòµÄÓÒÏÂ½ÇY×ø±ê
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the clipping area for camera transmission. On the camera side, after the image is captured from the sensor, it will be cropped to the specified area for transmission. This function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [in] index The index number of the ROI region, starting at 0.
-/// \param [in] X1 The X coordinate of the upper left corner of ROI area
-/// \param [in] Y1 The Y coordinate of the upper left corner of ROI area
-/// \param [in] X2 The X coordinate of the lower right corner of ROI area
-/// \param [in] Y2 The Y coordinate of the lower right corner of ROI area
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetTransferRoi(
-    CameraHandle    hCamera,
-    int             index,
-    UINT            X1,
-    UINT            Y1,
-    UINT            X2,
-    UINT            Y2
-);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡Ïà»ú´«ÊäµÄ²Ã¼ôÇøÓò¡£ÔÚÏà»ú¶Ë£¬Í¼Ïñ´Ó´«¸ĞÆ÷ÉÏ±»²É¼¯ºó£¬½«»á±»²Ã¼ô³ÉÖ¸¶¨µÄÇøÓòÀ´´«ËÍ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera		Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index		ROIÇøÓòµÄË÷ÒıºÅ£¬´Ó0¿ªÊ¼¡£
-/// \param [out] pX1		ROIÇøÓòµÄ×óÉÏ½ÇX×ø±ê
-/// \param [out] pY1		ROIÇøÓòµÄ×óÉÏ½ÇY×ø±ê
-/// \param [out] pX2		ROIÇøÓòµÄÓÒÏÂ½ÇX×ø±ê
-/// \param [out] pY2		ROIÇøÓòµÄÓÒÏÂ½ÇY×ø±ê
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the cropped area of the camera transmission. On the camera side, after the image is captured from the sensor, it will be cropped to the specified area for transmission. This function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [in] index The index number of the ROI region, starting at 0.
-/// \param [out] pX1 Returns the X coordinate of the upper left corner of the ROI area
-/// \param [out] pY1 Returns the Y coordinate of the upper left corner of the ROI area
-/// \param [out] pX2 Returns the X coordinate of the lower right corner of the ROI area
-/// \param [out] pY2 Returns the Y coordinate of the lower right corner of the ROI area
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetTransferRoi(
-    CameraHandle    hCamera,
-    int             index,
-    UINT*           pX1,
-    UINT*           pY1,
-    UINT*           pX2,
-    UINT*           pY2
-);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ÉêÇëÒ»¶Î¶ÔÆëµÄÄÚ´æ¿Õ¼ä¡£¹¦ÄÜºÍmallocÀàËÆ£¬µ«ÊÇ·µ»ØµÄÄÚ´æÊÇÒÔalignÖ¸¶¨µÄ×Ö½ÚÊı¶ÔÆëµÄ¡£
-/// \param [in] size	 ¿Õ¼äµÄ´óĞ¡¡£ 
-/// \param [in] align    µØÖ·¶ÔÆëµÄ×Ö½ÚÊı¡£
-/// \return ³É¹¦Ê±£¬·µ»Ø·Ç0Öµ£¬±íÊ¾ÄÚ´æÊ×µØÖ·¡£Ê§°Ü·µ»ØNULL¡£
-/// \note ·ÖÅäµÄÄÚ´æ±ØĞëÊ¹ÓÃ@link #CameraAlignFree @endlinkÊÍ·Å
-/// \~english
-/// \brief Apply for an aligned memory space. The function is similar to malloc, but the returned memory is aligned with the number of bytes specified by align.
-/// \param [in] size Size of the space.
-/// \param [in] align The number of aligned bytes.
-/// \return Successful a non-zero value is returned indicating the first address of the memory. Fails to return NULL.
-/// \note Memory allocated must be freed using @link #CameraAlignFree @endlink
-MVSDK_API BYTE* __stdcall CameraAlignMalloc(
-    int             size,
-    int             align
-    );
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ÊÍ·ÅÓÉ@link #CameraAlignMalloc @endlinkº¯Êı·ÖÅäµÄÄÚ´æ¿Õ¼ä¡£
-/// \param [in] membuffer	ÄÚ´æµØÖ·
-/// \~english
-/// \brief Releases the memory space allocated by the @link #CameraAlignMalloc @endlink function.
-/// \param [in] membuffer memory address
-MVSDK_API void __stdcall CameraAlignFree(
-    BYTE*           membuffer
-);
-
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief ÆôÓÃ»ò½ûÓÃ×Ô¶¯ÖØÁ¬£¬Ä¬ÈÏÎªÆôÓÃ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable	Ê¹ÄÜÏà»úÖØÁ¬£¬µ±Î»TRUEÊ±£¬SDKÄÚ²¿×Ô¶¯¼ì²âÏà»úÊÇ·ñµôÏß£¬µôÏßºó×Ô¼ºÖØÁ¬¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enables or disables automatic reconnection. The default is enabled.
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable Enables the camera to reconnect. When TRUE, the SDK automatically detects if the camera is dropped and reconnects itself after disconnection.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetAutoConnect(CameraHandle hCamera,BOOL bEnable);
-
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief »ñÈ¡×Ô¶¯ÖØÁ¬Ê¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable	   ·µ»ØÏà»ú×Ô¶¯ÖØÁ¬Ê¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get Automatic Reconnect Enable Status
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns the camera's auto reconnect status
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetAutoConnect(CameraHandle hCamera,BOOL *pbEnable);
-
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief »ñµÃÏà»ú×Ô¶¯ÖØÁ¬µÄ´ÎÊı£¬Ç°ÌáÊÇ@link #CameraSetAutoConnect @endlinkÊ¹ÄÜÏà»ú×Ô¶¯ÖØÁ¬¹¦ÄÜ¡£Ä¬ÈÏÊÇÊ¹ÄÜµÄ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] puCounts	   ·µ»Ø×Ô¶¯ÖØÁ¬µÄ´ÎÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the number of times the camera automatically reconnects, provided @link #CameraSetAutoConnect @endlink enables automatic camera reconnection. The default is enabled.
-/// \param [in] hCamera Camera handle.
-/// \param [out] puCounts returns the number of automatic reconnections
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetReConnectCounts(CameraHandle hCamera,UINT* puCounts);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÆôÓÃ»ò½ûÓÃµ¥Ö¡×¥È¡Ä£Ê½£¬Ä¬ÈÏÎª½ûÓÃ¡££¨±¾¹¦ÄÜ½öUSB2.0Ïà»úÖ§³Ö£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable	Ê¹ÄÜµ¥Ö¡×¥È¡Ä£Ê½
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Ã¿µ±³É¹¦×¥È¡µ½Ò»Ö¡ºóSDK»á½øÈëÔİÍ£×´Ì¬£¬´Ó¶ø²»ÔÙÕ¼ÓÃUSB´ø¿í£¬Ö÷ÒªÓÃÓÚ¶àÏà»úÂÖÁ÷ÅÄÕÕµÄ³¡¾°¡£
-/// \~english
-/// \brief Enables or disables single-frame crawl mode, which is disabled by default. (This function is only supported by USB2.0 camera)
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable enables single-frame mode
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Whenever a frame is successfully captured, the SDK enters a pause state, so that it no longer occupies the USB bandwidth. It is mainly used in scenes where multiple cameras take pictures.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSingleGrabMode(CameraHandle hCamera, BOOL bEnable);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñµÃÏà»úµÄµ¥Ö¡×¥È¡Ê¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable ·µ»ØÏà»úµÄµ¥Ö¡×¥È¡Ä£Ê½Ê¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the camera's single frame capture enable status
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns the camera's single frame capture mode enable status
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetSingleGrabMode(CameraHandle hCamera, BOOL* pbEnable);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief µ±Ïà»ú´¦ÓÚµ¥Ö¡×¥È¡Ä£Ê½Ê±£¬Ã¿µ±³É¹¦×¥È¡µ½Ò»Ö¡ºóSDK»á½øÈëÔİÍ£×´Ì¬£¬µ÷ÓÃ´Ëº¯Êı¿ÉÊ¹SDKÍË³öÔİÍ£×´Ì¬²¢¿ªÊ¼×¥È¡ÏÂÒ»Ö¡
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the camera is in the single frame capture mode, the SDK will enter a pause state after successfully capturing a frame. Calling this function will cause the SDK to exit the pause state and start to grab the next frame.
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraRestartGrab(CameraHandle hCamera);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief Í¼Æ¬ÇåÎú¶ÈÆÀ¹À
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iAlgorithSel Ê¹ÓÃµÄÆÀ¹ÀËã·¨,²Î¿¼@link emEvaluateDefinitionAlgorith @endlinkµÄ¶¨Òå
-/// \param [in] pbyIn    ÊäÈëÍ¼ÏñÊı¾İµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£ 
-/// \param [in] pFrInfo  ÊäÈëÍ¼ÏñµÄÖ¡Í·ĞÅÏ¢
-/// \param [out] DefinitionValue ·µ»ØµÄÇåÎú¶È¹ÀÖµ£¨Ô½´óÔ½ÇåÎú£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Image clarity assessment
-/// \param [in] hCamera Camera handle.
-/// \param [in] iAlgorithSel The currently used evaluation algorithm, see @link emEvaluateDefinitionAlgorith @endlink
-/// \param [in] pbyIn The buffer address of the input image data. Cannot be NULL.
-/// \param [in] pFrInfo input image frame header information
-/// \param [out] DefinitionValue Returns the sharpness value (greater the clearer)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraEvaluateImageDefinition(
-	CameraHandle        hCamera,
-	INT					iAlgorithSel,
-	BYTE*               pbyIn, 
-	tSdkFrameHead*      pFrInfo,
-	double*				DefinitionValue
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ÔÚÊäÈëµÄÍ¼ÏñÊı¾İÖĞ»æÖÆÎÄ×Ö
-/// \param [inout] pRgbBuffer Í¼ÏñÊı¾İ»º³åÇø
-/// \param [in] pFrInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢
-/// \param [in] pFontFileName ×ÖÌåÎÄ¼şÃû
-/// \param [in] FontWidth ×ÖÌå¿í¶È
-/// \param [in] FontHeight ×ÖÌå¸ß¶È
-/// \param [in] pText ÒªÊä³öµÄÎÄ×Ö
-/// \param [in] Left ÎÄ×ÖµÄÊä³ö¾ØĞÎ
-/// \param [in] Top ÎÄ×ÖµÄÊä³ö¾ØĞÎ
-/// \param [in] Width ÎÄ×ÖµÄÊä³ö¾ØĞÎ
-/// \param [in] Height ÎÄ×ÖµÄÊä³ö¾ØĞÎ
-/// \param [in] TextColor ÎÄ×ÖÑÕÉ«RGB
-/// \param [in] uFlags Êä³ö±êÖ¾,Ïê¼û@link #emCameraDrawTextFlags @endlinkÖĞµÄ¶¨Òå
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Draw text in the input image data
-/// \param [inout] pRgbBuffer image data buffer
-/// \param [in] pFrInfo frame header information
-/// \param [in] pFontFileName font file name
-/// \param [in] FontWidth font width
-/// \param [in] FontHeight font height
-/// \param [in] pText Text to output
-/// \param [in] Left text output rectangle
-/// \param [in] Top text output rectangle
-/// \param [in] Width Output rectangle of text
-/// \param [in] Height the output rectangle of the text
-/// \param [in] TextColor Text Color RGB
-/// \param [in] uFlags output flags, as defined in @link #emCameraDrawTextFlags @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraDrawText(
-	BYTE*           pRgbBuffer,
-	tSdkFrameHead*  pFrInfo,
-	char const*		pFontFileName, 
-	UINT			FontWidth,
-	UINT			FontHeight,
-	char const*		pText, 
-	INT				Left,
-	INT				Top,
-	UINT			Width,
-	UINT			Height,
-	UINT			TextColor,
-	UINT			uFlags
-	);
-
-/// @ingroup API_ENUM
-/// \~chinese
-/// \brief ´ÓÖ¸¶¨IPÃ¶¾ÙGIGEÉè±¸£¬²¢½¨Á¢Éè±¸ÁĞ±í£¨ÊÊÓÃÓÚÏà»úºÍµçÄÔ²»ÔÚÍ¬Ò»Íø¶ÎµÄÇé¿ö£©
-/// \param [in] ppIpList Ä¿±êIP
-/// \param [in] numIp Ä¿±êIP¸öÊı
-/// \param [out] pCameraList Éè±¸ÁĞ±íÊı×éÖ¸Õë
-/// \param [inout] piNums Éè±¸µÄ¸öÊıÖ¸Õë£¬µ÷ÓÃÊ±´«ÈëpCameraListÊı×éµÄÔªËØ¸öÊı£¬º¯Êı·µ»ØÊ±£¬±£´æÊµ¼ÊÕÒµ½µÄÉè±¸¸öÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå
-/// \warning piNumsÖ¸ÏòµÄÖµ±ØĞë³õÊ¼»¯£¬ÇÒ²»³¬¹ıpCameraListÊı×éÔªËØ¸öÊı£¬·ñÔòÓĞ¿ÉÄÜÔì³ÉÄÚ´æÒç³ö
-/// \note ·µ»ØµÄÏà»úĞÅÏ¢ÁĞ±í£¬»á¸ù¾İacFriendlyNameÅÅĞòµÄ¡£ÀıÈç¿ÉÒÔ½«Á½¸öÏà»ú·Ö±ğ¸ÄÎª¡°Camera1¡±ºÍ¡°Camera2¡±µÄÃû×Öºó£¬Ãû×ÖÎª¡°Camera1¡±µÄÏà»ú»áÅÅÇ°Ãæ£¬ÃûÎª¡°Camera2¡±µÄÏà»úÅÅºóÃæ¡£
-/// \~english
-/// \brief Enumerates GIGE devices from the specified IP and builds a device list (applicable when the camera and computer are not on the same network segment)
-/// \param [in] ppIpList target IP
-/// \param [in] numIp number of target IPs
-/// \param [out] pCameraList Device list array pointer
-/// \param [inout] piNums The number of pointers to the device, the number of elements passed to the pCameraList array at the time of the call. When the function returns, the number of devices actually found is saved.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \warning piNums The value pointed to must be initialized and does not exceed the number of pCameraList array elements, otherwise it may cause memory overflow
-/// \note The list of returned camera information will be sorted according to acFriendlyName. For example, after changing the two cameras to the names of "Camera1" and "Camera2," the camera named "Camera1" will be in front, and the camera named "Camera2" will be behind the row.
-MVSDK_API CameraSdkStatus __stdcall CameraGigeEnumerateDevice(
-	char const**        ppIpList,
-	int                 numIp,
-	tSdkCameraDevInfo*  pCameraList, 
-	int*                piNums
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief »ñÈ¡GIGEÏà»úµÄIPµØÖ·
-/// \param [in] pCameraInfo Ïà»úµÄÉè±¸ÃèÊöĞÅÏ¢£¬¿ÉÓÉ@link #CameraEnumerateDevice @endlinkº¯Êı»ñµÃ¡£ 
-/// \param [out] CamIp Ïà»úIP(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \param [out] CamMask Ïà»ú×ÓÍøÑÚÂë(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \param [out] CamGateWay Ïà»úÍø¹Ø(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \param [out] EtIp Íø¿¨IP(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \param [out] EtMask Íø¿¨×ÓÍøÑÚÂë(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \param [out] EtGateWay Íø¿¨Íø¹Ø(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ16×Ö½Ú)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the GIGE camera's IP address
-/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
-/// \param [out] CamIp camera IP (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \param [out] CamMask camera subnet mask (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \param [out] CamGateWay camera gateway (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \param [out] EtIp network card IP (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \param [out] EtMask subnet mask (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \param [out] EtGateWay NIC Gateway (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGigeGetIp(
-		tSdkCameraDevInfo* pCameraInfo,
-		char* CamIp,
-		char* CamMask,
-		char* CamGateWay,
-		char* EtIp,
-		char* EtMask,
-		char* EtGateWay
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ÉèÖÃGIGEÏà»úµÄIPµØÖ·
-/// \param [in] pCameraInfo Ïà»úµÄÉè±¸ÃèÊöĞÅÏ¢£¬¿ÉÓÉ@link #CameraEnumerateDevice @endlinkº¯Êı»ñµÃ¡£ 
-/// \param [in] Ip Ïà»úIP(Èç£º192.168.1.100)
-/// \param [in] SubMask Ïà»ú×ÓÍøÑÚÂë(Èç£º255.255.255.0)
-/// \param [in] GateWay Ïà»úÍø¹Ø(Èç£º192.168.1.1)
-/// \param [in] bPersistent TRUE: ÉèÖÃÏà»úÎª¹Ì¶¨IP£¬FALSE£ºÉèÖÃÏà»ú×Ô¶¯·ÖÅäIP£¨ºöÂÔ²ÎÊıIp, SubMask, GateWay£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the GIGE camera's IP address
-/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
-/// \param [in] Ip camera IP (eg 192.168.1.100)
-/// \param [in] SubMask camera subnet mask (eg 255.255.255.0)
-/// \param [in] GateWay Camera Gateway (eg 192.168.1.1)
-/// \param [in] bPersistent TRUE: Set camera to fixed IP, FALSE: Set camera to assign IP automatically (ignoring parameters Ip, SubMask, GateWay)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGigeSetIp(
-	tSdkCameraDevInfo* pCameraInfo,
-	char const* Ip,
-	char const* SubMask,
-	char const* GateWay,
-	BOOL bPersistent
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief »ñÈ¡GIGEÏà»úµÄMACµØÖ·
-/// \param [in] pCameraInfo Ïà»úµÄÉè±¸ÃèÊöĞÅÏ¢£¬¿ÉÓÉ@link #CameraEnumerateDevice @endlinkº¯Êı»ñµÃ¡£ 
-/// \param [out] CamMac Ïà»úMAC(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ18×Ö½Ú)
-/// \param [out] EtMac Íø¿¨MAC(×¢Òâ£º±ØĞë±£Ö¤´«ÈëµÄ»º³åÇø´óÓÚµÈÓÚ18×Ö½Ú)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Select the LUT table in the preset LUT mode.
-/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
-/// \param [out] CamMac camera MAC (Note: must ensure that the incoming buffer is greater than or equal to 18 bytes)
-/// \param [out] EtMac network card MAC (Note: must ensure that the incoming buffer is greater than or equal to 18 bytes)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGigeGetMac(
-	tSdkCameraDevInfo* pCameraInfo,
-	char* CamMac,
-	char* EtMac
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief Ê¹ÄÜ¿ìËÙÏìÓ¦
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enable quick response
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraEnableFastResponse(
-	CameraHandle hCamera
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief Ê¹ÄÜ»µµãĞŞÕı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable TRUE: Ê¹ÄÜ»µµãĞŞÕı   FALSE: ¹Ø±Õ»µµãĞŞÕı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enable dead pixel correction
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE: Enable dead pixel correction FALSE: Turn off dead pixel correction
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetCorrectDeadPixel(
-	CameraHandle hCamera,
-	BOOL bEnable
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief »ñÈ¡»µµãĞŞÕıÊ¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable ·µ»ØÊ¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get dead pixel correction enabled
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns enable state
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetCorrectDeadPixel(
-	CameraHandle hCamera,
-	BOOL* pbEnable
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief Ê¹ÄÜÆ½³¡Ğ£Õı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable     TRUE: Ê¹ÄÜÆ½³¡Ğ£Õı   FALSE: ¹Ø±ÕÆ½³¡Ğ£Õı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Enable flat field correction
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable TRUE: Enable flat field correction FALSE: Turn off flat field correction
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectSetEnable(
-	CameraHandle hCamera,
-	BOOL bEnable
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡Æ½³¡Ğ£ÕıÊ¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbEnable ·µ»ØÊ¹ÄÜ×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get Plane Correction Enable Status
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbEnable Returns enable state
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectGetEnable(
-	CameraHandle hCamera,
-	BOOL* pbEnable
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃÆ½³¡Ğ£Õı²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pDarkFieldingImage °µ³¡Í¼Æ¬
-/// \param [in] pDarkFieldingFrInfo °µ³¡Í¼Æ¬ĞÅÏ¢
-/// \param [in] pLightFieldingImage Ã÷³¡Í¼Æ¬
-/// \param [in] pLightFieldingFrInfo Ã÷³¡Í¼Æ¬ĞÅÏ¢
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set flat field correction parameters
-/// \param [in] hCamera Camera handle.
-/// \param [in] pDarkFieldingImage dark field image
-/// \param [in] pDarkFieldingFrInfo dark field image information
-/// \param [in] pLightFieldingImage Brightfield image
-/// \param [in] pLightFieldingFrInfo Brightfield image information
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectSetParameter(
-	CameraHandle hCamera,
-	BYTE const* pDarkFieldingImage,
-	tSdkFrameHead const* pDarkFieldingFrInfo,
-	BYTE const* pLightFieldingImage,
-	tSdkFrameHead const* pLightFieldingFrInfo
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃÆ½³¡Ğ£Õı²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pDarkFieldingImage °µ³¡Í¼Æ¬
-/// \param [in] pDarkFieldingFrInfo °µ³¡Í¼Æ¬ĞÅÏ¢
-/// \param [in] pLightFieldingImage Ã÷³¡Í¼Æ¬
-/// \param [in] pLightFieldingFrInfo Ã÷³¡Í¼Æ¬ĞÅÏ¢
-/// \param [in] pRefRegion ²Î¿¼ÇøÓò£¨ÁÁ¶È¾ùÖµ×÷ÎªÆ½³¡µÄÄ¿±êÁÁ¶È£¬NULL±íÊ¾²Î¿¼Í¼ÏñµÄÖĞĞÄÇøÓò£©
-/// \param [in] pActRegion ×÷ÓÃÇøÓò£¨Æ½³¡×÷ÓÃÔÚ´ËÇøÓò£¬NULL±íÊ¾ÕûÍ¼£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set flat field correction parameters
-/// \param [in] hCamera Camera handle.
-/// \param [in] pDarkFieldingImage dark field image
-/// \param [in] pDarkFieldingFrInfo dark field image information
-/// \param [in] pLightFieldingImage Brightfield image
-/// \param [in] pLightFieldingFrInfo Brightfield image information
-/// \param [in] pRefRegion reference region (the brightness average is used as the target brightness of the flat field, NULL represents the center region of the reference image)
-/// \param [in] pActRegion Action area (the flat field acts on this area, NULL means the whole picture)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectSetParameterEx(
-	CameraHandle hCamera,
-	BYTE const* pDarkFieldingImage,
-	tSdkFrameHead const* pDarkFieldingFrInfo,
-	BYTE const* pLightFieldingImage,
-	tSdkFrameHead const* pLightFieldingFrInfo,
-	tSdkRect const* pRefRegion,
-	tSdkRect const* pActRegion
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡Æ½³¡Ğ£Õı²ÎÊıµÄ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pbValid ·µ»Ø²ÎÊıÊÇ·ñÓĞĞ§
-/// \param [out] pFilePath ·µ»Ø²ÎÊıÎÄ¼şµÄÂ·¾¶
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get status of flat field correction parameters
-/// \param [in] hCamera Camera handle.
-/// \param [out] pbValid Return whether the parameter is valid
-/// \param [out] pFilePath Returns the path of the parameter file
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectGetParameterState(
-	CameraHandle hCamera,
-	BOOL *pbValid,
-	char *pFilePath
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ±£´æÆ½³¡Ğ£Õı²ÎÊıµ½ÎÄ¼ş
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pszFileName ÎÄ¼şÂ·¾¶
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Save flat correction parameters to file
-/// \param [in] hCamera Camera handle.
-/// \param [in] pszFileName file path
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectSaveParameterToFile(
-	CameraHandle hCamera,
-	char const* pszFileName
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ´ÓÎÄ¼şÖĞ¼ÓÔØÆ½³¡Ğ£Õı²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pszFileName ÎÄ¼şÂ·¾¶
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Load flat field correction parameters from file
-/// \param [in] hCamera Camera handle.
-/// \param [in] pszFileName file path
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectLoadParameterFromFile(
-	CameraHandle hCamera,
-	char const* pszFileName
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡Æ½³¡µÄĞ£ÕıÏµÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pCoefficients ÏµÊı£¨½ö»ñÈ¡ÏµÊı¸öÊıÊ±¿É´«ÈëNULL£©
-/// \param [inout] pNumCoefficient ÏµÊı¸öÊı£¨´«ÈëÊ±±íÊ¾pCoefficientsµÄ´óĞ¡£¬·µ»Øºó±íÊ¾»ñÈ¡µ½µÄÏµÊı¸öÊı£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the correction coefficient of the flat field
-/// \param [in] hCamera The handle of the camera.
-/// \param [out] pCoefficients coefficients (NULL can be passed in when only getting the number of coefficients)
-/// \param [inout] pNumCoefficient number of coefficients (when passed in, it represents the size of pCoefficients, and when returned, it represents the number of coefficients obtained)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectGetCoefficients(
-	CameraHandle hCamera,
-	float* pCoefficients,
-	int* pNumCoefficient
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃÆ½³¡µÄĞ£ÕıÏµÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pCoefficients ÏµÊı
-/// \param [in] iNumCoefficient ÏµÊı¸öÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the correction coefficient of the flat field
-/// \param [in] hCamera The handle of the camera.
-/// \param [in] pCoefficients coefficients
-/// \param [in] iNumCoefficient number of coefficients
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlatFieldingCorrectSetCoefficients(
-	CameraHandle hCamera,
-	float* pCoefficients,
-	int iNumCoefficient
-	);
+//é‡Šæ”¾ç”±CameraAlignMalloc å‡½æ•°åˆ†é…çš„å†…å­˜ç©ºé—´ã€‚
+MVSDK_API void CameraAlignFree(BYTE* membuffer);
 
 /******************************************************/
-// º¯ÊıÃû   : CameraCommonCall
-// ¹¦ÄÜÃèÊö : Ïà»úµÄÒ»Ğ©ÌØÊâ¹¦ÄÜµ÷ÓÃ£¬¶ş´Î¿ª·¢Ê±Ò»°ã²»ĞèÒªµ÷ÓÃ¡£
-// ²ÎÊı     : hCamera   Ïà»úµÄ¾ä±ú£¬ÓÉCameraInitº¯Êı»ñµÃ¡£
-//            pszCall   ¹¦ÄÜ¼°²ÎÊı
-//            pszResult µ÷ÓÃ½á¹û£¬²»Í¬µÄpszCallÊ±£¬ÒâÒå²»Í¬¡£
-//            uResultBufSize pszResultÖ¸ÏòµÄ»º³åÇøµÄ×Ö½Ú´óĞ¡
-// ·µ»ØÖµ   : ³É¹¦Ê±£¬·µ»ØCAMERA_STATUS_SUCCESS (0);
-//            ·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë,Çë²Î¿¼CameraStatus.h
-//            ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+// å‡½æ•°å   : CameraCommonCall
+// åŠŸèƒ½æè¿° : ç›¸æœºçš„ä¸€äº›ç‰¹æ®ŠåŠŸèƒ½è°ƒç”¨ï¼ŒäºŒæ¬¡å¼€å‘æ—¶ä¸€èˆ¬ä¸éœ€è¦è°ƒç”¨ã€‚
+// å‚æ•°     : hCamera   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+//            pszCall   åŠŸèƒ½åŠå‚æ•°
+//            pszResult è°ƒç”¨ç»“æœï¼Œä¸åŒçš„pszCallæ—¶ï¼Œæ„ä¹‰ä¸åŒã€‚
+//            uResultBufSize pszResultæŒ‡å‘çš„ç¼“å†²åŒºçš„å­—èŠ‚å¤§å°
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /******************************************************/
-MVSDK_API CameraSdkStatus __stdcall CameraCommonCall(
-	CameraHandle    hCamera, 
+MVSDK_API CameraSdkStatus  CameraCommonCall(
+	CameraHandle    hCamera,
 	char const*		pszCall,
 	char*			pszResult,
 	UINT			uResultBufSize
-	);
+);
 
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ÉèÖÃ3D½µÔë²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable  ÆôÓÃ»ò½ûÓÃ
-/// \param [in] nCount   Ê¹ÓÃ¼¸ÕÅÍ¼Æ¬½øĞĞ½µÔë(2-8ÕÅ)
-/// \param [in] Weights  ½µÔëÈ¨ÖØ£¬Èçµ±Ê¹ÓÃ3ÕÅÍ¼Æ¬½øĞĞ½µÔëÔòÕâ¸ö²ÎÊı¿ÉÒÔ´«Èë3¸ö¸¡µã(0.3,0.3,0.4)£¬×îºóÒ»ÕÅÍ¼Æ¬µÄÈ¨ÖØ´óÓÚÇ°2ÕÅ¡£Èç¹û²»ĞèÒªÊ¹ÓÃÈ¨ÖØ£¬Ôò°ÑÕâ¸ö²ÎÊı´«Èë0£¬±íÊ¾ËùÓĞÍ¼Æ¬µÄÈ¨ÖØÏàÍ¬(0.33,0.33,0.33)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set 3D noise reduction parameters
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable enable or disable
-/// \param [in] nCount Noise reduction using several pictures (2-8)
-/// \param [in] Weights Noise reduction weight, such as when using 3 pictures for noise reduction, this parameter can be passed in 3 floating points (0.3, 0.3, 0.4). The weight of the last picture is larger than the first 2 pictures. . If you do not need to use weights, then pass this parameter to 0, indicating that all images have the same weight (0.33, 0.33, 0.33)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetDenoise3DParams(
-	CameraHandle    hCamera, 
-	BOOL			bEnable,
-	int				nCount,
-	float			*Weights
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief »ñÈ¡µ±Ç°µÄ3D½µÔë²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] bEnable  ÆôÓÃ»ò½ûÓÃ
-/// \param [out] nCount   Ê¹ÓÃÁË¼¸ÕÅÍ¼Æ¬½øĞĞ½µÔë
-/// \param [out] bUseWeight ÊÇ·ñÊ¹ÓÃÁË½µÔëÈ¨ÖØ
-/// \param [out] Weights  ½µÔëÈ¨ÖØ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get current 3D noise reduction parameters
-/// \param [in] hCamera Camera handle.
-/// \param [out] bEnable enable or disable
-/// \param [out] nCount uses several pictures for noise reduction
-/// \param [out] bUseWeight whether to use noise reduction weights
-/// \param [out] Weights Noise Reduction Weights
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetDenoise3DParams(
-	CameraHandle    hCamera, 
-	BOOL			*bEnable,
-	int				*nCount,
-	BOOL			*bUseWeight,
-	float			*Weights
-	);
-
-/// @ingroup API_ENHANCE
-/// \~chinese
-/// \brief ¶ÔÒ»×éÖ¡½øĞĞÒ»´Î½µÔë´¦Àí
-/// \param [in] InFramesHead  ÊäÈëÖ¡Í·
-/// \param [in] InFramesData  ÊäÈëÖ¡Êı¾İ
-/// \param [in] nCount   ÊäÈëÖ¡µÄÊıÁ¿
-/// \param [in] Weights  ½µÔëÈ¨ÖØ
-/// \param [out] OutFrameHead Êä³öÖ¡Í·
-/// \param [out] OutFrameData Êä³öÖ¡Êı¾İ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Perform a noise reduction on a group of frames
-/// \param [in] InFramesHead input frame header
-/// \param [in] InFramesData input frame data
-/// \param [in] nCount Number of input frames
-/// \param [in] Weights Noise Reduction Weight
-/// \param [out] OutFrameHead output frame header
-/// \param [out] OutFrameData output frame data
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraManualDenoise3D(
-	tSdkFrameHead	*InFramesHead,
-	BYTE			**InFramesData,
-	int				nCount,
-	float			*Weights,
-	tSdkFrameHead	*OutFrameHead,
-	BYTE			*OutFrameData
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief ´ò¿ª»µµã±à¼­Ãæ°å
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] hParent    µ÷ÓÃ¸Ãº¯ÊıµÄ´°¿ÚµÄ¾ä±ú¡£¿ÉÒÔÎªNULL¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Open the dead pixels editing panel
-/// \param [in] hCamera Camera handle.
-/// \param [in] hParent The handle of the window that called the function. Can be NULL.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCustomizeDeadPixels(
-	CameraHandle	hCamera,
-	HWND			hParent
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief ¶ÁÈ¡Ïà»ú»µµã
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pRows »µµãy×ø±ê
-/// \param [out] pCols »µµãx×ø±ê
-/// \param [out] pNumPixel ÊäÈëÊ±±íÊ¾ĞĞÁĞ»º³åÇøµÄ´óĞ¡£¬·µ»ØÊ±±íÊ¾ĞĞÁĞ»º³åÇøÖĞ·µ»ØµÄ»µµãÊıÁ¿¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note µ±pRows»òÕßpColsÎªNULLÊ±º¯Êı»á°ÑÏà»úµ±Ç°µÄ»µµã¸öÊıÍ¨¹ıpNumPixel·µ»Ø
-/// \~english
-/// \brief Reading camera dead pixels
-/// \param [in] hCamera Camera handle.
-/// \param [out] pRows dead pixels y coordinates
-/// \param [out] pCols bad x coordinate
-/// \param [out] pNumPixel Inputs the size of the row and column buffers. When returned, it indicates the number of bad pixels returned in the row and column buffers.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note When pRows or pCols is NULL, the function will return the camera's current number of dead pixels through pNumPixel.
-MVSDK_API CameraSdkStatus __stdcall CameraReadDeadPixels(
-	CameraHandle    hCamera,
-	USHORT*			pRows,
-	USHORT*			pCols,
-	UINT*			pNumPixel
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief Ìí¼ÓÏà»ú»µµã
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pRows »µµãy×ø±ê
-/// \param [in] pCols »µµãx×ø±ê
-/// \param [in] NumPixel ĞĞÁĞ»º³åÇøÖĞµÄ»µµã¸öÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Add camera dead pixels
-/// \param [in] hCamera Camera handle.
-/// \param [in] pRows dead point y coordinates
-/// \param [in] pCols bad x coordinate
-/// \param [in] NumPixel Number of dead pixels in row buffer
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraAddDeadPixels(
-	CameraHandle    hCamera,
-	USHORT*			pRows,
-	USHORT*			pCols,
-	UINT			NumPixel
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief É¾³ıÏà»úÖ¸¶¨»µµã
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pRows »µµãy×ø±ê
-/// \param [in] pCols »µµãx×ø±ê
-/// \param [in] NumPixel ĞĞÁĞ»º³åÇøÖĞµÄ»µµã¸öÊı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Delete camera specified dead pixels
-/// \param [in] hCamera Camera handle.
-/// \param [in] pRows dead point y coordinates
-/// \param [in] pCols bad x coordinate
-/// \param [in] NumPixel Number of dead pixels in row buffer
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraRemoveDeadPixels(
-	CameraHandle    hCamera,
-	USHORT*			pRows,
-	USHORT*			pCols,
-	UINT			NumPixel
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief É¾³ıÏà»úµÄËùÓĞ»µµã
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Remove all camera's dead pixels
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraRemoveAllDeadPixels(
-	CameraHandle    hCamera
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief ±£´æÏà»ú»µµãµ½Ïà»ú´æ´¢ÖĞ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Save camera dead pixels to camera memory
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveDeadPixels(
-	CameraHandle    hCamera
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief ±£´æÏà»ú»µµãµ½ÎÄ¼şÖĞ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] sFileName  ÎÄ¼şµÄÍêÕûÂ·¾¶¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Save Camera Dead Points to File
-/// \param [in] hCamera Camera handle.
-/// \param [in] sFileName Full path to the file.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSaveDeadPixelsToFile(
-	CameraHandle    hCamera,
-	char const*		sFileName
-	);
-
-/// @ingroup API_DEAD_PIXEL
-/// \~chinese
-/// \brief ´ÓÎÄ¼ş¼ÓÔØÏà»ú»µµã
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] sFileName  ÎÄ¼şµÄÍêÕûÂ·¾¶¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Loading camera dead pixels from file
-/// \param [in] hCamera Camera handle.
-/// \param [in] sFileName Full path to the file.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraLoadDeadPixelsFromFile(
-	CameraHandle    hCamera,
-	char const*		sFileName
-	);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pFrameInfo  Í¼ÏñµÄÖ¡Í·ĞÅÏ¢Ö¸Õë¡£
-/// \param [out] pbyBuffer   Ö¸ÏòÍ¼ÏñµÄÊı¾İµÄ»º³åÇøÖ¸Õë¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£
-/// \param [in] Priority È¡Í¼ÓÅÏÈ¼¶ Ïê¼û£º@link #emCameraGetImagePriority @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ³ıÁË¶àÒ»¸öÓÅÏÈ¼¶²ÎÊıÍâÓë@link #CameraGetImageBuffer @endlinkÏàÍ¬
-/// \~english
-/// \brief Get a frame of image data.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pFrameInfo Frame header information pointer
-/// \param [out] pbyBuffer Pointer to the buffer of data for the image.
-/// \param [in] wTimes The time-out time for capturing images.
-/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Same as @link #CameraGetImageBuffer @endlink except one more priority parameter
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBufferPriority(
-	CameraHandle        hCamera, 
-	tSdkFrameHead*      pFrameInfo, 
-	BYTE**              pbyBuffer,
-	UINT                wTimes,
-	UINT				Priority
-	);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊÇ¾­¹ı´¦ÀíºóµÄRGB¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] piWidth    ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È
-/// \param [out] piHeight   ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£µ¥Î»ºÁÃë¡£
-/// \param [in] Priority È¡Í¼ÓÅÏÈ¼¶ Ïê¼û£º@link #emCameraGetImagePriority @endlink
-/// \return ³É¹¦Ê±£¬·µ»ØRGBÊı¾İ»º³åÇøµÄÊ×µØÖ·;·ñÔò·µ»Ø0¡£
-/// \note ³ıÁË¶àÒ»¸öÓÅÏÈ¼¶²ÎÊıÍâÓë@link #CameraGetImageBufferEx @endlinkÏàÍ¬
-/// \~english
-/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
-/// \param [in] hCamera Camera handle.
-/// \param [out] piWidth Returns the width of the image
-/// \param [out] piHeight Returns the height of the image
-/// \param [in] wTimes The time-out time for capturing images. The unit is milliseconds.
-/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
-/// \return Returns the first address of the RGB data buffer when successful; otherwise returns 0.
-/// \note Same as @link #CameraGetImageBufferEx @endlink except one more priority parameter
-MVSDK_API unsigned char* __stdcall CameraGetImageBufferPriorityEx(
-	CameraHandle        hCamera, 
-	INT*                piWidth,
-	INT*                piHeight,
-	UINT                wTimes,
-	UINT				Priority
-	);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊÇ¾­¹ı´¦ÀíºóµÄRGB¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageData  ½ÓÊÕÍ¼ÏñÊı¾İµÄ»º³åÇø£¬´óĞ¡±ØĞëºÍuOutFormatÖ¸¶¨µÄ¸ñÊ½ÏàÆ¥Åä£¬·ñÔòÊı¾İ»áÒç³ö
-/// \param [in] uOutFormat	 Êä³ö¸ñÊ½ 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth     ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È
-/// \param [out] piHeight    ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È
-/// \param [in] wTimes      ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£µ¥Î»ºÁÃë¡£
-/// \param [in] Priority È¡Í¼ÓÅÏÈ¼¶ Ïê¼û£º@link #emCameraGetImagePriority @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ³ıÁË¶àÒ»¸öÓÅÏÈ¼¶²ÎÊıÍâÓë@link #CameraGetImageBufferEx2 @endlinkÏàÍ¬
-/// \~english
-/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageData The buffer to receive the image data, the size must match the format specified by uOutFormat, otherwise the data will overflow
-/// \param [in] uOutFormat Output Format 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth Returns the width of the image
-/// \param [out] piHeight Returns the height of the image
-/// \param [in] wTimes The time-out time for capturing images. The unit is milliseconds.
-/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Same as @link #CameraGetImageBufferEx2 @endlink except one more priority parameter
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBufferPriorityEx2(
-	CameraHandle    hCamera, 
-	BYTE*           pImageData,
-	UINT            uOutFormat,
-	int*            piWidth,
-	int*            piHeight,
-	UINT            wTimes,
-	UINT			Priority
-	);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief »ñµÃÒ»Ö¡Í¼ÏñÊı¾İ¡£¸Ã½Ó¿Ú»ñµÃµÄÍ¼ÏñÊÇ¾­¹ı´¦ÀíºóµÄRGB¸ñÊ½¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] pImageData  ½ÓÊÕÍ¼ÏñÊı¾İµÄ»º³åÇø£¬´óĞ¡±ØĞëºÍuOutFormatÖ¸¶¨µÄ¸ñÊ½ÏàÆ¥Åä£¬·ñÔòÊı¾İ»áÒç³ö
-/// \param [in] uOutFormat	 Êä³ö¸ñÊ½ 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth     ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¿í¶È
-/// \param [out] piHeight    ÕûĞÎÖ¸Õë£¬·µ»ØÍ¼ÏñµÄ¸ß¶È
-/// \param [out] puTimeStamp ·µ»ØÍ¼ÏñÊ±¼ä´Á 
-/// \param [in] wTimes      ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä¡£
-/// \param [in] Priority È¡Í¼ÓÅÏÈ¼¶ Ïê¼û£º@link #emCameraGetImagePriority @endlink
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ³ıÁË¶àÒ»¸öÓÅÏÈ¼¶²ÎÊıÍâÓë@link #CameraGetImageBufferEx3 @endlinkÏàÍ¬
-/// \~english
-/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
-/// \param [in] hCamera Camera handle.
-/// \param [out] pImageData The buffer to receive the image data, the size must match the format specified by uOutFormat, otherwise the data will overflow
-/// \param [in] uOutFormat output format 0:Mono8 1:rgb24 2:rgba32 3:bgr24 4:bgra32
-/// \param [out] piWidth Returns the width of the image
-/// \param [out] piHeight Returns the height of the image
-/// \param [out] puTimeStamp returns image timestamp
-/// \param [in] wTimes The time-out time for capturing images.
-/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Same as @link #CameraGetImageBufferEx3 @endlink except one more priority parameter
-MVSDK_API CameraSdkStatus __stdcall CameraGetImageBufferPriorityEx3(
-	CameraHandle hCamera, 
-	BYTE*pImageData,
-	UINT uOutFormat,
-	int *piWidth,
-	int *piHeight,
-	UINT* puTimeStamp,
-	UINT wTimes,
-	UINT Priority
-	);
-
-/// @ingroup API_GRAB
-/// \~chinese
-/// \brief Çå¿ÕÏà»úÄÚÒÑ»º´æµÄËùÓĞÖ¡
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Clear all cached frames in the camera
-/// \param [in] hCamera Camera handle.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraClearBuffer(
-	CameraHandle hCamera
-	);
-
-/// @ingroup API_TRIGGER
-/// \~chinese
-/// \brief Ö´ĞĞÈí´¥·¢¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] uFlags ¹¦ÄÜ±êÖ¾,Ïê¼û@link #emCameraSoftTriggerExFlags @endlinkÖĞµÄ¶¨Òå
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \see CameraSoftTrigger
-/// \~english
-/// \brief Perform a soft trigger.
-/// \param [in] hCamera Camera handle.
-/// \param [in] uFlags function flags, as defined in @link #emCameraSoftTriggerExFlags @endlink
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \see CameraSoftTrigger
-MVSDK_API CameraSdkStatus __stdcall CameraSoftTriggerEx(
-	CameraHandle hCamera,
-	UINT uFlags
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄHDR£¬ĞèÒªÏà»úÖ§³Ö£¬²»´øHDR¹¦ÄÜµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] value	HDRÏµÊı£¬·¶Î§0.0µ½1.0
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Setting the HDR of the camera requires camera support. Models without the HDR function. This function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [in] value HDR coefficient, range 0.0 to 1.0
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetHDR(
-	CameraHandle    hCamera,
-	float           value
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡Ïà»úµÄHDR£¬ĞèÒªÏà»úÖ§³Ö£¬²»´øHDR¹¦ÄÜµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] value	HDRÏµÊı£¬·¶Î§0.0µ½1.0
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get camera HDR, need camera support, model without HDR function, this function returns an error code, indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [out] value HDR coefficient, range 0.0 to 1.0
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetHDR(
-	CameraHandle    hCamera,
-	float*          value
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡µ±Ç°Ö¡µÄID£¬ĞèÏà»úÖ§³Ö(Íø¿ÚÈ«ÏµÁĞÖ§³Ö)£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] id		   Ö¡ID
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief The ID of the current frame needs to be supported by the camera (supported by the full range of network ports). This function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [out] id Frame ID
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFrameID(
-	CameraHandle    hCamera,
-	UINT*           id
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡µ±Ç°Ö¡µÄÊ±¼ä´Á(µ¥Î»Î¢Ãë)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] TimeStampL   Ê±¼ä´ÁµÍ32Î»
-/// \param [out] TimeStampH   Ê±¼ä´Á¸ß32Î»
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the timestamp of the current frame (in microseconds)
-/// \param [in] hCamera Camera handle.
-/// \param [out] TimeStampL timestamp low 32 bits
-/// \param [out] TimeStampH Timestamp high 32 bits
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetFrameTimeStamp(
-	CameraHandle    hCamera,
-	UINT*           TimeStampL,
-	UINT*			TimeStampH
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃÏà»úµÄÔöÒæÄ£Ê½£¬ĞèÒªÏà»úÖ§³Ö£¬²»´øÔöÒæÄ£Ê½ÇĞ»»¹¦ÄÜµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] value		   0£ºµÍÔöÒæ    1£º¸ßÔöÒæ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Setting the camera's gain mode requires camera support. Models without the gain mode switching function. This function returns an error code indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [in] value 0: low gain 1: high gain
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetHDRGainMode(
-	CameraHandle    hCamera,
-	int				value
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief »ñÈ¡Ïà»úµÄÔöÒæÄ£Ê½£¬ĞèÒªÏà»úÖ§³Ö£¬²»´øÔöÒæÄ£Ê½ÇĞ»»¹¦ÄÜµÄĞÍºÅ£¬´Ëº¯Êı·µ»Ø´íÎó´úÂë£¬±íÊ¾²»Ö§³Ö¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] value	0£ºµÍÔöÒæ    1£º¸ßÔöÒæ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get camera's gain mode, need camera support, model without gain mode switching function, this function returns error code, indicating that it is not supported.
-/// \param [in] hCamera Camera handle.
-/// \param [out] value 0: low gain 1: high gain
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetHDRGainMode(
-	CameraHandle    hCamera,
-	int*			value
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ´ÓÖ¡Êı¾İ´´½¨HBITMAP
-/// \param [in] hDC Handle to a device context£¨WIN32 API CreateDIBitmapµÄ²ÎÊıhdc£©
-/// \param [in] pFrameBuffer Ö¡Êı¾İ
-/// \param [in] pFrameHead Ö¡Í·
-/// \param [out] outBitmap ĞÂ´´½¨µÄHBITMAP£¨Ê¹ÓÃÍêºóĞèÒªµ÷ÓÃWIN32 API DeleteObjectÊÍ·Å£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Create HBITMAP from Frame Data
-/// \param [in] hDC Handle to a device context (parameter hdc of WIN32 API CreateDIBitmap)
-/// \param [in] pFrameBuffer Frame data
-/// \param [in] pFrameHead Frame Header
-/// \param [out] outBitmap newly created HBITMAP (need to call WIN32 API DeleteObject after use)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCreateDIBitmap(
-	HDC hDC, 
-	BYTE *pFrameBuffer, 
-	tSdkFrameHead* pFrameHead,
-	HBITMAP* outBitmap
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief »æÖÆÖ¡µ½Ö¸¶¨´°¿Ú
-/// \param [in] pFrameBuffer Ö¡Êı¾İ
-/// \param [in] pFrameHead Ö¡Í·
-/// \param [in] hWnd Ä¿µÄ´°¿Ú
-/// \param [in] Algorithm Ëõ·ÅËã·¨  0£º¿ìËÙµ«ÖÊÁ¿ÉÔ²î  1£ºËÙ¶ÈÂıµ«ÖÊÁ¿ºÃ
-/// \param [in] Mode Ëõ·ÅÄ£Ê½   0: µÈ±ÈËõ·Å  1£ºÀ­ÉìËõ·Å
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Draw frames to the specified window
-/// \param [in] pFrameBuffer frame data
-/// \param [in] pFrameHead Frame Header
-/// \param [in] hWnd destination window
-/// \param [in] Algorithm scaling algorithm 0: fast but slightly worse quality 1 slower but better quality
-/// \param [in] Mode Zoom Mode 0: Scale 1: Scale Zoom
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraDrawFrameBuffer(
-	BYTE *pFrameBuffer, 
-	tSdkFrameHead* pFrameHead,
-	HWND hWnd,
-	int Algorithm,
-	int Mode
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ·­×ªÖ¡Êı¾İ
-/// \param [inout] pFrameBuffer Ö¡Êı¾İ
-/// \param [in] pFrameHead Ö¡Í·
-/// \param [in] Flags 1:ÉÏÏÂ   2£º×óÓÒ    3£ºÉÏÏÂ¡¢×óÓÒ½Ô×öÒ»´Î·­×ª(Ïàµ±ÓÚĞı×ª180¶È)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Flip frame data
-/// \param [inout] pFrameBuffer frame data
-/// \param [in] pFrameHead Frame Header
-/// \param [in] Flags 1: Up and down 2: Around 3: Up and down, left and right are all flipped (equivalent to 180 degrees rotation)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraFlipFrameBuffer(
-	BYTE *pFrameBuffer, 
-	tSdkFrameHead* pFrameHead,
-	int Flags
-	);
-
-/// @ingroup API_UTIL
-/// \~chinese
-/// \brief ×ª»»Ö¡Êı¾İ¸ñÊ½
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pInFrameBuffer ÊäÈëÖ¡Êı¾İ
-/// \param [out] pOutFrameBuffer Êä³öÖ¡Êı¾İ
-/// \param [in] outWidth Êä³ö¿í¶È
-/// \param [in] outHeight Êä³ö¸ß¶È
-/// \param [in] outMediaType Êä³ö¸ñÊ½ @see CameraSetIspOutFormat
-/// \param [inout] pFrameHead Ö¡Í·ĞÅÏ¢£¨×ª»»³É¹¦ºó£¬ÀïÃæµÄĞÅÏ¢»á±»ĞŞ¸ÄÎªÊä³öÖ¡µÄĞÅÏ¢£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Conversion frame data format
-/// \param [in] hCamera Camera handle.
-/// \param [in] pInFrameBuffer input frame data
-/// \param [out] pOutFrameBuffer output frame data
-/// \param [in] outWidth output width
-/// \param [in] outHeight output height
-/// \param [in] outMediaType output format @see CameraSetIspOutFormat
-/// \param [inout] pFrameHead frame header information (after successful conversion, the information inside will be modified to output frame information)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraConvertFrameBufferFormat(
-	CameraHandle hCamera,
-	BYTE *pInFrameBuffer, 
-	BYTE *pOutFrameBuffer, 
-	int outWidth,
-	int outHeight,
-	UINT outMediaType,
-	tSdkFrameHead* pFrameHead
-	);
-
-/// @ingroup API_RECONNECT
-/// \~chinese
-/// \brief ÉèÖÃÏà»úÁ¬½Ó×´Ì¬¸Ä±äµÄ»Øµ÷Í¨Öªº¯Êı¡£µ±Ïà»úµôÏß¡¢ÖØÁ¬Ê±£¬pCallBackËùÖ¸ÏòµÄ»Øµ÷º¯Êı¾Í»á±»µ÷ÓÃ¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pCallBack »Øµ÷º¯ÊıÖ¸Õë¡£
-/// \param [in] pContext  »Øµ÷º¯ÊıµÄ¸½¼Ó²ÎÊı£¬ÔÚ»Øµ÷º¯Êı±»µ÷ÓÃÊ±¸Ã¸½¼Ó²ÎÊı»á±»´«Èë£¬¿ÉÒÔÎªNULL¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Sets the callback notification function for camera connection state changes. When the camera is disconnected and reconnected, the callback function pointed to by pCallBack will be called.
-/// \param [in] hCamera Camera handle.
-/// \param [in] pCallBack callback function pointer.
-/// \param [in] pContext Additional parameter of the callback function. This additional parameter will be passed in when the callback function is called. It can be NULL.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetConnectionStatusCallback(
-	CameraHandle        hCamera,
-	CAMERA_CONNECTION_STATUS_CALLBACK pCallBack,
-	PVOID               pContext
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃ¹âÔ´¿ØÖÆÆ÷µÄÊä³öÄ£Ê½£¨ÖÇÄÜÏà»úÏµÁĞÇÒĞèÒªÓ²¼şÖ§³Ö£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ¿ØÖÆÆ÷Ë÷Òı
-/// \param [in] mode Êä³öÄ£Ê½£¨0:¸úËæÉÁ¹âµÆ 1:ÊÖ¶¯£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the output mode of the light controller (Smart camera series and hardware support required)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index controller index
-/// \param [in] mode output mode (0: follow strobe 1: manual)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLightingControllerMode(
-	CameraHandle        hCamera,
-	int					index,
-	int					mode
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief ÉèÖÃ¹âÔ´¿ØÖÆÆ÷µÄÊä³ö×´Ì¬£¨ÖÇÄÜÏà»úÏµÁĞÇÒĞèÒªÓ²¼şÖ§³Ö£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] index ¿ØÖÆÆ÷Ë÷Òı
-/// \param [in] state Êä³ö×´Ì¬£¨0:¹Ø±Õ  1£º´ò¿ª£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set the output status of the light controller (Smart camera series and hardware support required)
-/// \param [in] hCamera Camera handle.
-/// \param [in] index controller index
-/// \param [in] state output state (0: off 1: on)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLightingControllerState(
-	CameraHandle        hCamera,
-	int					index,
-	int					state
-	);
-
-/// @ingroup API_ADVANCE
-/// \~chinese
-/// \brief µ±Ïà»ú´¦ÓÚ´¥·¢Ä£Ê½£¨Èí´¥·¢»òÓ²´¥·¢£©Ê±£¬Ïà»ú·¢ËÍÒ»Ö¡µ½PC£¬ÈçÏà»úÎ´ÊÕµ½PC¶ËµÄ½ÓÊÕÈ·ÈÏ£¬Ïà»ú¿ÉÒÔ°ÑÖ¡ÖØ·¢¼¸´Î¡£ÓÃ±¾º¯ÊıÉèÖÃÏà»úÖØ·¢´ÎÊı¡££¨½öÍø¿ÚÏà»úÖ§³Ö£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] count ÖØ·¢´ÎÊı£¨<=0±íÊ¾½ûÓÃÖØ·¢¹¦ÄÜ£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief When the camera is in the trigger mode (soft trigger or hard trigger), the camera sends a frame to the PC. If the camera does not receive the reception confirmation from the PC, the camera can retransmit the frame several times. Use this function to set the number of camera resends. (only supported by Gige camera)
-/// \param [in] hCamera Camera handle.
-/// \param [in] count number of resends (<=0 means disable resends)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetFrameResendCount(
-	CameraHandle        hCamera,
-	int					count
-	);
-
-/// @ingroup API_UNDISTORT
-/// \~chinese
-/// \brief ÉèÖÃĞ£Õı²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] width Í¼Æ¬¿í¶È
-/// \param [in] height Í¼Æ¬¸ß¶È
-/// \param [in] cameraMatrix ÄÚ²Î(fx, fy, cx, cy)
-/// \param [in] distCoeffs »û±äÏµÊı(k1,k2,p1,p2,k3)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set undistort parameters
-/// \param [in] hCamera Camera handle.
-/// \param [in] width image width
-/// \param [in] height image height
-/// \param [in] cameraMatrix internal matrix(fx, fy, cx, cy)
-/// \param [in] distCoeffs distortion coefficient (k1, k2, p1, p2, k3)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetUndistortParams(
-	CameraHandle	hCamera,
-	int				width,
-	int				height,
-	double			cameraMatrix[4],
-	double			distCoeffs[5]
-	);
-
-/// @ingroup API_UNDISTORT
-/// \~chinese
-/// \brief »ñÈ¡Ğ£Õı²ÎÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] width Í¼Æ¬¿í¶È
-/// \param [out] height Í¼Æ¬¸ß¶È
-/// \param [out] cameraMatrix ÄÚ²Î(fx, fy, cx, cy)
-/// \param [out] distCoeffs »û±äÏµÊı(k1,k2,p1,p2,k3)
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get undistort parameters
-/// \param [in] hCamera Camera handle.
-/// \param [out] width image width
-/// \param [out] height image height
-/// \param [out] cameraMatrix internal matrix(fx, fy, cx, cy)
-/// \param [out] distCoeffs distortion coefficient (k1, k2, p1, p2, k3)
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetUndistortParams(
-	CameraHandle	hCamera,
-	int				*width,
-	int				*height,
-	double			cameraMatrix[4],
-	double			distCoeffs[5]
-	);
-
-/// @ingroup API_UNDISTORT
-/// \~chinese
-/// \brief Ê¹ÄÜ¾µÍ·Ğ£Õı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] bEnable Ê¹ÄÜĞ£Õı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Set undistort enable status
-/// \param [in] hCamera Camera handle.
-/// \param [in] bEnable enable status
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetUndistortEnable(
-	CameraHandle	hCamera,
-	BOOL			bEnable
-	);
-
-/// @ingroup API_UNDISTORT
-/// \~chinese
-/// \brief »ñÈ¡¾µÍ·Ğ£ÕıÊ¹ÄÜ×´Ì¬
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] bEnable Ê¹ÄÜĞ£Õı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get undistort enable status
-/// \param [in] hCamera Camera handle.
-/// \param [out] bEnable enable status
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetUndistortEnable(
-	CameraHandle	hCamera,
-	BOOL*			bEnable
-	);
-
-/// @ingroup API_UNDISTORT
-/// \~chinese
-/// \brief ´ò¿ªĞ£Õı±à¼­Ãæ°å
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] hParent    µ÷ÓÃ¸Ãº¯ÊıµÄ´°¿ÚµÄ¾ä±ú¡£¿ÉÒÔÎªNULL¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Open the undistort editing panel
-/// \param [in] hCamera Camera handle.
-/// \param [in] hParent The handle of the window that called the function. Can be NULL.
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraCustomizeUndistort(
-	CameraHandle	hCamera,
-	HWND			hParent
-	);
+/******************************************************/
+// å‡½æ•°å 	: CameraGetEyeCount
+// åŠŸèƒ½æè¿°	: è·å–å¤šç›®ç›¸æœºçš„ç›®æ•°
+// å‚æ•°	    : hCamera	   ç›¸æœºçš„å¥æŸ„ï¼Œç”±CameraInitå‡½æ•°è·å¾—ã€‚
+// è¿”å›å€¼   : æˆåŠŸæ—¶ï¼Œè¿”å›CAMERA_STATUS_SUCCESS (0);
+//            å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç ,è¯·å‚è€ƒCameraStatus.h
+//            ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/******************************************************/
+MVSDK_API CameraSdkStatus CameraGetEyeCount(
+    CameraHandle hCamera,
+    int *eyecount
+);
 
 /// @ingroup API_MULTI_EYE
 /// \~chinese
-/// \brief »ñÈ¡¶àÄ¿Ïà»úµÄÄ¿Êı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] EyeCount Ä¿Êı
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \~english
-/// \brief Get the number of eyes in the camera
-/// \param [in] hCamera Camera handle.
-/// \param [out] EyeCount eye count
-/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetEyeCount(
-	CameraHandle        hCamera,
-	int*				EyeCount
-	);
-
-/// @ingroup API_MULTI_EYE
-/// \~chinese
-/// \brief ¶Ô¶àÄ¿Ïà»úÖ¡ÄÚµÄÄ³¸öµ¥Ä¿Í¼×öISP
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iEyeIndex µ¥Ä¿Ë÷Òı¡£
-/// \param [in] pbyIn ÊäÈëÍ¼ÏñÊı¾İµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£ 
-/// \param [in] pInFrInfo ÊäÈëÍ¼ÏñÊı¾İµÄÖ¡Í·£¬²»ÄÜÎªNULL¡£ 
-/// \param [out] pbyOut ´¦ÀíºóÍ¼ÏñÊä³öµÄ»º³åÇøµØÖ·£¬²»ÄÜÎªNULL¡£
-/// \param [out] pOutFrInfo ´¦ÀíºóÍ¼ÏñµÄÖ¡Í·ĞÅÏ¢£¬²»ÄÜÎªNULL¡£ 
-/// \param [in] uOutFormat ´¦ÀíÍêºóÍ¼ÏñµÄÊä³ö¸ñÊ½¡£
-/// \param [in] uReserved Ô¤Áô²ÎÊı£¬±ØĞëÉèÖÃÎª0¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief å¯¹å¤šç›®ç›¸æœºå¸§å†…çš„æŸä¸ªå•ç›®å›¾åšISP
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iEyeIndex å•ç›®ç´¢å¼•ã€‚
+/// \param [in] pbyIn è¾“å…¥å›¾åƒæ•°æ®çš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚ 
+/// \param [in] pInFrInfo è¾“å…¥å›¾åƒæ•°æ®çš„å¸§å¤´ï¼Œä¸èƒ½ä¸ºNULLã€‚ 
+/// \param [out] pbyOut å¤„ç†åå›¾åƒè¾“å‡ºçš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚
+/// \param [out] pOutFrInfo å¤„ç†åå›¾åƒçš„å¸§å¤´ä¿¡æ¯ï¼Œä¸èƒ½ä¸ºNULLã€‚ 
+/// \param [in] uOutFormat å¤„ç†å®Œåå›¾åƒçš„è¾“å‡ºæ ¼å¼ã€‚
+/// \param [in] uReserved é¢„ç•™å‚æ•°ï¼Œå¿…é¡»è®¾ç½®ä¸º0ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Do ISP for a certain monocular in the multi-camera frame.
 /// \param [in] hCamera Camera handle.
@@ -6041,7 +4057,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetEyeCount(
 /// \param [in] uOutFormat The output format of the image after processing.
 /// \param [in] uReserved Reservation parameters must be set to 0.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraMultiEyeImageProcess(
+MVSDK_API CameraSdkStatus CameraMultiEyeImageProcess(
 	CameraHandle        hCamera, 
 	int					iEyeIndex,
 	BYTE*               pbyIn, 
@@ -6052,53 +4068,709 @@ MVSDK_API CameraSdkStatus __stdcall CameraMultiEyeImageProcess(
 	UINT                uReserved
 	);
 
-/// @ingroup API_UTIL
+/// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ¼ÆËãÇøÓòµÄÆ½¾ù»Ò¶ÈÖµ
-/// \param [in] pFrameBuffer Ö¡Êı¾İ
-/// \param [in] pFrameHead Ö¡Í·
-/// \param [in] Left ¾ØĞÎÇøÓòµÄÆğÊ¼x×ø±ê
-/// \param [in] Top ¾ØĞÎÇøÓòµÄÆğÊ¼y×ø±ê
-/// \param [in] Width ¾ØĞÎÇøÓòµÄ¿í¶È
-/// \param [in] Height ¾ØĞÎÇøÓòµÄ¸ß¶È
-/// \param [out] AvgGray ·µ»Ø¼ÆËã½á¹û
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note Width»òÕßHeightÎª0ÔòºöÂÔLeft¡¢Top²¢·µ»ØÕûÖ¡µÄÆ½¾ù»Ò¶ÈÖµ
+/// \brief è®¾ç½®å…‰æºæ§åˆ¶å™¨çš„è¾“å‡ºæ¨¡å¼ï¼ˆæ™ºèƒ½ç›¸æœºç³»åˆ—ä¸”éœ€è¦ç¡¬ä»¶æ”¯æŒï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index æ§åˆ¶å™¨ç´¢å¼•
+/// \param [in] mode è¾“å‡ºæ¨¡å¼ï¼ˆ0:è·Ÿéšé—ªå…‰ç¯ 1:æ‰‹åŠ¨ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief Calculate the average gray value of the area
-/// \param [in] pFrameBuffer frame data
-/// \param [in] pFrameHead Frame Header
-/// \param [in] Left The starting x coordinate of the rectangular area
-/// \param [in] Top The starting y coordinate of the rectangular area
-/// \param [in] Width The width of the rectangular area
-/// \param [in] Height The Height of the rectangular area
-/// \param [out] AvgGray returns the result of the calculation
+/// \brief Set the output mode of the light controller (Smart camera series and hardware support required)
+/// \param [in] hCamera Camera handle.
+/// \param [in] index controller index
+/// \param [in] mode output mode (0: follow strobe 1: manual)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Width or Height is 0, then ignore Left, Top and return the average gray value of the entire frame
-MVSDK_API CameraSdkStatus __stdcall CameraGetRegionAverageGray(
-	BYTE *pFrameBuffer, 
-	tSdkFrameHead* pFrameHead,
-	int Left,
-	int Top,
-	int Width,
-	int Height,
-	int *AvgGray
+MVSDK_API CameraSdkStatus CameraSetLightingControllerMode(
+	CameraHandle        hCamera,
+	int					index,
+	int					mode
 	);
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñÈ¡Êä³ö¸ñÊ½µÄÌØĞÔÖ§³Ö¡££¨±ÈÈç£ºH264¡¢H265Ö§³ÖÉèÖÃÂëÂÊ£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMediaType Êä³ö¸ñÊ½Ë÷Òı
-/// \param [out] uCap ÌØĞÔÖ§³Ö
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®å…‰æºæ§åˆ¶å™¨çš„è¾“å‡ºçŠ¶æ€ï¼ˆæ™ºèƒ½ç›¸æœºç³»åˆ—ä¸”éœ€è¦ç¡¬ä»¶æ”¯æŒï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] index æ§åˆ¶å™¨ç´¢å¼•
+/// \param [in] state è¾“å‡ºçŠ¶æ€ï¼ˆ0:å…³é—­  1ï¼šæ‰“å¼€ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set the output status of the light controller (Smart camera series and hardware support required)
+/// \param [in] hCamera Camera handle.
+/// \param [in] index controller index
+/// \param [in] state output state (0: off 1: on)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetLightingControllerState(
+	CameraHandle        hCamera,
+	int					index,
+	int					state
+	);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief ç¿»è½¬å¸§æ•°æ®
+/// \param [inout] pFrameBuffer å¸§æ•°æ®
+/// \param [in] pFrameHead å¸§å¤´
+/// \param [in] Flags 1:ä¸Šä¸‹   2ï¼šå·¦å³    3ï¼šä¸Šä¸‹ã€å·¦å³çš†åšä¸€æ¬¡ç¿»è½¬(ç›¸å½“äºæ—‹è½¬180åº¦)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Flip frame data
+/// \param [inout] pFrameBuffer frame data
+/// \param [in] pFrameHead Frame Header
+/// \param [in] Flags 1: Up and down 2: Around 3: Up and down, left and right are all flipped (equivalent to 180 degrees rotation)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlipFrameBuffer(
+	BYTE *pFrameBuffer,
+	tSdkFrameHead* pFrameHead,
+	int Flags
+	);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief è½¬æ¢å¸§æ•°æ®æ ¼å¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pInFrameBuffer è¾“å…¥å¸§æ•°æ®
+/// \param [out] pOutFrameBuffer è¾“å‡ºå¸§æ•°æ®
+/// \param [in] outWidth è¾“å‡ºå®½åº¦
+/// \param [in] outHeight è¾“å‡ºé«˜åº¦
+/// \param [in] outMediaType è¾“å‡ºæ ¼å¼ @see CameraSetIspOutFormat
+/// \param [inout] pFrameHead å¸§å¤´ä¿¡æ¯ï¼ˆè½¬æ¢æˆåŠŸåï¼Œé‡Œé¢çš„ä¿¡æ¯ä¼šè¢«ä¿®æ”¹ä¸ºè¾“å‡ºå¸§çš„ä¿¡æ¯ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Conversion frame data format
+/// \param [in] hCamera Camera handle.
+/// \param [in] pInFrameBuffer input frame data
+/// \param [out] pOutFrameBuffer output frame data
+/// \param [in] outWidth output width
+/// \param [in] outHeight output height
+/// \param [in] outMediaType output format @see CameraSetIspOutFormat
+/// \param [inout] pFrameHead frame header information (after successful conversion, the information inside will be modified to output frame information)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraConvertFrameBufferFormat(
+	CameraHandle hCamera,
+	BYTE *pInFrameBuffer,
+	BYTE *pOutFrameBuffer,
+	int outWidth,
+	int outHeight,
+	UINT outMediaType,
+	tSdkFrameHead* pFrameHead
+	);
+
+/// @ingroup API_ADVANCE
+/// \~chinese
+/// \brief è·å–å½“å‰å¸§çš„IDï¼Œéœ€ç›¸æœºæ”¯æŒ(ç½‘å£å…¨ç³»åˆ—æ”¯æŒ)ï¼Œæ­¤å‡½æ•°è¿”å›é”™è¯¯ä»£ç ï¼Œè¡¨ç¤ºä¸æ”¯æŒã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] id		   å¸§ID
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief The ID of the current frame needs to be supported by the camera (supported by the full range of network ports). This function returns an error code indicating that it is not supported.
+/// \param [in] hCamera Camera handle.
+/// \param [out] id Frame ID
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetFrameID(
+	CameraHandle    hCamera,
+	UINT*           id
+	);
+
+/// @ingroup API_ADVANCE
+/// \~chinese
+/// \brief è·å–å½“å‰å¸§çš„æ—¶é—´æˆ³(å•ä½å¾®ç§’)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] TimeStampL   æ—¶é—´æˆ³ä½32ä½
+/// \param [out] TimeStampH   æ—¶é—´æˆ³é«˜32ä½
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get the timestamp of the current frame (in microseconds)
+/// \param [in] hCamera Camera handle.
+/// \param [out] TimeStampL timestamp low 32 bits
+/// \param [out] TimeStampH Timestamp high 32 bits
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetFrameTimeStamp(
+	CameraHandle    hCamera,
+	UINT*           TimeStampL,
+	UINT*			TimeStampH
+	);
+
+/// @ingroup API_RECONNECT
+/// \~chinese
+/// \brief è®¾ç½®ç›¸æœºè¿æ¥çŠ¶æ€æ”¹å˜çš„å›è°ƒé€šçŸ¥å‡½æ•°ã€‚å½“ç›¸æœºæ‰çº¿ã€é‡è¿æ—¶ï¼ŒpCallBackæ‰€æŒ‡å‘çš„å›è°ƒå‡½æ•°å°±ä¼šè¢«è°ƒç”¨ã€‚ 
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pCallBack å›è°ƒå‡½æ•°æŒ‡é’ˆã€‚
+/// \param [in] pContext  å›è°ƒå‡½æ•°çš„é™„åŠ å‚æ•°ï¼Œåœ¨å›è°ƒå‡½æ•°è¢«è°ƒç”¨æ—¶è¯¥é™„åŠ å‚æ•°ä¼šè¢«ä¼ å…¥ï¼Œå¯ä»¥ä¸ºNULLã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Sets the callback notification function for camera connection state changes. When the camera is disconnected and reconnected, the callback function pointed to by pCallBack will be called.
+/// \param [in] hCamera Camera handle.
+/// \param [in] pCallBack callback function pointer.
+/// \param [in] pContext Additional parameter of the callback function. This additional parameter will be passed in when the callback function is called. It can be NULL.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetConnectionStatusCallback(
+	CameraHandle        hCamera,
+	CAMERA_CONNECTION_STATUS_CALLBACK pCallBack,
+	PVOID               pContext
+	);
+
+/// @ingroup API_ENUM
+/// \~chinese
+/// \brief ä»æŒ‡å®šIPæšä¸¾GIGEè®¾å¤‡ï¼Œå¹¶å»ºç«‹è®¾å¤‡åˆ—è¡¨ï¼ˆé€‚ç”¨äºç›¸æœºå’Œç”µè„‘ä¸åœ¨åŒä¸€ç½‘æ®µçš„æƒ…å†µï¼‰
+/// \param [in] ppIpList ç›®æ ‡IP
+/// \param [in] numIp ç›®æ ‡IPä¸ªæ•°
+/// \param [out] pCameraList è®¾å¤‡åˆ—è¡¨æ•°ç»„æŒ‡é’ˆ
+/// \param [inout] piNums è®¾å¤‡çš„ä¸ªæ•°æŒ‡é’ˆï¼Œè°ƒç”¨æ—¶ä¼ å…¥pCameraListæ•°ç»„çš„å…ƒç´ ä¸ªæ•°ï¼Œå‡½æ•°è¿”å›æ—¶ï¼Œä¿å­˜å®é™…æ‰¾åˆ°çš„è®¾å¤‡ä¸ªæ•°
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰
+/// \warning piNumsæŒ‡å‘çš„å€¼å¿…é¡»åˆå§‹åŒ–ï¼Œä¸”ä¸è¶…è¿‡pCameraListæ•°ç»„å…ƒç´ ä¸ªæ•°ï¼Œå¦åˆ™æœ‰å¯èƒ½é€ æˆå†…å­˜æº¢å‡º
+/// \note è¿”å›çš„ç›¸æœºä¿¡æ¯åˆ—è¡¨ï¼Œä¼šæ ¹æ®acFriendlyNameæ’åºçš„ã€‚ä¾‹å¦‚å¯ä»¥å°†ä¸¤ä¸ªç›¸æœºåˆ†åˆ«æ”¹ä¸ºâ€œCamera1â€å’Œâ€œCamera2â€çš„åå­—åï¼Œåå­—ä¸ºâ€œCamera1â€çš„ç›¸æœºä¼šæ’å‰é¢ï¼Œåä¸ºâ€œCamera2â€çš„ç›¸æœºæ’åé¢ã€‚
+/// \~english
+/// \brief Enumerates GIGE devices from the specified IP and builds a device list (applicable when the camera and computer are not on the same network segment)
+/// \param [in] ppIpList target IP
+/// \param [in] numIp number of target IPs
+/// \param [out] pCameraList Device list array pointer
+/// \param [inout] piNums The number of pointers to the device, the number of elements passed to the pCameraList array at the time of the call. When the function returns, the number of devices actually found is saved.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+/// \warning piNums The value pointed to must be initialized and does not exceed the number of pCameraList array elements, otherwise it may cause memory overflow
+/// \note The list of returned camera information will be sorted according to acFriendlyName. For example, after changing the two cameras to the names of "Camera1" and "Camera2," the camera named "Camera1" will be in front, and the camera named "Camera2" will be behind the row.
+MVSDK_API CameraSdkStatus CameraGigeEnumerateDevice(
+    char const**        ppIpList,
+    int                 numIp,
+    tSdkCameraDevInfo*  pCameraList, 
+    INT*                piNums
+);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief é…ç½®ç½‘å£ç›¸æœºçš„ä¸€äº›åŠŸèƒ½é€‰é¡¹
+/// \param [in] optionName é€‰é¡¹("NumBuffers", "3")
+/// \param [in] value å€¼
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Configure some options for the gige camera
+/// \param [in] optionName option name("NumBuffers", "3")
+/// \param [in] value setting value
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGigeSetOption(
+	char const* optionName,
+	char const* value
+	);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief è·å–GIGEç›¸æœºçš„IPåœ°å€
+/// \param [in] pCameraInfo ç›¸æœºçš„è®¾å¤‡æè¿°ä¿¡æ¯ï¼Œå¯ç”±@link #CameraEnumerateDevice @endlinkå‡½æ•°è·å¾—ã€‚ 
+/// \param [out] CamIp ç›¸æœºIP(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \param [out] CamMask ç›¸æœºå­ç½‘æ©ç (æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \param [out] CamGateWay ç›¸æœºç½‘å…³(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \param [out] EtIp ç½‘å¡IP(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \param [out] EtMask ç½‘å¡å­ç½‘æ©ç (æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \param [out] EtGateWay ç½‘å¡ç½‘å…³(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº16å­—èŠ‚)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get the GIGE camera's IP address
+/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
+/// \param [out] CamIp camera IP (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \param [out] CamMask camera subnet mask (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \param [out] CamGateWay camera gateway (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \param [out] EtIp network card IP (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \param [out] EtMask subnet mask (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \param [out] EtGateWay NIC Gateway (Note: must ensure that the incoming buffer is greater than or equal to 16 bytes)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGigeGetIp(
+		tSdkCameraDevInfo* pCameraInfo,
+		char* CamIp,
+		char* CamMask,
+		char* CamGateWay,
+		char* EtIp,
+		char* EtMask,
+		char* EtGateWay
+	);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief è®¾ç½®GIGEç›¸æœºçš„IPåœ°å€
+/// \param [in] pCameraInfo ç›¸æœºçš„è®¾å¤‡æè¿°ä¿¡æ¯ï¼Œå¯ç”±@link #CameraEnumerateDevice @endlinkå‡½æ•°è·å¾—ã€‚ 
+/// \param [in] Ip ç›¸æœºIP(å¦‚ï¼š192.168.1.100)
+/// \param [in] SubMask ç›¸æœºå­ç½‘æ©ç (å¦‚ï¼š255.255.255.0)
+/// \param [in] GateWay ç›¸æœºç½‘å…³(å¦‚ï¼š192.168.1.1)
+/// \param [in] bPersistent TRUE: è®¾ç½®ç›¸æœºä¸ºå›ºå®šIPï¼ŒFALSEï¼šè®¾ç½®ç›¸æœºè‡ªåŠ¨åˆ†é…IPï¼ˆå¿½ç•¥å‚æ•°Ip, SubMask, GateWayï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set the GIGE camera's IP address
+/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
+/// \param [in] Ip camera IP (eg 192.168.1.100)
+/// \param [in] SubMask camera subnet mask (eg 255.255.255.0)
+/// \param [in] GateWay Camera Gateway (eg 192.168.1.1)
+/// \param [in] bPersistent TRUE: Set camera to fixed IP, FALSE: Set camera to assign IP automatically (ignoring parameters Ip, SubMask, GateWay)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGigeSetIp(
+	tSdkCameraDevInfo* pCameraInfo,
+	char const* Ip,
+	char const* SubMask,
+	char const* GateWay,
+	BOOL bPersistent
+	);
+
+/// @ingroup API_UTIL
+/// \~chinese
+/// \brief è·å–GIGEç›¸æœºçš„MACåœ°å€
+/// \param [in] pCameraInfo ç›¸æœºçš„è®¾å¤‡æè¿°ä¿¡æ¯ï¼Œå¯ç”±@link #CameraEnumerateDevice @endlinkå‡½æ•°è·å¾—ã€‚ 
+/// \param [out] CamMac ç›¸æœºMAC(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº18å­—èŠ‚)
+/// \param [out] EtMac ç½‘å¡MAC(æ³¨æ„ï¼šå¿…é¡»ä¿è¯ä¼ å…¥çš„ç¼“å†²åŒºå¤§äºç­‰äº18å­—èŠ‚)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Select the LUT table in the preset LUT mode.
+/// \param [in] pCameraInfo camera's device description information can be obtained by @link #CameraEnumerateDevice @endlink function.
+/// \param [out] CamMac camera MAC (Note: must ensure that the incoming buffer is greater than or equal to 18 bytes)
+/// \param [out] EtMac network card MAC (Note: must ensure that the incoming buffer is greater than or equal to 18 bytes)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGigeGetMac(
+	tSdkCameraDevInfo* pCameraInfo,
+	char* CamMac,
+	char* EtMac
+	);
+
+/// @ingroup API_GRAB
+/// \~chinese
+/// \brief æ¸…ç©ºç›¸æœºå†…å·²ç¼“å­˜çš„æ‰€æœ‰å¸§
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Clear all cached frames in the camera
+/// \param [in] hCamera Camera handle.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraClearBuffer(
+	CameraHandle hCamera
+	);
+
+/// @ingroup API_GRAB
+/// \~chinese
+/// \brief è·å¾—ä¸€å¸§å›¾åƒæ•°æ®ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pFrameInfo  å›¾åƒçš„å¸§å¤´ä¿¡æ¯æŒ‡é’ˆã€‚
+/// \param [out] pbyBuffer   æŒ‡å‘å›¾åƒçš„æ•°æ®çš„ç¼“å†²åŒºæŒ‡é’ˆã€‚
+/// \param [in] wTimes æŠ“å–å›¾åƒçš„è¶…æ—¶æ—¶é—´ã€‚
+/// \param [in] Priority å–å›¾ä¼˜å…ˆçº§ è¯¦è§ï¼š@link #emCameraGetImagePriority @endlink
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note é™¤äº†å¤šä¸€ä¸ªä¼˜å…ˆçº§å‚æ•°å¤–ä¸@link #CameraGetImageBuffer @endlinkç›¸åŒ
+/// \~english
+/// \brief Get a frame of image data.
+/// \param [in] hCamera Camera handle.
+/// \param [out] pFrameInfo Frame header information pointer
+/// \param [out] pbyBuffer Pointer to the buffer of data for the image.
+/// \param [in] wTimes The time-out time for capturing images.
+/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+/// \note Same as @link #CameraGetImageBuffer @endlink except one more priority parameter
+MVSDK_API CameraSdkStatus CameraGetImageBufferPriority(
+	CameraHandle        hCamera, 
+	tSdkFrameHead*      pFrameInfo, 
+	BYTE**              pbyBuffer,
+	UINT                wTimes,
+	UINT				Priority
+	);
+
+/// @ingroup API_GRAB
+/// \~chinese
+/// \brief è·å¾—ä¸€å¸§å›¾åƒæ•°æ®ã€‚è¯¥æ¥å£è·å¾—çš„å›¾åƒæ˜¯ç»è¿‡å¤„ç†åçš„RGBæ ¼å¼ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] piWidth    æ•´å½¢æŒ‡é’ˆï¼Œè¿”å›å›¾åƒçš„å®½åº¦
+/// \param [out] piHeight   æ•´å½¢æŒ‡é’ˆï¼Œè¿”å›å›¾åƒçš„é«˜åº¦
+/// \param [in] wTimes æŠ“å–å›¾åƒçš„è¶…æ—¶æ—¶é—´ã€‚å•ä½æ¯«ç§’ã€‚
+/// \param [in] Priority å–å›¾ä¼˜å…ˆçº§ è¯¦è§ï¼š@link #emCameraGetImagePriority @endlink
+/// \return æˆåŠŸæ—¶ï¼Œè¿”å›RGBæ•°æ®ç¼“å†²åŒºçš„é¦–åœ°å€;å¦åˆ™è¿”å›0ã€‚
+/// \note é™¤äº†å¤šä¸€ä¸ªä¼˜å…ˆçº§å‚æ•°å¤–ä¸@link #CameraGetImageBufferEx @endlinkç›¸åŒ
+/// \~english
+/// \brief Get a frame of image data. The image obtained by this interface is the processed RGB format.
+/// \param [in] hCamera Camera handle.
+/// \param [out] piWidth Returns the width of the image
+/// \param [out] piHeight Returns the height of the image
+/// \param [in] wTimes The time-out time for capturing images. The unit is milliseconds.
+/// \param [in] Priority map priority See: @link #emCameraGetImagePriority @endlink
+/// \return Returns the first address of the RGB data buffer when successful; otherwise returns 0.
+/// \note Same as @link #CameraGetImageBufferEx @endlink except one more priority parameter
+MVSDK_API unsigned char* CameraGetImageBufferPriorityEx(
+	CameraHandle        hCamera, 
+	INT*                piWidth,
+	INT*                piHeight,
+	UINT                wTimes,
+	UINT				Priority
+	);
+
+/// @ingroup API_TRIGGER
+/// \~chinese
+/// \brief æ‰§è¡Œè½¯è§¦å‘ã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] uFlags åŠŸèƒ½æ ‡å¿—,è¯¦è§@link #emCameraSoftTriggerExFlags @endlinkä¸­çš„å®šä¹‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \see CameraSoftTrigger
+/// \~english
+/// \brief Perform a soft trigger.
+/// \param [in] hCamera Camera handle.
+/// \param [in] uFlags function flags, as defined in @link #emCameraSoftTriggerExFlags @endlink
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+/// \see CameraSoftTrigger
+MVSDK_API CameraSdkStatus CameraSoftTriggerEx(
+	CameraHandle hCamera,
+	UINT uFlags
+	);
+
+/// @ingroup API_ADVANCE
+/// \~chinese
+/// \brief å½“ç›¸æœºå¤„äºè§¦å‘æ¨¡å¼ï¼ˆè½¯è§¦å‘æˆ–ç¡¬è§¦å‘ï¼‰æ—¶ï¼Œç›¸æœºå‘é€ä¸€å¸§åˆ°PCï¼Œå¦‚ç›¸æœºæœªæ”¶åˆ°PCç«¯çš„æ¥æ”¶ç¡®è®¤ï¼Œç›¸æœºå¯ä»¥æŠŠå¸§é‡å‘å‡ æ¬¡ã€‚ç”¨æœ¬å‡½æ•°è®¾ç½®ç›¸æœºé‡å‘æ¬¡æ•°ã€‚ï¼ˆä»…ç½‘å£ç›¸æœºæ”¯æŒï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] count é‡å‘æ¬¡æ•°ï¼ˆ<=0è¡¨ç¤ºç¦ç”¨é‡å‘åŠŸèƒ½ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief When the camera is in the trigger mode (soft trigger or hard trigger), the camera sends a frame to the PC. If the camera does not receive the reception confirmation from the PC, the camera can retransmit the frame several times. Use this function to set the number of camera resends. (only supported by Gige camera)
+/// \param [in] hCamera Camera handle.
+/// \param [in] count number of resends (<=0 means disable resends)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetFrameResendCount(
+	CameraHandle        hCamera,
+	int					count
+	);
+
+/// @ingroup API_BASIC
+/// \~chinese
+/// \brief é…ç½®ç³»ç»Ÿé€‰é¡¹ï¼ˆé€šå¸¸éœ€è¦åœ¨CameraInitæ‰“å¼€ç›¸æœºä¹‹å‰é…ç½®å¥½ï¼‰
+/// \param [in] optionName é€‰é¡¹("NumBuffers", "3")
+/// \param [in] value å€¼
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Configure system options (usually required before CameraInit turns on the camera)
+/// \param [in] optionName option name("NumBuffers", "3")
+/// \param [in] value setting value
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetSysOption(
+	char const* optionName,
+	char const* value
+	);
+
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief ä½¿èƒ½åç‚¹ä¿®æ­£
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] bEnable TRUE: ä½¿èƒ½åç‚¹ä¿®æ­£   FALSE: å…³é—­åç‚¹ä¿®æ­£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Enable dead pixel correction
+/// \param [in] hCamera Camera handle.
+/// \param [in] bEnable TRUE: Enable dead pixel correction FALSE: Turn off dead pixel correction
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetCorrectDeadPixel(
+	CameraHandle hCamera,
+	BOOL bEnable
+	);
+
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief è·å–åç‚¹ä¿®æ­£ä½¿èƒ½çŠ¶æ€
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pbEnable è¿”å›ä½¿èƒ½çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get dead pixel correction enabled
+/// \param [in] hCamera Camera handle.
+/// \param [out] pbEnable Returns enable state
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetCorrectDeadPixel(
+	CameraHandle hCamera,
+	BOOL* pbEnable
+	);
+
+/// @ingroup API_UNDISTORT
+/// \~chinese
+/// \brief è®¾ç½®æ ¡æ­£å‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] width å›¾ç‰‡å®½åº¦
+/// \param [in] height å›¾ç‰‡é«˜åº¦
+/// \param [in] cameraMatrix å†…å‚(fx, fy, cx, cy)
+/// \param [in] distCoeffs ç•¸å˜ç³»æ•°(k1,k2,p1,p2,k3)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set undistort parameters
+/// \param [in] hCamera Camera handle.
+/// \param [in] width image width
+/// \param [in] height image height
+/// \param [in] cameraMatrix internal matrix(fx, fy, cx, cy)
+/// \param [in] distCoeffs distortion coefficient (k1, k2, p1, p2, k3)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetUndistortParams(
+	CameraHandle	hCamera,
+	int				width,
+	int				height,
+	double			cameraMatrix[4],
+	double			distCoeffs[5]
+	);
+
+/// @ingroup API_UNDISTORT
+/// \~chinese
+/// \brief è·å–æ ¡æ­£å‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] width å›¾ç‰‡å®½åº¦
+/// \param [out] height å›¾ç‰‡é«˜åº¦
+/// \param [out] cameraMatrix å†…å‚(fx, fy, cx, cy)
+/// \param [out] distCoeffs ç•¸å˜ç³»æ•°(k1,k2,p1,p2,k3)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get undistort parameters
+/// \param [in] hCamera Camera handle.
+/// \param [out] width image width
+/// \param [out] height image height
+/// \param [out] cameraMatrix internal matrix(fx, fy, cx, cy)
+/// \param [out] distCoeffs distortion coefficient (k1, k2, p1, p2, k3)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetUndistortParams(
+	CameraHandle	hCamera,
+	int				*width,
+	int				*height,
+	double			cameraMatrix[4],
+	double			distCoeffs[5]
+	);
+
+/// @ingroup API_UNDISTORT
+/// \~chinese
+/// \brief ä½¿èƒ½é•œå¤´æ ¡æ­£
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] bEnable ä½¿èƒ½æ ¡æ­£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set undistort enable status
+/// \param [in] hCamera Camera handle.
+/// \param [in] bEnable enable status
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetUndistortEnable(
+	CameraHandle	hCamera,
+	BOOL			bEnable
+	);
+
+/// @ingroup API_UNDISTORT
+/// \~chinese
+/// \brief è·å–é•œå¤´æ ¡æ­£ä½¿èƒ½çŠ¶æ€
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] bEnable ä½¿èƒ½æ ¡æ­£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get undistort enable status
+/// \param [in] hCamera Camera handle.
+/// \param [out] bEnable enable status
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetUndistortEnable(
+	CameraHandle	hCamera,
+	BOOL*			bEnable
+	);
+
+/// @ingroup API_UNDISTORT
+/// \~chinese
+/// \brief æ‰“å¼€æ ¡æ­£ç¼–è¾‘é¢æ¿
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] hParent    è°ƒç”¨è¯¥å‡½æ•°çš„çª—å£çš„å¥æŸ„ã€‚å¯ä»¥ä¸ºNULLã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Open the undistort editing panel
+/// \param [in] hCamera Camera handle.
+/// \param [in] hParent The handle of the window that called the function. Can be NULL.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraCustomizeUndistort(
+	CameraHandle	hCamera,
+	HWND			hParent
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief ä½¿èƒ½å¹³åœºæ ¡æ­£
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] bEnable     TRUE: ä½¿èƒ½å¹³åœºæ ¡æ­£   FALSE: å…³é—­å¹³åœºæ ¡æ­£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Enable flat field correction
+/// \param [in] hCamera Camera handle.
+/// \param [in] bEnable TRUE: Enable flat field correction FALSE: Turn off flat field correction
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectSetEnable(
+	CameraHandle hCamera,
+	BOOL bEnable
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief è·å–å¹³åœºæ ¡æ­£ä½¿èƒ½çŠ¶æ€
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pbEnable è¿”å›ä½¿èƒ½çŠ¶æ€
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get Plane Correction Enable Status
+/// \param [in] hCamera Camera handle.
+/// \param [out] pbEnable Returns enable state
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectGetEnable(
+	CameraHandle hCamera,
+	BOOL* pbEnable
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief è®¾ç½®å¹³åœºæ ¡æ­£å‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pDarkFieldingImage æš—åœºå›¾ç‰‡
+/// \param [in] pDarkFieldingFrInfo æš—åœºå›¾ç‰‡ä¿¡æ¯
+/// \param [in] pLightFieldingImage æ˜åœºå›¾ç‰‡
+/// \param [in] pLightFieldingFrInfo æ˜åœºå›¾ç‰‡ä¿¡æ¯
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set flat field correction parameters
+/// \param [in] hCamera Camera handle.
+/// \param [in] pDarkFieldingImage dark field image
+/// \param [in] pDarkFieldingFrInfo dark field image information
+/// \param [in] pLightFieldingImage Brightfield image
+/// \param [in] pLightFieldingFrInfo Brightfield image information
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectSetParameter(
+	CameraHandle hCamera,
+	BYTE const* pDarkFieldingImage,
+	tSdkFrameHead const* pDarkFieldingFrInfo,
+	BYTE const* pLightFieldingImage,
+	tSdkFrameHead const* pLightFieldingFrInfo
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief è·å–å¹³åœºæ ¡æ­£å‚æ•°çš„çŠ¶æ€
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pbValid è¿”å›å‚æ•°æ˜¯å¦æœ‰æ•ˆ
+/// \param [out] pFilePath è¿”å›å‚æ•°æ–‡ä»¶çš„è·¯å¾„
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get status of flat field correction parameters
+/// \param [in] hCamera Camera handle.
+/// \param [out] pbValid Return whether the parameter is valid
+/// \param [out] pFilePath Returns the path of the parameter file
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectGetParameterState(
+	CameraHandle hCamera,
+	BOOL *pbValid,
+	char *pFilePath
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief ä¿å­˜å¹³åœºæ ¡æ­£å‚æ•°åˆ°æ–‡ä»¶
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pszFileName æ–‡ä»¶è·¯å¾„
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Save flat correction parameters to file
+/// \param [in] hCamera Camera handle.
+/// \param [in] pszFileName file path
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectSaveParameterToFile(
+	CameraHandle hCamera,
+	char const* pszFileName
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief ä»æ–‡ä»¶ä¸­åŠ è½½å¹³åœºæ ¡æ­£å‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pszFileName æ–‡ä»¶è·¯å¾„
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Load flat field correction parameters from file
+/// \param [in] hCamera Camera handle.
+/// \param [in] pszFileName file path
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraFlatFieldingCorrectLoadParameterFromFile(
+	CameraHandle hCamera,
+	char const* pszFileName
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief è®¾ç½®3Dé™å™ªå‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] bEnable  å¯ç”¨æˆ–ç¦ç”¨
+/// \param [in] nCount   ä½¿ç”¨å‡ å¼ å›¾ç‰‡è¿›è¡Œé™å™ª(2-8å¼ )
+/// \param [in] Weights  é™å™ªæƒé‡ï¼Œå¦‚å½“ä½¿ç”¨3å¼ å›¾ç‰‡è¿›è¡Œé™å™ªåˆ™è¿™ä¸ªå‚æ•°å¯ä»¥ä¼ å…¥3ä¸ªæµ®ç‚¹(0.3,0.3,0.4)ï¼Œæœ€åä¸€å¼ å›¾ç‰‡çš„æƒé‡å¤§äºå‰2å¼ ã€‚å¦‚æœä¸éœ€è¦ä½¿ç”¨æƒé‡ï¼Œåˆ™æŠŠè¿™ä¸ªå‚æ•°ä¼ å…¥0ï¼Œè¡¨ç¤ºæ‰€æœ‰å›¾ç‰‡çš„æƒé‡ç›¸åŒ(0.33,0.33,0.33)
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Set 3D noise reduction parameters
+/// \param [in] hCamera Camera handle.
+/// \param [in] bEnable enable or disable
+/// \param [in] nCount Noise reduction using several pictures (2-8)
+/// \param [in] Weights Noise reduction weight, such as when using 3 pictures for noise reduction, this parameter can be passed in 3 floating points (0.3, 0.3, 0.4). The weight of the last picture is larger than the first 2 pictures. . If you do not need to use weights, then pass this parameter to 0, indicating that all images have the same weight (0.33, 0.33, 0.33)
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSetDenoise3DParams(
+	CameraHandle    hCamera, 
+	BOOL			bEnable,
+	int				nCount,
+	float			*Weights
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief è·å–å½“å‰çš„3Dé™å™ªå‚æ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] bEnable  å¯ç”¨æˆ–ç¦ç”¨
+/// \param [out] nCount   ä½¿ç”¨äº†å‡ å¼ å›¾ç‰‡è¿›è¡Œé™å™ª
+/// \param [out] bUseWeight æ˜¯å¦ä½¿ç”¨äº†é™å™ªæƒé‡
+/// \param [out] Weights  é™å™ªæƒé‡
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Get current 3D noise reduction parameters
+/// \param [in] hCamera Camera handle.
+/// \param [out] bEnable enable or disable
+/// \param [out] nCount uses several pictures for noise reduction
+/// \param [out] bUseWeight whether to use noise reduction weights
+/// \param [out] Weights Noise Reduction Weights
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraGetDenoise3DParams(
+	CameraHandle    hCamera, 
+	BOOL			*bEnable,
+	int				*nCount,
+	BOOL			*bUseWeight,
+	float			*Weights
+	);
+
+/// @ingroup API_ENHANCE
+/// \~chinese
+/// \brief å¯¹ä¸€ç»„å¸§è¿›è¡Œä¸€æ¬¡é™å™ªå¤„ç†
+/// \param [in] InFramesHead  è¾“å…¥å¸§å¤´
+/// \param [in] InFramesData  è¾“å…¥å¸§æ•°æ®
+/// \param [in] nCount   è¾“å…¥å¸§çš„æ•°é‡
+/// \param [in] Weights  é™å™ªæƒé‡
+/// \param [out] OutFrameHead è¾“å‡ºå¸§å¤´
+/// \param [out] OutFrameData è¾“å‡ºå¸§æ•°æ®
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Perform a noise reduction on a group of frames
+/// \param [in] InFramesHead input frame header
+/// \param [in] InFramesData input frame data
+/// \param [in] nCount Number of input frames
+/// \param [in] Weights Noise Reduction Weight
+/// \param [out] OutFrameHead output frame header
+/// \param [out] OutFrameData output frame data
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraManualDenoise3D(
+	tSdkFrameHead	*InFramesHead,
+	BYTE			**InFramesData,
+	int				nCount,
+	float			*Weights,
+	tSdkFrameHead	*OutFrameHead,
+	BYTE			*OutFrameData
+	);
+
+/// @ingroup API_ADVANCE
+/// \~chinese
+/// \brief è·å–è¾“å‡ºæ ¼å¼çš„ç‰¹æ€§æ”¯æŒã€‚ï¼ˆæ¯”å¦‚ï¼šH264ã€H265æ”¯æŒè®¾ç½®ç ç‡ï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iMediaType è¾“å‡ºæ ¼å¼ç´¢å¼•
+/// \param [out] uCap ç‰¹æ€§æ”¯æŒ
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the feature support of the output format. (For example: H264, H265 support setting bit rate)
 /// \param [in] hCamera Handle of the camera.
 /// \param [in] iMediaType output format index
 /// \param [out] uCap feature support
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMediaCapability(
+MVSDK_API CameraSdkStatus CameraGetMediaCapability(
 	CameraHandle    hCamera, 
 	int				iMediaType,
 	UINT			*uCap
@@ -6106,18 +4778,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetMediaCapability(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÂëÂÊ¡££¨½ö²¿·ÖÊä³ö¸ñÊ½Ö§³Ö£¬±ÈÈç£ºH264¡¢H265£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMediaType Êä³ö¸ñÊ½Ë÷Òı
-/// \param [in] uRate ÂëÂÊ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®ç ç‡ã€‚ï¼ˆä»…éƒ¨åˆ†è¾“å‡ºæ ¼å¼æ”¯æŒï¼Œæ¯”å¦‚ï¼šH264ã€H265ï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iMediaType è¾“å‡ºæ ¼å¼ç´¢å¼•
+/// \param [in] uRate ç ç‡
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the bit rate. (Only some output formats are supported, such as H264, H265)
 /// \param [in] hCamera Handle of the camera.
 /// \param [in] iMediaType output format index
 /// \param [in] uRate bit rate
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetMediaBitRate(
+MVSDK_API CameraSdkStatus CameraSetMediaBitRate(
 	CameraHandle    hCamera, 
 	int				iMediaType,
 	UINT			uRate
@@ -6125,18 +4797,18 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetMediaBitRate(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñÈ¡ÂëÂÊÉèÖÃ¡££¨½ö²¿·ÖÊä³ö¸ñÊ½Ö§³Ö£¬±ÈÈç£ºH264¡¢H265£©
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] iMediaType Êä³ö¸ñÊ½Ë÷Òı
-/// \param [out] uRate ÂëÂÊ
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–ç ç‡è®¾ç½®ã€‚ï¼ˆä»…éƒ¨åˆ†è¾“å‡ºæ ¼å¼æ”¯æŒï¼Œæ¯”å¦‚ï¼šH264ã€H265ï¼‰
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iMediaType è¾“å‡ºæ ¼å¼ç´¢å¼•
+/// \param [out] uRate ç ç‡
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the bit rate. (Only some output formats are supported, such as H264, H265)
 /// \param [in] hCamera Handle of the camera.
 /// \param [in] iMediaType output format index
 /// \param [out] uRate bit rate
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetMediaBitRate(
+MVSDK_API CameraSdkStatus CameraGetMediaBitRate(
 	CameraHandle    hCamera, 
 	int				iMediaType,
 	UINT			*uRate
@@ -6144,12 +4816,12 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetMediaBitRate(
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÏà»úÖ¡ÊÂ¼ş»Øµ÷º¯Êı¡£µ±Ö¡¿ªÊ¼ÒÔ¼°Ö¡Íê³ÉÊ±£¬pCallBackËùÖ¸ÏòµÄ»Øµ÷º¯Êı¾Í»á±»µ÷ÓÃ¡£ 
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pCallBack »Øµ÷º¯ÊıÖ¸Õë¡£
-/// \param [in] pContext  »Øµ÷º¯ÊıµÄ¸½¼Ó²ÎÊı£¬ÔÚ»Øµ÷º¯Êı±»µ÷ÓÃÊ±¸Ã¸½¼Ó²ÎÊı»á±»´«Èë£¬¿ÉÒÔÎªNULL¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ¶ÔÓÚÈ«¾Ö¿ìÃÅÏà»úÖ¡¿ªÊ¼±íÊ¾Ò»Ö¡ÆØ¹â½áÊø
+/// \brief è®¾ç½®ç›¸æœºå¸§äº‹ä»¶å›è°ƒå‡½æ•°ã€‚å½“å¸§å¼€å§‹ä»¥åŠå¸§å®Œæˆæ—¶ï¼ŒpCallBackæ‰€æŒ‡å‘çš„å›è°ƒå‡½æ•°å°±ä¼šè¢«è°ƒç”¨ã€‚ 
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pCallBack å›è°ƒå‡½æ•°æŒ‡é’ˆã€‚
+/// \param [in] pContext  å›è°ƒå‡½æ•°çš„é™„åŠ å‚æ•°ï¼Œåœ¨å›è°ƒå‡½æ•°è¢«è°ƒç”¨æ—¶è¯¥é™„åŠ å‚æ•°ä¼šè¢«ä¼ å…¥ï¼Œå¯ä»¥ä¸ºNULLã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å¯¹äºå…¨å±€å¿«é—¨ç›¸æœºå¸§å¼€å§‹è¡¨ç¤ºä¸€å¸§æ›å…‰ç»“æŸ
 /// \~english
 /// \brief Set the camera frame event callback function. When the frame starts and when the frame is completed, the callback function pointed to by pCallBack will be called.
 /// \param [in] hCamera Camera handle.
@@ -6157,7 +4829,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetMediaBitRate(
 /// \param [in] pContext Additional parameter of the callback function. This additional parameter will be passed in when the callback function is called. It can be NULL.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
 /// \note For the start of the global shutter camera frame, it means the end of a frame exposure
-MVSDK_API CameraSdkStatus __stdcall CameraSetFrameEventCallback(
+MVSDK_API CameraSdkStatus CameraSetFrameEventCallback(
 	CameraHandle        hCamera,
 	CAMERA_FRAME_EVENT_CALLBACK pCallBack,
 	PVOID               pContext
@@ -6165,109 +4837,109 @@ MVSDK_API CameraSdkStatus __stdcall CameraSetFrameEventCallback(
 
 /// @ingroup API_ENHANCE
 /// \~chinese
-/// \brief ÉèÖÃ½µÔëÏµÊı.
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
+/// \brief è®¾ç½®é™å™ªç³»æ•°.
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
 /// \param [in] value   [0,7]
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the noise reduction coefficient.
 /// \param [in] hCamera Camera handle.
 /// \param [in] value   [0,7]
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetNoiseReductionValue(
+MVSDK_API CameraSdkStatus CameraSetNoiseReductionValue(
 	CameraHandle    hCamera,
 	int				value
 	);
 
 /// @ingroup API_ENHANCE
 /// \~chinese
-/// \brief »ñÈ¡½µÔëÏµÊı.
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
+/// \brief è·å–é™å™ªç³»æ•°.
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
 /// \param [out] value  [0,7]
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the noise reduction coefficient.
 /// \param [in] hCamera Camera handle.
 /// \param [out] value  [0,7]
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetNoiseReductionValue(
+MVSDK_API CameraSdkStatus CameraGetNoiseReductionValue(
 	CameraHandle    hCamera,
 	int*			value
 	);
 
 /// @ingroup API_ENHANCE
 /// \~chinese
-/// \brief ÉèÖÃ¶ÔÊıÇúÏßÖµ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
+/// \brief è®¾ç½®å¯¹æ•°æ›²çº¿å€¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
 /// \param [in] value   [0,255]
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set logarithmic curve value
 /// \param [in] hCamera Camera handle.
 /// \param [in] value   [0,255]
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetLogarithmicCurveValue(
+MVSDK_API CameraSdkStatus CameraSetLogarithmicCurveValue(
 	CameraHandle    hCamera,
 	int				value
 	);
 
 /// @ingroup API_ENHANCE
 /// \~chinese
-/// \brief »ñÈ¡¶ÔÊıÇúÏßÖµ
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
+/// \brief è·å–å¯¹æ•°æ›²çº¿å€¼
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
 /// \param [out] value  [0,255]
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get logarithmic curve value
 /// \param [in] hCamera Camera handle.
 /// \param [out] value  [0,255]
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetLogarithmicCurveValue(
+MVSDK_API CameraSdkStatus CameraGetLogarithmicCurveValue(
 	CameraHandle    hCamera,
 	int*			value
 	);
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief ÉèÖÃÆ´½ÓĞĞÊı£¬´Ó¶àÖ¡ÌáÈ¡Ö¸¶¨µÄĞĞÊıÆ´½Ó³ÉÒ»Ö¡
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] numLines Æ´½ÓĞĞÊı£¨Ä¬ÈÏÎª0£¬0±íÊ¾²»×öÆ´½Ó´¦Àí£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è®¾ç½®æ‹¼æ¥è¡Œæ•°ï¼Œä»å¤šå¸§æå–æŒ‡å®šçš„è¡Œæ•°æ‹¼æ¥æˆä¸€å¸§
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] numLines æ‹¼æ¥è¡Œæ•°ï¼ˆé»˜è®¤ä¸º0ï¼Œ0è¡¨ç¤ºä¸åšæ‹¼æ¥å¤„ç†ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Set the number of splicing lines, extract the specified number of lines from multiple frames and splice them into one frame (only support line scan series)
 /// \param [in] hCamera Camera handle.
 /// \param [in] numLines Number of splicing lines (default is 0, 0 means no splicing processing)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetSpliceLines(
+MVSDK_API CameraSdkStatus CameraSetSpliceLines(
 	CameraHandle    hCamera,
 	int             numLines
 	);
 
 /// @ingroup API_ADVANCE
 /// \~chinese
-/// \brief »ñÈ¡Æ´½ÓĞĞÊı
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] numLines Æ´½ÓĞĞÊı£¨Ä¬ÈÏÎª0£¬0±íÊ¾²»×öÆ´½Ó´¦Àí£©
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief è·å–æ‹¼æ¥è¡Œæ•°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] numLines æ‹¼æ¥è¡Œæ•°ï¼ˆé»˜è®¤ä¸º0ï¼Œ0è¡¨ç¤ºä¸åšæ‹¼æ¥å¤„ç†ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get the number of splicing lines
 /// \param [in] hCamera Camera handle.
 /// \param [in] numLines Number of splicing lines (default is 0, 0 means no splicing processing)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetSpliceLines(
+MVSDK_API CameraSdkStatus CameraGetSpliceLines(
 	CameraHandle    hCamera,
 	int*            numLines
 	);
 
 /// @ingroup API_GRAB
 /// \~chinese
-/// \brief ´ÓÖ¸¶¨Í¨µÀ»ñÈ¡Êı¾İ¡£(½ö²¿·ÖÏà»úÓ²¼şÖ§³Ö´Ë¹¦ÄÜ)
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pszChannelName Í¨µÀÃû¡£
-/// \param [out] pFrameInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢Ö¸Õë¡£
-/// \param [out] pbyBuffer ·µ»ØÍ¼ÏñÊı¾İµÄ»º³åÇøÖ¸Õë¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief ä»æŒ‡å®šé€šé“è·å–æ•°æ®ã€‚(ä»…éƒ¨åˆ†ç›¸æœºç¡¬ä»¶æ”¯æŒæ­¤åŠŸèƒ½)
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pszChannelName é€šé“åã€‚
+/// \param [out] pFrameInfo å›¾åƒçš„å¸§å¤´ä¿¡æ¯æŒ‡é’ˆã€‚
+/// \param [out] pbyBuffer è¿”å›å›¾åƒæ•°æ®çš„ç¼“å†²åŒºæŒ‡é’ˆã€‚
+/// \param [in] wTimes æŠ“å–å›¾åƒçš„è¶…æ—¶æ—¶é—´ï¼Œå•ä½æ¯«ç§’ã€‚åœ¨wTimesæ—¶é—´å†…è¿˜æœªè·å¾—å›¾åƒï¼Œåˆ™è¯¥å‡½æ•°ä¼šè¿”å›è¶…æ—¶é”™è¯¯ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Get data from the specified channel. (Only some camera hardware supports this function)
 /// \param [in] hCamera Handle of the camera.
@@ -6276,7 +4948,7 @@ MVSDK_API CameraSdkStatus __stdcall CameraGetSpliceLines(
 /// \param [out] pbyBuffer Returns the buffer pointer of the image data.
 /// \param [in] wTimes Timeout for grabbing an image in milliseconds. The function returns a timeout error if no image has been obtained within wTimes.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSnapChannelBuffer(
+MVSDK_API CameraSdkStatus CameraSnapChannelBuffer(
 	CameraHandle	hCamera,
 	char const*		pszChannelName,
 	tSdkFrameHead*	pFrameInfo,
@@ -6286,122 +4958,192 @@ MVSDK_API CameraSdkStatus __stdcall CameraSnapChannelBuffer(
 
 /// @ingroup API_GRAB
 /// \~chinese
-/// \brief ÊÍ·ÅÓÉ@link #CameraSnapChannelBuffer @endlink»ñµÃµÄ»º³åÇø¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pszChannelName Í¨µÀÃû¡£
-/// \param [in] pbyBuffer Ö¡»º³åÇøµØÖ·¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief é‡Šæ”¾ç”±@link #CameraSnapChannelBuffer @endlinkè·å¾—çš„ç¼“å†²åŒºã€‚
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pszChannelName é€šé“åã€‚
+/// \param [in] pbyBuffer å¸§ç¼“å†²åŒºåœ°å€ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
 /// \brief Releases the buffer obtained by @link #CameraSnapChannelBuffer @endlink.
 /// \param [in] hCamera Camera handle.
 /// \param [in] pszChannelName Channel name.
 /// \param [in] pbyBuffer Frame buffer address.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraReleaseChannelBuffer(
+MVSDK_API CameraSdkStatus CameraReleaseChannelBuffer(
 	CameraHandle    hCamera, 
 	char const*		pszChannelName,
 	BYTE*           pbyBuffer
 	);
 
-/// @ingroup API_TRIGGER
+/// @ingroup API_UTIL
 /// \~chinese
-/// \brief ´¥·¢±àÂëÆ÷¡£µ±ÏßÕóÏà»ú´¦ÓÚÌõ¼şĞĞÄ£Ê½ÏÂÊ±£¬Èç¹û´¥·¢·½Ê½ÊÇµçÆ½£¬µ÷ÓÃ´Ëº¯Êı¼¤»î±àÂëÆ÷ºó£¬Ïà»ú¿ªÊ¼½ÓÊÕ±àÂëÆ÷ĞÅºÅ²É¼¯£¬Ö±µ½ÔÙ´Îµ÷ÓÃ´Ëº¯ÊıÍ£Ö¹ÏìÓ¦±àÂëÆ÷¡£Èç¹û´¥·¢·½Ê½ÊÇ±ßÑØ£¬µ÷ÓÃ´Ëº¯Êı¼¤»î±àÂëÆ÷ºó£¬Ïà»ú¿ªÊ¼½ÓÊÕ±àÂëÆ÷ĞÅºÅ²É¼¯£¬²É¼¯ÍêÉè¶¨µÄĞĞÊıºó£¨·Ö±æÂÊ¸ß¶È*Ò»´Î´¥·¢Ö¡Êı£©£¬Ïà»ú×Ô¶¯Í£Ö¹ÏìÓ¦±àÂëÆ÷¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] action  0£ºÍ£Ö¹ÏìÓ¦±àÂëÆ÷    1: ¼¤»î±àÂëÆ÷
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief å›¾ç‰‡æ¸…æ™°åº¦è¯„ä¼°
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] iAlgorithSel ä½¿ç”¨çš„è¯„ä¼°ç®—æ³•,å‚è€ƒ@link emEvaluateDefinitionAlgorith @endlinkçš„å®šä¹‰
+/// \param [in] pbyIn    è¾“å…¥å›¾åƒæ•°æ®çš„ç¼“å†²åŒºåœ°å€ï¼Œä¸èƒ½ä¸ºNULLã€‚ 
+/// \param [in] pFrInfo  è¾“å…¥å›¾åƒçš„å¸§å¤´ä¿¡æ¯
+/// \param [out] DefinitionValue è¿”å›çš„æ¸…æ™°åº¦ä¼°å€¼ï¼ˆè¶Šå¤§è¶Šæ¸…æ™°ï¼‰
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief Trigger the encoder. When the line scan camera is in the conditional line mode, if the trigger mode is level, after calling this function to activate the encoder, the camera starts to receive encoder signal acquisition, until this function is called again to stop responding to the encoder. If the trigger mode is edge, after calling this function to activate the encoder, the camera starts to receive encoder signal acquisition, and after collecting the set number of lines (resolution height * number of trigger frames at a time), the camera automatically stops responding to the encoder.
+/// \brief Image clarity assessment
 /// \param [in] hCamera Camera handle.
-/// \param [in] action 0: stop responding to the encoder 1: activate the encoder
+/// \param [in] iAlgorithSel The currently used evaluation algorithm, see @link emEvaluateDefinitionAlgorith @endlink
+/// \param [in] pbyIn The buffer address of the input image data. Cannot be NULL.
+/// \param [in] pFrInfo input image frame header information
+/// \param [out] DefinitionValue Returns the sharpness value (greater the clearer)
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraSetRotaryEncTrigger(
+MVSDK_API CameraSdkStatus CameraEvaluateImageDefinition(
+	CameraHandle        hCamera,
+	INT					iAlgorithSel,
+	BYTE*               pbyIn, 
+	tSdkFrameHead*      pFrInfo,
+	double*				DefinitionValue
+	);
+
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief æ‰“å¼€åç‚¹ç¼–è¾‘é¢æ¿
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] hParent    è°ƒç”¨è¯¥å‡½æ•°çš„çª—å£çš„å¥æŸ„ã€‚å¯ä»¥ä¸ºNULLã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Open the dead pixels editing panel
+/// \param [in] hCamera Camera handle.
+/// \param [in] hParent The handle of the window that called the function. Can be NULL.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraCustomizeDeadPixels(
+	CameraHandle	hCamera,
+	HWND			hParent
+	);
+
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief è¯»å–ç›¸æœºåç‚¹
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [out] pRows åç‚¹yåæ ‡
+/// \param [out] pCols åç‚¹xåæ ‡
+/// \param [out] pNumPixel è¾“å…¥æ—¶è¡¨ç¤ºè¡Œåˆ—ç¼“å†²åŒºçš„å¤§å°ï¼Œè¿”å›æ—¶è¡¨ç¤ºè¡Œåˆ—ç¼“å†²åŒºä¸­è¿”å›çš„åç‚¹æ•°é‡ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \note å½“pRowsæˆ–è€…pColsä¸ºNULLæ—¶å‡½æ•°ä¼šæŠŠç›¸æœºå½“å‰çš„åç‚¹ä¸ªæ•°é€šè¿‡pNumPixelè¿”å›
+/// \~english
+/// \brief Reading camera dead pixels
+/// \param [in] hCamera Camera handle.
+/// \param [out] pRows dead pixels y coordinates
+/// \param [out] pCols bad x coordinate
+/// \param [out] pNumPixel Inputs the size of the row and column buffers. When returned, it indicates the number of bad pixels returned in the row and column buffers.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+/// \note When pRows or pCols is NULL, the function will return the camera's current number of dead pixels through pNumPixel.
+MVSDK_API CameraSdkStatus CameraReadDeadPixels(
 	CameraHandle    hCamera,
-	int             action
+	USHORT*			pRows,
+	USHORT*			pCols,
+	UINT*			pNumPixel
 	);
 
-/// @ingroup API_TRIGGER
+/// @ingroup API_DEAD_PIXEL
 /// \~chinese
-/// \brief »ñÈ¡±àÂëÆ÷´¥·¢×´Ì¬¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [out] action ·µ»Ø´¥·¢×´Ì¬
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
+/// \brief æ·»åŠ ç›¸æœºåç‚¹
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pRows åç‚¹yåæ ‡
+/// \param [in] pCols åç‚¹xåæ ‡
+/// \param [in] NumPixel è¡Œåˆ—ç¼“å†²åŒºä¸­çš„åç‚¹ä¸ªæ•°
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief Get the encoder trigger status.
+/// \brief Add camera dead pixels
 /// \param [in] hCamera Camera handle.
-/// \param [out] action returns the trigger status
+/// \param [in] pRows dead point y coordinates
+/// \param [in] pCols bad x coordinate
+/// \param [in] NumPixel Number of dead pixels in row buffer
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-MVSDK_API CameraSdkStatus __stdcall CameraGetRotaryEncTrigger(
+MVSDK_API CameraSdkStatus CameraAddDeadPixels(
 	CameraHandle    hCamera,
-	int*            action
+	USHORT*			pRows,
+	USHORT*			pCols,
+	UINT			NumPixel
 	);
 
-/// @ingroup API_GRAB
+/// @ingroup API_DEAD_PIXEL
 /// \~chinese
-/// \brief Ìá½»×¥ÅÄÇëÇó£¬×¥ÅÄÍê³ÉºóÍ¼ÏñÊı¾İ»áÖ±½Ó´æµ½ÓÃ»§Ìá¹©µÄ»º³åÇø¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [inout] pUserBuffer ÓÃÀ´½ÓÊÕÍ¼ÏñµÄ»º³åÇø¡£
-/// \param [inout] pUserBufferSize »º³åÇø´óĞ¡£¬Èç¹û´óĞ¡²»¹»ÔòÌá½»Ê§°Ü£¬²¢ÇÒ·µ»Øµ±Ç°ÅäÖÃÏÂĞèÒªµÄ×îĞ¡»º³åÇø´óĞ¡¡£Èç¹ûpUserBuffer=NULL£¬Ò²»á·µ»ØĞèÒªµÄ×îĞ¡»º³åÇø´óĞ¡¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÇëÇóÌá½»³É¹¦ºóĞèµ÷ÓÃ@link CameraWaitUserBufferSnap @endlinkÀ´Íê½áÇëÇó¡£
+/// \brief åˆ é™¤ç›¸æœºæŒ‡å®šåç‚¹
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] pRows åç‚¹yåæ ‡
+/// \param [in] pCols åç‚¹xåæ ‡
+/// \param [in] NumPixel è¡Œåˆ—ç¼“å†²åŒºä¸­çš„åç‚¹ä¸ªæ•°
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief Submit a capture request, and the image data will be directly stored in the buffer provided by the user after the capture is completed.
+/// \brief Delete camera specified dead pixels
 /// \param [in] hCamera Camera handle.
-/// \param [inout] pUserBuffer The buffer used to receive images.
-/// \param [inout] pUserBufferSize buffer size, if the size is not enough, the submission will fail, and the minimum buffer size required under the current configuration will be returned. If pUserBuffer=NULL, the minimum required buffer size is also returned.
+/// \param [in] pRows dead point y coordinates
+/// \param [in] pCols bad x coordinate
+/// \param [in] NumPixel Number of dead pixels in row buffer
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note After the request is submitted successfully, you need to call @link CameraWaitUserBufferSnap @endlink to end the request.
-MVSDK_API CameraSdkStatus __stdcall CameraSubmitUserBufferSnap(
-	CameraHandle	hCamera,
-	BYTE*			pUserBuffer,
-	UINT*			pUserBufferSize
+MVSDK_API CameraSdkStatus CameraRemoveDeadPixels(
+	CameraHandle    hCamera,
+	USHORT*			pRows,
+	USHORT*			pCols,
+	UINT			NumPixel
 	);
 
-/// @ingroup API_GRAB
+/// @ingroup API_DEAD_PIXEL
 /// \~chinese
-/// \brief È¡ÏûÒÑÌá½»µÄ×¥ÅÄÇëÇó
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pUserBuffer ×¥ÅÄÇëÇóÊ¹ÓÃµÄÓÃ»§»º³åÇø¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note È¡Ïû³É¹¦ºóÒÀ¾ÉĞèÒªµ÷ÓÃ@link CameraWaitUserBufferSnap @endlinkÀ´Íê½áÇëÇó¡£
+/// \brief åˆ é™¤ç›¸æœºçš„æ‰€æœ‰åç‚¹
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief cancels the submitted snapshot request
+/// \brief Remove all camera's dead pixels
 /// \param [in] hCamera Camera handle.
-/// \param [in] pUserBuffer The user buffer used by the capture request.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note After successful cancellation, you still need to call @link CameraWaitUserBufferSnap @endlink to end the request.
-MVSDK_API CameraSdkStatus __stdcall CameraCancelUserBufferSnap(
-	CameraHandle	hCamera,
-	BYTE*			pUserBuffer
+MVSDK_API CameraSdkStatus CameraRemoveAllDeadPixels(
+	CameraHandle    hCamera
 	);
 
-/// @ingroup API_GRAB
+/// @ingroup API_DEAD_PIXEL
 /// \~chinese
-/// \brief Ìá½»×¥ÅÄÇëÇó£¬×¥ÅÄÍê³ÉºóÍ¼ÏñÊı¾İ»áÖ±½Ó´æµ½ÓÃ»§Ìá¹©µÄ»º³åÇø¡£
-/// \param [in] hCamera Ïà»úµÄ¾ä±ú¡£
-/// \param [in] pUserBuffer ×¥ÅÄÇëÇóÊ¹ÓÃµÄÓÃ»§»º³åÇø¡£
-/// \param [out] pSnapStatus ·µ»Ø×¥ÅÄ×´Ì¬£¬CAMERA_STATUS_SUCCESS±íÊ¾×¥ÅÄ³É¹¦£¬ÆäËûÖµ±íÊ¾×¥ÅÄ´íÎó¡£
-/// \param [out] pFrameInfo Í¼ÏñµÄÖ¡Í·ĞÅÏ¢Ö¸Õë¡£
-/// \param [out] ppImgStart ·µ»ØÍ¼ÏñÆğÊ¼Ö¸Õë¡£
-/// \param [in] wTimes ×¥È¡Í¼ÏñµÄ³¬Ê±Ê±¼ä£¬µ¥Î»ºÁÃë¡£ÔÚwTimesÊ±¼äÄÚ»¹Î´»ñµÃÍ¼Ïñ£¬Ôò¸Ãº¯Êı»á·µ»Ø³¬Ê±´íÎó¡£
-/// \return ³É¹¦·µ»Ø CAMERA_STATUS_SUCCESS(0)¡£·ñÔò·µ»Ø·Ç0ÖµµÄ´íÎóÂë, Çë²Î¿¼ CameraStatus.h ÖĞ´íÎóÂëµÄ¶¨Òå¡£
-/// \note ÓÉÓÚÍ¼ÏñÊı¾İ¿ÉÄÜ¶îÍâ°üº¬Ò»Ğ©Í·ĞÅÏ¢£¬Òò´ËÍ¼ÏñÊı¾İÆğÊ¼Î»ÖÃ¿ÉÄÜ²»µÈÓÚÓÃ»§Ìá¹©µÄ»º³åÇøÊ×µØÖ·£¬Ê¼ÖÕÊ¹ÓÃppImgStart·µ»ØµÄµØÖ·À´·ÃÎÊÍ¼ÏñÊı¾İ¡£
+/// \brief ä¿å­˜ç›¸æœºåç‚¹åˆ°ç›¸æœºå­˜å‚¨ä¸­
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
 /// \~english
-/// \brief Submit a capture request, and the image data will be directly stored in the buffer provided by the user after the capture is completed.
+/// \brief Save camera dead pixels to camera memory
 /// \param [in] hCamera Camera handle.
-/// \param [in] pUserBuffer The user buffer used by the capture request.
-/// \param [out] pSnapStatus Returns the snapshot status, CAMERA_STATUS_SUCCESS indicates that the snapshot is successful, and other values indicate that the snapshot is wrong.
-/// \param [out] pFrameInfo The header information pointer of the image.
-/// \param [out] ppImgStart Return image data start pointer.
-/// \param [in] wTimes Timeout for grabbing an image in milliseconds. The function returns a timeout error if no image has been obtained within wTimes.
 /// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
-/// \note Since the image data may contain some additional header information, the starting position of the image data may not be equal to the first address of the buffer provided by the user. Always use the address returned by ppImgStart to access the image data.
-MVSDK_API CameraSdkStatus __stdcall CameraWaitUserBufferSnap(
-	CameraHandle	hCamera,
-	BYTE*			pUserBuffer,
-	INT*			pSnapStatus,
-	tSdkFrameHead*	pFrameInfo,
-	BYTE**			ppImgStart,
-	UINT			wTimes
+MVSDK_API CameraSdkStatus CameraSaveDeadPixels(
+	CameraHandle    hCamera
 	);
 
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief ä¿å­˜ç›¸æœºåç‚¹åˆ°æ–‡ä»¶ä¸­
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] sFileName  æ–‡ä»¶çš„å®Œæ•´è·¯å¾„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Save Camera Dead Points to File
+/// \param [in] hCamera Camera handle.
+/// \param [in] sFileName Full path to the file.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraSaveDeadPixelsToFile(
+	CameraHandle    hCamera,
+	char const*		sFileName
+	);
+
+/// @ingroup API_DEAD_PIXEL
+/// \~chinese
+/// \brief ä»æ–‡ä»¶åŠ è½½ç›¸æœºåç‚¹
+/// \param [in] hCamera ç›¸æœºçš„å¥æŸ„ã€‚
+/// \param [in] sFileName  æ–‡ä»¶çš„å®Œæ•´è·¯å¾„ã€‚
+/// \return æˆåŠŸè¿”å› CAMERA_STATUS_SUCCESS(0)ã€‚å¦åˆ™è¿”å›é0å€¼çš„é”™è¯¯ç , è¯·å‚è€ƒ CameraStatus.h ä¸­é”™è¯¯ç çš„å®šä¹‰ã€‚
+/// \~english
+/// \brief Loading camera dead pixels from file
+/// \param [in] hCamera Camera handle.
+/// \param [in] sFileName Full path to the file.
+/// \return Returns CAMERA_STATUS_SUCCESS(0) successfully. Otherwise, it returns a non-zero error code. Please refer to the definition of the error code in CameraStatus.h.
+MVSDK_API CameraSdkStatus CameraLoadDeadPixelsFromFile(
+	CameraHandle    hCamera,
+	char const*		sFileName
+	);
+
+#ifdef __cplusplus
+}
 #endif
+#endif
+

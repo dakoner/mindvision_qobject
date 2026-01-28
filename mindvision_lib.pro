@@ -26,4 +26,4 @@ HEADERS += \
     src/VideoThread.h \
     src/mindvision_qobject_global.h
 
-LIBS += -L$$PWD/Lib -lMVCAMSDK_X64
+LIBS += -L$$PWD/Lib -lMVSDK
