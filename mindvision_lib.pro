@@ -10,10 +10,15 @@ DEFINES += MINDVISION_QOBJECT_LIBRARY
 INCLUDEPATH += Include
 INCLUDEPATH += src
 
-PYTHON_INCLUDE_DIR = C:/Users/davidek/scoop/apps/python313/current/Include
-PYBIND11_INCLUDE_DIR = C:/Users/davidek/scoop/apps/python313/current/Lib/site-packages/pybind11/include
-
-INCLUDEPATH += $$PYTHON_INCLUDE_DIR $$PYBIND11_INCLUDE_DIR
+CONFIG(debug, debug|release) {
+    DESTDIR = $$OUT_PWD/debug
+    OBJECTS_DIR = $$OUT_PWD/debug
+    MOC_DIR = $$OUT_PWD/debug
+} else {
+    DESTDIR = $$OUT_PWD/release
+    OBJECTS_DIR = $$OUT_PWD/release
+    MOC_DIR = $$OUT_PWD/release
+}
 
 CONFIG += c++2a
 

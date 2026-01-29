@@ -1,7 +1,6 @@
 QT       += core gui
 
 TARGET = _mindvision_qobject_py
-QMAKE_EXTENSION_SHLIB = pyd
 TEMPLATE = lib
 CONFIG += shared
 
@@ -21,8 +20,12 @@ CONFIG += c++17
 # Directory where the Python module will be placed
 CONFIG(debug, debug|release) {
     DESTDIR = $$OUT_PWD/debug
+    OBJECTS_DIR = $$OUT_PWD/debug
+    MOC_DIR = $$OUT_PWD/debug
 } else {
     DESTDIR = $$OUT_PWD/release
+    OBJECTS_DIR = $$OUT_PWD/release
+    MOC_DIR = $$OUT_PWD/release
 }
 
 SOURCES += src/mindvision_qobject_python.cpp
@@ -39,5 +42,13 @@ LIBS += -lmindvision_qobject
 LIBS += -L$$PWD/Lib -lMVSDK
 
 # Link against the Python library
-PYTHON_LIB_DIR = C:/Users/davidek/scoop/apps/python313/current/libs
-LIBS += -L$$PYTHON_LIB_DIR -lpython3.11
+win32: {
+    PYTHON_LIB_DIR = C:/Users/davidek/scoop/apps/python313/current/libs
+    LIBS += -L$$PYTHON_LIB_DIR -lpython3.11
+} else: {
+    LIBS += -lpython3.11
+}
+
+unix:!macx: {
+    QMAKE_POST_LINK += $$QMAKE_MOVE $$shell_path($$DESTDIR/lib_mindvision_qobject_py.so) $$shell_path($$DESTDIR/_mindvision_qobject_py.so)
+}

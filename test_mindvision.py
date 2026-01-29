@@ -7,13 +7,6 @@ script_dir = os.path.dirname(__file__)
 release_dir = os.path.join(script_dir, "release")
 sys.path.insert(0, release_dir)
 
-os.add_dll_directory(release_dir)
-# Add Qt bin directory
-os.add_dll_directory(r"C:\Qt\6.10.1\msvc2022_64\bin")
-# Add MindVision SDK directory
-os.add_dll_directory(r"C:\Program Files (x86)\MindVision\SDK\X64")
-
-
 from _mindvision_qobject_py import MindVisionCamera, VideoThread
 print("Successfully imported _mindvision_qobject_py module.")
 
