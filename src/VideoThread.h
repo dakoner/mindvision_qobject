@@ -6,6 +6,7 @@
 #include <QWaitCondition>
 #include <QQueue>
 #include <QImage>
+#include <QProcess>
 #include "mindvision_qobject_global.h"
 
 class MindVisionCamera;

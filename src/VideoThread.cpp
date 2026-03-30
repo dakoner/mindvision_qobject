@@ -1,6 +1,5 @@
 #include "VideoThread.h"
 #include "MindVisionCamera.h"
-#include <QFile>
 #include <QDebug>
 
 VideoThread::VideoThread(QObject *parent) 
@@ -89,7 +88,7 @@ void VideoThread::clearFrameSource()
 
 void VideoThread::run()
 {
-    QFile outputFile;
+    QProcess ffmpeg;
     
     m_mutex.lock();
     int width = m_width;
@@ -98,23 +97,42 @@ void VideoThread::run()
     QString filename = m_filename;
     m_mutex.unlock();
 
-    outputFile.setFileName(filename);
-    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        qDebug() << "VideoThread: Failed to open output file:" << outputFile.errorString();
+    QStringList args;
+    args << "-y"
+         << "-f" << "rawvideo"
+         << "-vcodec" << "rawvideo"
+         << "-pix_fmt" << "rgb24"
+         << "-s" << QString("%1x%2").arg(width).arg(height)
+         << "-r" << QString::number(fps)
+         << "-i" << "-"
+         << "-an"
+         << "-c:v" << "libx264"
+         << "-preset" << "fast"
+         << "-crf" << "18"
+         << "-pix_fmt" << "yuv420p"
+         << filename;
+
+    qDebug() << "VideoThread: Starting ffmpeg with" << args.join(" ");
+
+    ffmpeg.setProcessChannelMode(QProcess::ForwardedChannels);
+    ffmpeg.start("ffmpeg", args);
+    if (!ffmpeg.waitForStarted()) {
+        qDebug() << "VideoThread: Failed to start ffmpeg:" << ffmpeg.errorString();
         return;
     }
 
-    qDebug() << "VideoThread: Writing raw RGB24 frames to" << filename
-             << "(" << width << "x" << height << "@" << fps << "fps )";
-
-    auto writeAll = [&outputFile](const char *data, qint64 bytesToWrite) {
+    auto writeAll = [&ffmpeg](const char *data, qint64 bytesToWrite) -> qint64 {
         qint64 totalWritten = 0;
         while (totalWritten < bytesToWrite) {
-            const qint64 written = outputFile.write(data + totalWritten, bytesToWrite - totalWritten);
+            const qint64 written = ffmpeg.write(data + totalWritten, bytesToWrite - totalWritten);
             if (written <= 0) {
                 return written;
             }
             totalWritten += written;
+
+            if (!ffmpeg.waitForBytesWritten(-1)) {
+                return static_cast<qint64>(-1);
+            }
         }
         return totalWritten;
     };
@@ -154,15 +172,16 @@ void VideoThread::run()
             
             QImage convertedImg = img.convertToFormat(QImage::Format_RGB888);
 
-            if (outputFile.isOpen()) {
+            if (ffmpeg.state() == QProcess::Running) {
                 if (convertedImg.bytesPerLine() != convertedImg.width() * 3) {
                     const qint64 bytesToWrite = convertedImg.width() * 3;
                     for (int y = 0; y < convertedImg.height(); ++y) {
                         const qint64 written = writeAll(reinterpret_cast<const char*>(convertedImg.scanLine(y)), bytesToWrite);
                         if (written != bytesToWrite) {
-                             qDebug() << "VideoThread: Failed to write scanline" << y << "to disk. Wrote"
-                                      << written << "of" << bytesToWrite << "error:" << outputFile.errorString();
-                             outputFile.close();
+                             qDebug() << "VideoThread: Failed to write scanline" << y << "to ffmpeg. Wrote"
+                                      << written << "of" << bytesToWrite << "error:" << ffmpeg.errorString();
+                             ffmpeg.kill();
+                             ffmpeg.waitForFinished();
                              break;
                         }
                     }
@@ -170,9 +189,10 @@ void VideoThread::run()
                     const qint64 bytesToWrite = convertedImg.sizeInBytes();
                     const qint64 written = writeAll(reinterpret_cast<const char*>(convertedImg.bits()), bytesToWrite);
                     if (written != bytesToWrite) {
-                        qDebug() << "VideoThread: Failed to write whole image to disk. Wrote"
-                                 << written << "of" << bytesToWrite << "error:" << outputFile.errorString();
-                        outputFile.close();
+                        qDebug() << "VideoThread: Failed to write whole image to ffmpeg. Wrote"
+                                 << written << "of" << bytesToWrite << "error:" << ffmpeg.errorString();
+                        ffmpeg.kill();
+                        ffmpeg.waitForFinished();
                     }
                 }
             }
@@ -193,9 +213,10 @@ void VideoThread::run()
         }
     }
     
-    if (outputFile.isOpen()) {
-        outputFile.flush();
-        outputFile.close();
+    if (ffmpeg.state() != QProcess::NotRunning) {
+        ffmpeg.closeWriteChannel();
+        ffmpeg.waitForFinished(-1);
+        ffmpeg.close();
     }
     
     qDebug() << "VideoThread: Finished.";

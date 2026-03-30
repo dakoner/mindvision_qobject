@@ -200,11 +200,11 @@ class CameraGUI(QMainWindow):
             self.record_file_dialog = QFileDialog(self)
             self.record_file_dialog.setFileMode(QFileDialog.AnyFile)
             self.record_file_dialog.setAcceptMode(QFileDialog.AcceptSave)
-            self.record_file_dialog.setNameFilter("Raw RGB24 files (*.rgb);;All files (*)")
+            self.record_file_dialog.setNameFilter("Matroska video files (*.mkv);;All files (*)")
 
             # Generate default filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            default_filename = f"recording_{timestamp}.rgb"
+            default_filename = f"recording_{timestamp}.mkv"
             self.record_file_dialog.selectFile(default_filename)
 
             self.record_file_dialog.fileSelected.connect(self.on_record_file_selected)
@@ -219,8 +219,8 @@ class CameraGUI(QMainWindow):
 
     def on_record_file_selected(self, filename):
         """Handle async recording filename selection without blocking UI updates."""
-        if not filename.lower().endswith('.rgb'):
-            filename += '.rgb'
+        if not filename.lower().endswith('.mkv'):
+            filename += '.mkv'
 
         if self.last_frame_size is None:
             QMessageBox.warning(self, "No Frame", "Wait for the first camera frame before starting recording.")
