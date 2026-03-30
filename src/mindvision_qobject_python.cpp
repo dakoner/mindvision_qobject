@@ -39,11 +39,36 @@ class PyMindVisionCamera : public MindVisionCamera {
 public:
     using MindVisionCamera::MindVisionCamera;
 
+    void registerFrameViewCallback(py::function callback) {
+        m_frameViewCallback = callback;
+        if (m_frameViewCallbackConnection) {
+            QObject::disconnect(m_frameViewCallbackConnection);
+            m_frameViewCallbackConnection = QMetaObject::Connection();
+        }
+
+        m_frameViewCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
+            if (m_frameViewCallback) {
+                py::gil_scoped_acquire acquire;
+                try {
+                    auto frameView = py::memoryview::from_memory(
+                        reinterpret_cast<const char*>(img.bits()),
+                        static_cast<py::ssize_t>(img.sizeInBytes()));
+                    m_frameViewCallback(img.width(), img.height(), img.bytesPerLine(), static_cast<int>(img.format()), frameView);
+                } catch (py::error_already_set &e) {
+                    qDebug() << "Python error in frame view callback:" << e.what();
+                }
+            }
+        });
+    }
+
     void registerFrameCallback(py::function callback) {
         m_frameCallback = callback;
-        disconnect(this, &MindVisionCamera::frameReady, nullptr, nullptr);
+        if (m_frameCallbackConnection) {
+            QObject::disconnect(m_frameCallbackConnection);
+            m_frameCallbackConnection = QMetaObject::Connection();
+        }
         
-        connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
+        m_frameCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
             if (m_frameCallback) {
                 py::gil_scoped_acquire acquire;
                 try {
@@ -59,9 +84,12 @@ public:
 
     void registerFpsCallback(py::function callback) {
         m_fpsCallback = callback;
-        disconnect(this, &MindVisionCamera::fpsChanged, nullptr, nullptr);
+        if (m_fpsCallbackConnection) {
+            QObject::disconnect(m_fpsCallbackConnection);
+            m_fpsCallbackConnection = QMetaObject::Connection();
+        }
         
-        connect(this, &MindVisionCamera::fpsChanged, this, [this](double fps) {
+        m_fpsCallbackConnection = connect(this, &MindVisionCamera::fpsChanged, this, [this](double fps) {
              py::gil_scoped_acquire acquire;
              if (m_fpsCallback) {
                  try {
@@ -75,9 +103,12 @@ public:
     
     void registerErrorCallback(py::function callback) {
         m_errorCallback = callback;
-        disconnect(this, &MindVisionCamera::errorOccurred, nullptr, nullptr);
+        if (m_errorCallbackConnection) {
+            QObject::disconnect(m_errorCallbackConnection);
+            m_errorCallbackConnection = QMetaObject::Connection();
+        }
         
-        connect(this, &MindVisionCamera::errorOccurred, this, [this](QString msg) {
+        m_errorCallbackConnection = connect(this, &MindVisionCamera::errorOccurred, this, [this](QString msg) {
              py::gil_scoped_acquire acquire;
              if (m_errorCallback) {
                  try {
@@ -91,19 +122,41 @@ public:
 
 private:
     py::function m_frameCallback;
+    py::function m_frameViewCallback;
     py::function m_fpsCallback;
     py::function m_errorCallback;
+    QMetaObject::Connection m_frameCallbackConnection;
+    QMetaObject::Connection m_frameViewCallbackConnection;
+    QMetaObject::Connection m_fpsCallbackConnection;
+    QMetaObject::Connection m_errorCallbackConnection;
 };
 
 // Wrapper for VideoThread
 class PyVideoThread : public VideoThread {
 public:
     using VideoThread::VideoThread;
+
+        void setFrameSource(PyMindVisionCamera &camera) {
+            VideoThread::setFrameSource(&camera);
+        }
+
+        void clearFrameSource() {
+            VideoThread::clearFrameSource();
+        }
     
     void addFrameBytes(int width, int height, int bytesPerLine, int format, py::bytes data) {
-         std::string s = data; 
-         // Create QImage from data. Deep copy for the thread queue.
-         QImage img((const uchar*)s.data(), width, height, bytesPerLine, (QImage::Format)format);
+         char *buffer = nullptr;
+         Py_ssize_t size = 0;
+         if (PyBytes_AsStringAndSize(data.ptr(), &buffer, &size) != 0 || buffer == nullptr) {
+             throw py::error_already_set();
+         }
+
+         const qsizetype expectedSize = static_cast<qsizetype>(bytesPerLine) * static_cast<qsizetype>(height);
+         if (size < expectedSize) {
+             throw std::runtime_error("Frame buffer is smaller than expected image size");
+         }
+
+         QImage img(reinterpret_cast<const uchar*>(buffer), width, height, bytesPerLine, static_cast<QImage::Format>(format));
          addFrame(img.copy());
     }
 };
@@ -152,6 +205,7 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("setStrobeDelayTime", &MindVisionCamera::setStrobeDelayTime)
         .def("setStrobePulseWidth", &MindVisionCamera::setStrobePulseWidth)
         .def("triggerSoftware", &MindVisionCamera::triggerSoftware)
+        .def("registerFrameViewCallback", &PyMindVisionCamera::registerFrameViewCallback)
         .def("registerFrameCallback", &PyMindVisionCamera::registerFrameCallback)
         .def("registerFpsCallback", &PyMindVisionCamera::registerFpsCallback)
         .def("registerErrorCallback", &PyMindVisionCamera::registerErrorCallback)
@@ -162,6 +216,8 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("startRecording", &VideoThread::startRecording,
              py::arg("width"), py::arg("height"), py::arg("fps"), py::arg("filename"))
         .def("stopRecording", &VideoThread::stopRecording)
+        .def("setFrameSource", &PyVideoThread::setFrameSource)
+        .def("clearFrameSource", &PyVideoThread::clearFrameSource)
         .def("addFrameBytes", &PyVideoThread::addFrameBytes)
         .def("isRunning", &VideoThread::isRunning)
         ;

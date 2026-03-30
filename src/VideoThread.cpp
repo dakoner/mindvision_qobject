@@ -1,13 +1,24 @@
 #include "VideoThread.h"
+#include "MindVisionCamera.h"
+#include <QFile>
 #include <QDebug>
 
 VideoThread::VideoThread(QObject *parent) 
-    : QThread(parent), m_abort(false), m_isRecording(false), m_width(0), m_height(0), m_fps(30.0)
+    : QThread(parent),
+      m_abort(false),
+      m_isRecording(false),
+      m_droppedFrames(0),
+      m_width(0),
+      m_height(0),
+    m_fps(30.0),
+    m_frameSource(nullptr)
 {
 }
 
 VideoThread::~VideoThread()
 {
+    clearFrameSource();
+
     m_mutex.lock();
     m_abort = true;
     m_condition.wakeOne();
@@ -24,6 +35,7 @@ void VideoThread::startRecording(int width, int height, double fps, const QStrin
     m_filename = filename;
     m_isRecording = true;
     m_abort = false;
+    m_droppedFrames = 0;
     m_queue.clear();
     
     if (!isRunning()) {
@@ -42,18 +54,42 @@ void VideoThread::addFrame(const QImage &image)
 {
     QMutexLocker locker(&m_mutex);
     if (m_isRecording) {
-        // Deep copy is implicit if the image is detached, 
-        // but to be safe against SDK buffer reuse if not handled upstream:
-        // However, CameraWorker already does copy(), so 'image' here acts as a shared pointer to that copy.
-        // It's safe to enqueue.
+        while (m_queue.size() >= kMaxQueuedFrames) {
+            m_queue.dequeue();
+            ++m_droppedFrames;
+        }
+
         m_queue.enqueue(image);
         m_condition.wakeOne();
     }
 }
 
+void VideoThread::setFrameSource(MindVisionCamera *camera)
+{
+    if (m_frameSource == camera) {
+        return;
+    }
+
+    clearFrameSource();
+    if (camera == nullptr) {
+        return;
+    }
+
+    camera->setRecordingTarget(this);
+    m_frameSource = camera;
+}
+
+void VideoThread::clearFrameSource()
+{
+    if (m_frameSource != nullptr) {
+        m_frameSource->clearRecordingTarget();
+        m_frameSource = nullptr;
+    }
+}
+
 void VideoThread::run()
 {
-    QProcess ffmpeg;
+    QFile outputFile;
     
     m_mutex.lock();
     int width = m_width;
@@ -62,30 +98,26 @@ void VideoThread::run()
     QString filename = m_filename;
     m_mutex.unlock();
 
-    QStringList args;
-    // Reverted to raw video parameters as requested
-    args << "-y" 
-         << "-f" << "rawvideo" 
-         << "-vcodec" << "rawvideo" 
-         << "-s" << QString("%1x%2").arg(width).arg(height) 
-         << "-r" << QString::number(fps) 
-         << "-pix_fmt" << "rgb24" 
-         << "-i" << "-" 
-         << "-c:v" << "rawvideo" 
-         << "-pix_fmt" << "yuv420p"
-         << "-an" 
-         << filename;
-
-    qDebug() << "VideoThread: Starting ffmpeg with" << args.join(" ");
-    
-    // Forward ffmpeg stdout/stderr to the application's console
-    ffmpeg.setProcessChannelMode(QProcess::ForwardedChannels);
-
-    ffmpeg.start("ffmpeg", args);
-    if (!ffmpeg.waitForStarted()) {
-        qDebug() << "VideoThread: Failed to start ffmpeg:" << ffmpeg.errorString();
+    outputFile.setFileName(filename);
+    if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        qDebug() << "VideoThread: Failed to open output file:" << outputFile.errorString();
         return;
     }
+
+    qDebug() << "VideoThread: Writing raw RGB24 frames to" << filename
+             << "(" << width << "x" << height << "@" << fps << "fps )";
+
+    auto writeAll = [&outputFile](const char *data, qint64 bytesToWrite) {
+        qint64 totalWritten = 0;
+        while (totalWritten < bytesToWrite) {
+            const qint64 written = outputFile.write(data + totalWritten, bytesToWrite - totalWritten);
+            if (written <= 0) {
+                return written;
+            }
+            totalWritten += written;
+        }
+        return totalWritten;
+    };
 
     while (true) {
         m_mutex.lock();
@@ -120,30 +152,50 @@ void VideoThread::run()
             QImage img = m_queue.dequeue();
             m_mutex.unlock();
             
-            if (ffmpeg.isOpen()) {
-                if (img.bytesPerLine() != img.width() * 3) {
-                    for (int y = 0; y < img.height(); ++y) {
-                        ffmpeg.write((const char*)img.scanLine(y), img.width() * 3);
+            QImage convertedImg = img.convertToFormat(QImage::Format_RGB888);
+
+            if (outputFile.isOpen()) {
+                if (convertedImg.bytesPerLine() != convertedImg.width() * 3) {
+                    const qint64 bytesToWrite = convertedImg.width() * 3;
+                    for (int y = 0; y < convertedImg.height(); ++y) {
+                        const qint64 written = writeAll(reinterpret_cast<const char*>(convertedImg.scanLine(y)), bytesToWrite);
+                        if (written != bytesToWrite) {
+                             qDebug() << "VideoThread: Failed to write scanline" << y << "to disk. Wrote"
+                                      << written << "of" << bytesToWrite << "error:" << outputFile.errorString();
+                             outputFile.close();
+                             break;
+                        }
                     }
                 } else {
-                    ffmpeg.write((const char*)img.bits(), img.sizeInBytes());
+                    const qint64 bytesToWrite = convertedImg.sizeInBytes();
+                    const qint64 written = writeAll(reinterpret_cast<const char*>(convertedImg.bits()), bytesToWrite);
+                    if (written != bytesToWrite) {
+                        qDebug() << "VideoThread: Failed to write whole image to disk. Wrote"
+                                 << written << "of" << bytesToWrite << "error:" << outputFile.errorString();
+                        outputFile.close();
+                    }
                 }
-                ffmpeg.waitForBytesWritten();
             }
             
             static int frameCount = 0;
             if (++frameCount % 30 == 0) {
-                 qDebug() << "VideoThread: Processed frame" << frameCount << "Queue size:" << m_queue.size();
+                m_mutex.lock();
+                const int queuedFrames = m_queue.size();
+                const int droppedFrames = m_droppedFrames;
+                m_mutex.unlock();
+
+                qDebug() << "VideoThread: Processed frame" << frameCount
+                         << "Queue size:" << queuedFrames
+                         << "Dropped frames:" << droppedFrames;
             }
         } else {
             m_mutex.unlock();
         }
     }
     
-    if (ffmpeg.isOpen()) {
-        ffmpeg.closeWriteChannel();
-        ffmpeg.waitForFinished();
-        ffmpeg.close();
+    if (outputFile.isOpen()) {
+        outputFile.flush();
+        outputFile.close();
     }
     
     qDebug() << "VideoThread: Finished.";

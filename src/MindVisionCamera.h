@@ -15,6 +15,7 @@
 
 // Forward declaration of private implementation class
 class MindVisionCameraPrivate;
+class VideoThread;
 
 // Main interface class
 class MINDVISION_QOBJECT_EXPORT MindVisionCamera : public QObject
@@ -78,6 +79,9 @@ public:
     // Software Trigger
     Q_INVOKABLE bool triggerSoftware();
 
+    void setRecordingTarget(VideoThread *target);
+    void clearRecordingTarget();
+
 signals:
     // Signal for UI to update (connect this to your QML or Widget)
     void frameReady(QImage image);
@@ -87,6 +91,8 @@ signals:
     void errorOccurred(QString message);
 
 private:
+    void deliverLatestFrame();
+
     MindVisionCameraPrivate *d;
 };
 

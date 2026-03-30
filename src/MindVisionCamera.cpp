@@ -1,4 +1,5 @@
 ﻿#include "MindVisionCamera.h"
+#include "VideoThread.h"
 #include <QDebug>
 #include <QElapsedTimer>
 #include <cstdlib>
@@ -18,6 +19,8 @@ public:
     explicit CameraWorker(CameraHandle handle, int width, int height);
     ~CameraWorker();
 
+    QImage takeLatestPreviewFrame();
+
 public slots:
     // Main capture loop
     void process();
@@ -27,6 +30,7 @@ public slots:
 signals:
     // Emitted when a frame is processed and converted to QImage
     void frameReady(QImage image);
+    void previewFrameAvailable();
     // Emitted to report FPS
     void fpsChanged(double fps);
     // Emitted when the capture loop finishes
@@ -39,10 +43,13 @@ private:
     bool m_stopRequested;
     unsigned char* m_pRgbBuffer; // Buffer for RGB conversion
     tSdkFrameHead m_frameHead;
+    QMutex m_previewMutex;
+    QImage m_latestPreviewFrame;
+    bool m_previewPending;
 };
 
 CameraWorker::CameraWorker(CameraHandle handle, int width, int height)
-    : m_hCamera(handle), m_width(width), m_height(height), m_stopRequested(false), m_pRgbBuffer(nullptr)
+    : m_hCamera(handle), m_width(width), m_height(height), m_stopRequested(false), m_pRgbBuffer(nullptr), m_previewPending(false)
 {
     // Allocate buffer for RGB conversion (Width * Height * 3 bytes for RGB24)
     // Note: The SDK documentation recommends CameraAlignMalloc for better performance,
@@ -63,6 +70,13 @@ CameraWorker::~CameraWorker()
 void CameraWorker::stop()
 {
     m_stopRequested = true;
+}
+
+QImage CameraWorker::takeLatestPreviewFrame()
+{
+    QMutexLocker locker(&m_previewMutex);
+    m_previewPending = false;
+    return m_latestPreviewFrame;
 }
 
 void CameraWorker::process()
@@ -99,10 +113,24 @@ void CameraWorker::process()
                 // 3. Create QImage from the processed RGB buffer
                 // QImage::Format_RGB888 expects 3 bytes per pixel (R, G, B)
                 QImage img(m_pRgbBuffer, m_frameHead.iWidth, m_frameHead.iHeight, QImage::Format_RGB888);
+                QImage frameCopy = img.copy();
                 
-                // 4. Emit signal with a *copy* of the image
-                // We must copy because m_pRgbBuffer will be reused in the next iteration.
-                emit frameReady(img.copy()); 
+                // Emit to direct consumers such as the recorder from the capture thread.
+                emit frameReady(frameCopy);
+
+                // Coalesce preview updates so the main-thread event queue cannot accumulate frames.
+                bool shouldNotifyPreview = false;
+                {
+                    QMutexLocker locker(&m_previewMutex);
+                    m_latestPreviewFrame = frameCopy;
+                    if (!m_previewPending) {
+                        m_previewPending = true;
+                        shouldNotifyPreview = true;
+                    }
+                }
+                if (shouldNotifyPreview) {
+                    emit previewFrameAvailable();
+                }
             }
 
             // 5. Release the raw buffer back to the SDK so it can be reused for new frames
@@ -123,7 +151,13 @@ void CameraWorker::process()
 class MindVisionCameraPrivate
 {
 public:
-    MindVisionCameraPrivate() : m_hCamera(0), m_isOpen(false), m_workerThread(nullptr), m_worker(nullptr) {}
+    MindVisionCameraPrivate()
+        : m_hCamera(0),
+          m_isOpen(false),
+          m_workerThread(nullptr),
+          m_worker(nullptr),
+          m_recordingTarget(nullptr)
+    {}
     
     CameraHandle m_hCamera;
     tSdkCameraDevInfo m_devInfo;
@@ -132,6 +166,8 @@ public:
     
     QThread* m_workerThread;
     CameraWorker* m_worker;
+    VideoThread* m_recordingTarget;
+    QMetaObject::Connection m_recordingConnection;
 };
 
 // =============================================================================
@@ -243,8 +279,17 @@ bool MindVisionCamera::start()
 
     // Connect signals and slots for thread management
     connect(d->m_workerThread, &QThread::started, d->m_worker, &CameraWorker::process);
-    connect(d->m_worker, &CameraWorker::frameReady, this, &MindVisionCamera::frameReady);
+    connect(d->m_worker, &CameraWorker::previewFrameAvailable, this, &MindVisionCamera::deliverLatestFrame);
     connect(d->m_worker, &CameraWorker::fpsChanged, this, &MindVisionCamera::fpsChanged);
+
+    if (d->m_recordingTarget != nullptr) {
+        d->m_recordingConnection = connect(
+            d->m_worker,
+            &CameraWorker::frameReady,
+            d->m_recordingTarget,
+            &VideoThread::addFrame,
+            Qt::DirectConnection);
+    }
     
     // Clean up worker and thread when finished
     connect(d->m_worker, &CameraWorker::finished, d->m_workerThread, &QThread::quit);
@@ -260,6 +305,10 @@ void MindVisionCamera::stop()
 {
     // Stop the worker thread
     if (d->m_worker) {
+        if (d->m_recordingConnection) {
+            QObject::disconnect(d->m_recordingConnection);
+            d->m_recordingConnection = QMetaObject::Connection();
+        }
         d->m_worker->stop(); // Tell the loop to break
         if (d->m_workerThread) {
             d->m_workerThread->quit();
@@ -272,6 +321,45 @@ void MindVisionCamera::stop()
     // Stop the camera SDK stream
     if (d->m_isOpen) {
         CameraStop(d->m_hCamera); 
+    }
+}
+
+void MindVisionCamera::setRecordingTarget(VideoThread *target)
+{
+    if (d->m_recordingConnection) {
+        QObject::disconnect(d->m_recordingConnection);
+        d->m_recordingConnection = QMetaObject::Connection();
+    }
+
+    d->m_recordingTarget = target;
+    if (d->m_worker != nullptr && d->m_recordingTarget != nullptr) {
+        d->m_recordingConnection = connect(
+            d->m_worker,
+            &CameraWorker::frameReady,
+            d->m_recordingTarget,
+            &VideoThread::addFrame,
+            Qt::DirectConnection);
+    }
+}
+
+void MindVisionCamera::clearRecordingTarget()
+{
+    if (d->m_recordingConnection) {
+        QObject::disconnect(d->m_recordingConnection);
+        d->m_recordingConnection = QMetaObject::Connection();
+    }
+    d->m_recordingTarget = nullptr;
+}
+
+void MindVisionCamera::deliverLatestFrame()
+{
+    if (d->m_worker == nullptr) {
+        return;
+    }
+
+    QImage frame = d->m_worker->takeLatestPreviewFrame();
+    if (!frame.isNull()) {
+        emit frameReady(frame);
     }
 }
 

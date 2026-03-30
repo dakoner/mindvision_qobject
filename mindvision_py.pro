@@ -10,10 +10,18 @@ INCLUDEPATH += Include
 INCLUDEPATH += src
 
 # Python and pybind11 include paths
-PYTHON_INCLUDE_DIR = /usr/include/python3.11
-PYBIND11_INCLUDE_DIR = /usr/include/pybind11
+PYTHON_INCLUDES = $$system(python3-config --includes 2>/dev/null)
+isEmpty(PYTHON_INCLUDES) {
+    PYTHON_INCLUDES = -I/usr/include/python3.12
+}
+QMAKE_CXXFLAGS += $$PYTHON_INCLUDES
 
-INCLUDEPATH += $$PYTHON_INCLUDE_DIR $$PYBIND11_INCLUDE_DIR
+PYBIND11_INCLUDES = $$system(python3 -m pybind11 --includes 2>/dev/null)
+isEmpty(PYBIND11_INCLUDES) {
+    INCLUDEPATH += /usr/include/pybind11
+} else {
+    QMAKE_CXXFLAGS += $$PYBIND11_INCLUDES
+}
 
 CONFIG += c++17
 
@@ -46,7 +54,12 @@ win32: {
     PYTHON_LIB_DIR = C:/Users/davidek/scoop/apps/python313/current/libs
     LIBS += -L$$PYTHON_LIB_DIR -lpython3.11
 } else: {
-    LIBS += -lpython3.11
+    PYTHON_LDFLAGS = $$system(python3-config --embed --ldflags 2>/dev/null)
+    isEmpty(PYTHON_LDFLAGS) {
+        LIBS += -lpython3.12
+    } else {
+        LIBS += $$PYTHON_LDFLAGS
+    }
 }
 
 unix:!macx: {
