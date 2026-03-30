@@ -46,14 +46,14 @@ public:
             m_frameViewCallbackConnection = QMetaObject::Connection();
         }
 
-        m_frameViewCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
+        m_frameViewCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img, qint64 timestampMs) {
             if (m_frameViewCallback) {
                 py::gil_scoped_acquire acquire;
                 try {
                     auto frameView = py::memoryview::from_memory(
                         reinterpret_cast<const char*>(img.bits()),
                         static_cast<py::ssize_t>(img.sizeInBytes()));
-                    m_frameViewCallback(img.width(), img.height(), img.bytesPerLine(), static_cast<int>(img.format()), frameView);
+                    m_frameViewCallback(img.width(), img.height(), img.bytesPerLine(), static_cast<int>(img.format()), frameView, timestampMs);
                 } catch (py::error_already_set &e) {
                     qDebug() << "Python error in frame view callback:" << e.what();
                 }
@@ -68,13 +68,13 @@ public:
             m_frameCallbackConnection = QMetaObject::Connection();
         }
         
-        m_frameCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img) {
+        m_frameCallbackConnection = connect(this, &MindVisionCamera::frameReady, this, [this](QImage img, qint64 timestampMs) {
             if (m_frameCallback) {
                 py::gil_scoped_acquire acquire;
                 try {
                     // Extract data: width, height, bytesPerLine, format, data
                     py::bytes data((const char*)img.bits(), img.sizeInBytes());
-                    m_frameCallback(img.width(), img.height(), img.bytesPerLine(), (int)img.format(), data);
+                    m_frameCallback(img.width(), img.height(), img.bytesPerLine(), (int)img.format(), data, timestampMs);
                 } catch (py::error_already_set &e) {
                     qDebug() << "Python error in frame callback:" << e.what();
                 }
@@ -98,6 +98,25 @@ public:
                      qDebug() << "Python error in fps callback:" << e.what();
                  }
              }
+        });
+    }
+
+    void registerQueueStatsCallback(py::function callback) {
+        m_queueStatsCallback = callback;
+        if (m_queueStatsCallbackConnection) {
+            QObject::disconnect(m_queueStatsCallbackConnection);
+            m_queueStatsCallbackConnection = QMetaObject::Connection();
+        }
+
+        m_queueStatsCallbackConnection = connect(this, &MindVisionCamera::queueStatsChanged, this, [this](qulonglong queueSize, qulonglong droppedFrames) {
+            py::gil_scoped_acquire acquire;
+            if (m_queueStatsCallback) {
+                try {
+                    m_queueStatsCallback(queueSize, droppedFrames);
+                } catch (py::error_already_set &e) {
+                    qDebug() << "Python error in queue stats callback:" << e.what();
+                }
+            }
         });
     }
     
@@ -124,10 +143,12 @@ private:
     py::function m_frameCallback;
     py::function m_frameViewCallback;
     py::function m_fpsCallback;
+    py::function m_queueStatsCallback;
     py::function m_errorCallback;
     QMetaObject::Connection m_frameCallbackConnection;
     QMetaObject::Connection m_frameViewCallbackConnection;
     QMetaObject::Connection m_fpsCallbackConnection;
+    QMetaObject::Connection m_queueStatsCallbackConnection;
     QMetaObject::Connection m_errorCallbackConnection;
 };
 
@@ -187,6 +208,13 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
             self.getExposureTimeRange(minMs, maxMs);
             return py::make_tuple(minMs, maxMs);
         })
+        .def("getFrameCallbackStats", [](PyMindVisionCamera &self) {
+            qulonglong received = 0;
+            qulonglong emitted = 0;
+            qulonglong dropped = 0;
+            self.getFrameCallbackStats(received, emitted, dropped);
+            return py::make_tuple(received, emitted, dropped);
+        })
         .def("getAnalogGainRange", [](PyMindVisionCamera &self) {
             int min, max;
             self.getAnalogGainRange(min, max);
@@ -208,6 +236,7 @@ PYBIND11_MODULE(_mindvision_qobject_py, m) {
         .def("registerFrameViewCallback", &PyMindVisionCamera::registerFrameViewCallback)
         .def("registerFrameCallback", &PyMindVisionCamera::registerFrameCallback)
         .def("registerFpsCallback", &PyMindVisionCamera::registerFpsCallback)
+        .def("registerQueueStatsCallback", &PyMindVisionCamera::registerQueueStatsCallback)
         .def("registerErrorCallback", &PyMindVisionCamera::registerErrorCallback)
         ;
 

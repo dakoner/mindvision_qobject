@@ -33,7 +33,7 @@ protected:
     void run() override;
 
 private:
-    static constexpr int kMaxQueuedFrames = 8;
+    static constexpr int kMaxQueuedFrames = 1024;
 
     QMutex m_mutex;
     QWaitCondition m_condition;

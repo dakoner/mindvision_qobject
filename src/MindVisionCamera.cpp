@@ -2,6 +2,7 @@
 #include "VideoThread.h"
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QDateTime>
 #include <cstdlib>
 #include <iostream>
 
@@ -19,7 +20,8 @@ public:
     explicit CameraWorker(CameraHandle handle, int width, int height);
     ~CameraWorker();
 
-    QImage takeLatestPreviewFrame();
+    QImage takeLatestPreviewFrame(qint64 &timestampMs);
+    void getPreviewStats(qulonglong &received, qulonglong &emitted, qulonglong &dropped);
 
 public slots:
     // Main capture loop
@@ -29,8 +31,9 @@ public slots:
 
 signals:
     // Emitted when a frame is processed and converted to QImage
-    void frameReady(QImage image);
+    void frameReady(QImage image, qint64 timestampMs);
     void previewFrameAvailable();
+    void queueStatsChanged(qulonglong queueSize, qulonglong droppedFrames);
     // Emitted to report FPS
     void fpsChanged(double fps);
     // Emitted when the capture loop finishes
@@ -45,11 +48,15 @@ private:
     tSdkFrameHead m_frameHead;
     QMutex m_previewMutex;
     QImage m_latestPreviewFrame;
+    qint64 m_latestPreviewTimestampMs;
+    qulonglong m_previewFramesReceived;
+    qulonglong m_previewFramesEmitted;
+    qulonglong m_previewFramesDropped;
     bool m_previewPending;
 };
 
 CameraWorker::CameraWorker(CameraHandle handle, int width, int height)
-    : m_hCamera(handle), m_width(width), m_height(height), m_stopRequested(false), m_pRgbBuffer(nullptr), m_previewPending(false)
+    : m_hCamera(handle), m_width(width), m_height(height), m_stopRequested(false), m_pRgbBuffer(nullptr), m_latestPreviewTimestampMs(0), m_previewFramesReceived(0), m_previewFramesEmitted(0), m_previewFramesDropped(0), m_previewPending(false)
 {
     // Allocate buffer for RGB conversion (Width * Height * 3 bytes for RGB24)
     // Note: The SDK documentation recommends CameraAlignMalloc for better performance,
@@ -72,11 +79,23 @@ void CameraWorker::stop()
     m_stopRequested = true;
 }
 
-QImage CameraWorker::takeLatestPreviewFrame()
+QImage CameraWorker::takeLatestPreviewFrame(qint64 &timestampMs)
 {
     QMutexLocker locker(&m_previewMutex);
     m_previewPending = false;
+    timestampMs = m_latestPreviewTimestampMs;
+    if (!m_latestPreviewFrame.isNull()) {
+        ++m_previewFramesEmitted;
+    }
     return m_latestPreviewFrame;
+}
+
+void CameraWorker::getPreviewStats(qulonglong &received, qulonglong &emitted, qulonglong &dropped)
+{
+    QMutexLocker locker(&m_previewMutex);
+    received = m_previewFramesReceived;
+    emitted = m_previewFramesEmitted;
+    dropped = m_previewFramesDropped;
 }
 
 void CameraWorker::process()
@@ -86,6 +105,8 @@ void CameraWorker::process()
     
     QElapsedTimer fpsTimer;
     fpsTimer.start();
+    QElapsedTimer statsTimer;
+    statsTimer.start();
     int frameCount = 0;
 
     while (!m_stopRequested) {
@@ -110,22 +131,28 @@ void CameraWorker::process()
             status = CameraImageProcess(m_hCamera, pRawBuffer, m_pRgbBuffer, &m_frameHead);
 
             if (status == CAMERA_STATUS_SUCCESS) {
+                qint64 timestampMs = QDateTime::currentMSecsSinceEpoch();
+
                 // 3. Create QImage from the processed RGB buffer
                 // QImage::Format_RGB888 expects 3 bytes per pixel (R, G, B)
                 QImage img(m_pRgbBuffer, m_frameHead.iWidth, m_frameHead.iHeight, QImage::Format_RGB888);
                 QImage frameCopy = img.copy();
                 
                 // Emit to direct consumers such as the recorder from the capture thread.
-                emit frameReady(frameCopy);
+                emit frameReady(frameCopy, timestampMs);
 
                 // Coalesce preview updates so the main-thread event queue cannot accumulate frames.
                 bool shouldNotifyPreview = false;
                 {
                     QMutexLocker locker(&m_previewMutex);
+                    ++m_previewFramesReceived;
                     m_latestPreviewFrame = frameCopy;
+                    m_latestPreviewTimestampMs = timestampMs;
                     if (!m_previewPending) {
                         m_previewPending = true;
                         shouldNotifyPreview = true;
+                    } else {
+                        ++m_previewFramesDropped;
                     }
                 }
                 if (shouldNotifyPreview) {
@@ -135,6 +162,18 @@ void CameraWorker::process()
 
             // 5. Release the raw buffer back to the SDK so it can be reused for new frames
             CameraReleaseImageBuffer(m_hCamera, pRawBuffer);
+
+            if (statsTimer.elapsed() >= 1000) {
+                qulonglong queueSize = 0;
+                qulonglong droppedFrames = 0;
+                {
+                    QMutexLocker locker(&m_previewMutex);
+                    queueSize = m_previewPending ? 1ULL : 0ULL;
+                    droppedFrames = m_previewFramesDropped;
+                }
+                emit queueStatsChanged(queueSize, droppedFrames);
+                statsTimer.restart();
+            }
         } else {
             // Handle timeout or error. 
             // status == CAMERA_STATUS_TIME_OUT if no frame arrived in 1000ms.
@@ -280,6 +319,7 @@ bool MindVisionCamera::start()
     // Connect signals and slots for thread management
     connect(d->m_workerThread, &QThread::started, d->m_worker, &CameraWorker::process);
     connect(d->m_worker, &CameraWorker::previewFrameAvailable, this, &MindVisionCamera::deliverLatestFrame);
+    connect(d->m_worker, &CameraWorker::queueStatsChanged, this, &MindVisionCamera::queueStatsChanged);
     connect(d->m_worker, &CameraWorker::fpsChanged, this, &MindVisionCamera::fpsChanged);
 
     if (d->m_recordingTarget != nullptr) {
@@ -357,10 +397,23 @@ void MindVisionCamera::deliverLatestFrame()
         return;
     }
 
-    QImage frame = d->m_worker->takeLatestPreviewFrame();
+    qint64 timestampMs = 0;
+    QImage frame = d->m_worker->takeLatestPreviewFrame(timestampMs);
     if (!frame.isNull()) {
-        emit frameReady(frame);
+        emit frameReady(frame, timestampMs);
     }
+}
+
+void MindVisionCamera::getFrameCallbackStats(qulonglong &received, qulonglong &emitted, qulonglong &dropped)
+{
+    if (d->m_worker == nullptr) {
+        received = 0;
+        emitted = 0;
+        dropped = 0;
+        return;
+    }
+
+    d->m_worker->getPreviewStats(received, emitted, dropped);
 }
 
 bool MindVisionCamera::setAutoExposure(bool enabled)

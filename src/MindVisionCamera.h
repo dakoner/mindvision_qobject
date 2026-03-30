@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QtGlobal>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -53,6 +54,12 @@ public:
     Q_INVOKABLE double getExposureTimeStep(); // Milliseconds
     Q_INVOKABLE void getAnalogGainRange(int &min, int &max);
 
+    // Preview callback stats
+    // received: frames processed by the camera worker
+    // emitted: frames emitted via MindVisionCamera::frameReady
+    // dropped: frames overwritten before callback emission
+    Q_INVOKABLE void getFrameCallbackStats(qulonglong &received, qulonglong &emitted, qulonglong &dropped);
+
     // ROI
     Q_INVOKABLE bool setRoi(bool enable);
 
@@ -84,7 +91,9 @@ public:
 
 signals:
     // Signal for UI to update (connect this to your QML or Widget)
-    void frameReady(QImage image);
+    void frameReady(QImage image, qint64 timestampMs);
+    // Signal emitted once per second while capturing.
+    void queueStatsChanged(qulonglong queueSize, qulonglong droppedFrames);
     // Signal for current FPS
     void fpsChanged(double fps);
     // Signal for error reporting
