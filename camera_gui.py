@@ -36,6 +36,12 @@ class CameraGUI(QMainWindow):
         self.is_recording = False
         self.current_fps = 0.0
         self.last_frame_size = None
+        self.last_queue_size = 0
+        self.last_dropped_frames = 0
+        self.record_file_dialog = None
+        self.latest_frame = None
+        self.latest_frame_seq = 0
+        self.rendered_frame_seq = 0
         
         # Frame counter for status updates
         self.frame_count = 0
@@ -56,7 +62,6 @@ class CameraGUI(QMainWindow):
         self.camera_label = QLabel("Camera feed will appear here")
         self.camera_label.setAlignment(Qt.AlignCenter)
         self.camera_label.setStyleSheet("QLabel { background-color: black; color: white; }")
-        self.camera_label.setMinimumSize(640, 480)
         layout.addWidget(self.camera_label)
         
         # Control buttons
@@ -87,12 +92,18 @@ class CameraGUI(QMainWindow):
         self.fps_timer = QTimer()
         self.fps_timer.timeout.connect(self.update_fps_display)
         self.fps_timer.start(100)  # Update every 100ms
+
+        # Render preview at a fixed rate to keep UI load stable.
+        self.render_timer = QTimer()
+        self.render_timer.timeout.connect(self.render_latest_frame)
+        self.render_timer.start(33)  # ~30 FPS UI rendering
         
     def open_camera(self):
         """Open the camera and start capturing frames."""
         if self.camera.open():
             self.camera.registerFrameViewCallback(self.on_frame)
             self.camera.registerFpsCallback(self.on_fps_change)
+            self.camera.registerQueueStatsCallback(self.on_queue_stats)
             self.video_thread.setFrameSource(self.camera)
             
             if self.camera.start():
@@ -118,13 +129,16 @@ class CameraGUI(QMainWindow):
         self.camera_label.clear()
         self.camera_label.setText("Camera feed will appear here")
         self.camera_label.setStyleSheet("QLabel { background-color: black; color: white; }")
+        self.latest_frame = None
+        self.latest_frame_seq = 0
+        self.rendered_frame_seq = 0
         
         self.open_button.setEnabled(True)
         self.close_button.setEnabled(False)
         self.record_button.setEnabled(False)
         self.status_bar.showMessage("Camera closed.")
         
-    def on_frame(self, width, height, bytes_per_line, format, data):
+    def on_frame(self, width, height, bytes_per_line, format, data, timestamp_ms):
         """Callback for new camera frames."""
         try:
             image_format = QImage.Format(format)
@@ -132,30 +146,41 @@ class CameraGUI(QMainWindow):
             return
 
         self.last_frame_size = (width, height)
+        if self.camera_label.width() != width or self.camera_label.height() != height:
+            self.camera_label.setFixedSize(width, height)
+        self.frame_count += 1
 
-        # Copy the frame so it stays valid after the callback returns.
+        # Keep only the latest frame; rendering is performed on a fixed UI timer.
         image = QImage(data, width, height, bytes_per_line, image_format).copy()
-        
-        # Update the display
         if not image.isNull():
-            self.frame_count += 1
-            
-            # Convert to QPixmap and scale to fit the label
-            pixmap = QPixmap.fromImage(image)
-            scaled_pixmap = pixmap.scaled(
-                self.camera_label.size(), 
-                Qt.KeepAspectRatio, 
-                Qt.SmoothTransformation
-            )
-            self.camera_label.setPixmap(scaled_pixmap)
+            self.latest_frame = image
+            self.latest_frame_seq += 1
+
+    def render_latest_frame(self):
+        """Render the latest frame at a fixed cadence to avoid UI spikes."""
+        if self.latest_frame is None:
+            return
+
+        if self.rendered_frame_seq == self.latest_frame_seq:
+            return
+
+        pixmap = QPixmap.fromImage(self.latest_frame)
+        self.camera_label.setPixmap(pixmap)
+        self.rendered_frame_seq = self.latest_frame_seq
             
     def on_fps_change(self, fps):
         """Callback for FPS updates."""
         self.current_fps = fps
+
+    def on_queue_stats(self, queue_size, dropped_frames):
+        """Callback for queue size and dropped frame stats."""
+        self.last_queue_size = queue_size
+        self.last_dropped_frames = dropped_frames
         
     def update_fps_display(self):
         """Update the FPS display in the status bar."""
         status_text = f"FPS: {self.current_fps:.1f} | Frames: {self.frame_count}"
+        status_text += f" | Queue: {self.last_queue_size} | Dropped: {self.last_dropped_frames}"
         if self.is_recording:
             status_text += " | RECORDING"
         self.status_bar.showMessage(status_text)
@@ -163,41 +188,55 @@ class CameraGUI(QMainWindow):
     def toggle_recording(self):
         """Start or stop video recording."""
         if not self.is_recording:
-            # Start recording
-            file_dialog = QFileDialog()
-            file_dialog.setFileMode(QFileDialog.AnyFile)
-            file_dialog.setAcceptMode(QFileDialog.AcceptSave)
-            file_dialog.setNameFilter("Raw RGB24 files (*.rgb);;All files (*)")
-            
+            if self.last_frame_size is None:
+                QMessageBox.warning(self, "No Frame", "Wait for the first camera frame before starting recording.")
+                return
+
+            if self.record_file_dialog is not None and self.record_file_dialog.isVisible():
+                self.record_file_dialog.raise_()
+                self.record_file_dialog.activateWindow()
+                return
+
+            self.record_file_dialog = QFileDialog(self)
+            self.record_file_dialog.setFileMode(QFileDialog.AnyFile)
+            self.record_file_dialog.setAcceptMode(QFileDialog.AcceptSave)
+            self.record_file_dialog.setNameFilter("Raw RGB24 files (*.rgb);;All files (*)")
+
             # Generate default filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             default_filename = f"recording_{timestamp}.rgb"
-            file_dialog.selectFile(default_filename)
-            
-            if file_dialog.exec():
-                filename = file_dialog.selectedFiles()[0]
-                if not filename.lower().endswith('.rgb'):
-                    filename += '.rgb'
+            self.record_file_dialog.selectFile(default_filename)
 
-                if self.last_frame_size is None:
-                    QMessageBox.warning(self, "No Frame", "Wait for the first camera frame before starting recording.")
-                    return
-
-                width, height = self.last_frame_size
-                fps = self.current_fps if self.current_fps > 0 else 30.0
-                
-                self.video_thread.startRecording(width, height, fps, filename)
-                self.is_recording = True
-                self.record_button.setText("Stop Recording")
-                self.status_bar.showMessage(f"Recording started: {filename}")
-            else:
-                self.status_bar.showMessage("Recording cancelled.")
+            self.record_file_dialog.fileSelected.connect(self.on_record_file_selected)
+            self.record_file_dialog.rejected.connect(self.on_record_file_cancelled)
+            self.record_file_dialog.open()
         else:
             # Stop recording
             self.video_thread.stopRecording()
             self.is_recording = False
             self.record_button.setText("Start Recording")
             self.status_bar.showMessage("Recording stopped.")
+
+    def on_record_file_selected(self, filename):
+        """Handle async recording filename selection without blocking UI updates."""
+        if not filename.lower().endswith('.rgb'):
+            filename += '.rgb'
+
+        if self.last_frame_size is None:
+            QMessageBox.warning(self, "No Frame", "Wait for the first camera frame before starting recording.")
+            return
+
+        width, height = self.last_frame_size
+        fps = self.current_fps if self.current_fps > 0 else 30.0
+
+        self.video_thread.startRecording(width, height, fps, filename)
+        self.is_recording = True
+        self.record_button.setText("Stop Recording")
+        self.status_bar.showMessage(f"Recording started: {filename}")
+
+    def on_record_file_cancelled(self):
+        """Handle async recording dialog cancellation."""
+        self.status_bar.showMessage("Recording cancelled.")
             
     def closeEvent(self, event):
         """Handle window close event."""
